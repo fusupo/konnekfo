@@ -1,33 +1,74 @@
 var Board = function() {
-  var b = [];
+  this.cells = [];
+  this.winnner = null;
+
   for (var y = 0; y < 6; y++) {
     var row = [];
     for (var x = 0; x < 7; x++) {
       row.push(null);
     }
-    b.push(row);
+    this.cells.push(row);
   }
-  return b;
-};
 
-var move = function(board, col, del) {
-  for (var y = 0; y < 6; y++) {
-    if (board[y][col] === null) {
-      board[y][col] = del;
-      return true;
-    };
-  }
-  return false;
-};
+  this.move = function(col, del) {
+    for (var y = 0; y < 6; y++) {
+      if (this.cells[y][col] === null) {
+        this.cells[y][col] = del;
+        return true;
+      };
+    }
+    return false;
+  };
 
-var Player = function(id) {
-  this.id = id;
-  this.promptMove = function(game) {
-    game.view.onColSelect = function(idx) {
-      game.view.onColSelect = null;
-      game.commitMove(idx);
-    };
-    console.log(game.view.onColSelect);
+  this.hasWinner = function() {
+    for (var y = 0; y < 6; y++) {
+      for (var x = 0; x < 7; x++) {
+        // HORIZONTAL
+        if (x <= 3 &&
+            this.cells[y][x] !== null &&
+            this.cells[y][x] === this.cells[y][x + 1] &&
+            this.cells[y][x] === this.cells[y][x + 2] &&
+            this.cells[y][x] === this.cells[y][x + 3]) {
+          console.log('HORIZONTAL WIN!!! -', this.cells[y][x]);
+          this.winner = this.cells[y][x];
+          return true;
+        }
+
+        // VERTICAL
+        if (y <= 2 &&
+            this.cells[y][x] !== null &&
+            this.cells[y][x] === this.cells[y + 1][x] &&
+            this.cells[y][x] === this.cells[y + 2][x] &&
+            this.cells[y][x] === this.cells[y + 3][x]) {
+          console.log('VERTICAL WIN!!! -', this.cells[y][x]);
+          this.winner = this.cells[y][x];
+          return true;
+        }
+
+        // DIAGONAL 1
+        if (x <= 3 && y <= 2 &&
+            this.cells[y][x] !== null &&
+            this.cells[y][x] === this.cells[y + 1][x + 1] &&
+            this.cells[y][x] === this.cells[y + 2][x + 2] &&
+            this.cells[y][x] === this.cells[y + 3][x + 3]) {
+          console.log('DIAGONAL 1 WIN!!! -', this.cells[y][x]);
+          this.winner = this.cells[y][x];
+          return true;
+        }
+
+        // DIAGONAL 2
+        if (x <= 3 && y >= 3 &&
+            this.cells[y][x] !== null &&
+            this.cells[y][x] === this.cells[y - 1][x + 1] &&
+            this.cells[y][x] === this.cells[y - 2][x + 2] &&
+            this.cells[y][x] === this.cells[y - 3][x + 3]) {
+          console.log('DIAGONAL 2 WIN!!! -', this.cells[y][x]);
+          this.winner = this.cells[y][x];
+          return true;
+        }
+      }
+    }
+    return false;
   };
 };
 
@@ -38,7 +79,7 @@ var Game = function() {
   this.view.drawBoard();
 
   var p1 = new Player('p1');
-  var p2 = new Player('p2');
+  var p2 = new RandomPlayer('p2');
 
   var gameOver = false;
   var currPlayer = p1;
@@ -47,27 +88,22 @@ var Game = function() {
   this.commitMove = function(colIdx) {
 
     if (currPlayer === p1) {
-      move(b, colIdx, "x");
+      b.move(colIdx, "x");
       currPlayer = p2;
     } else {
-      move(b, colIdx, "o");
+      b.move(colIdx, "o");
       currPlayer = p1;
     }
 
     //redraw board
     this.view.update(b);
-    if (this.hasWinner()) {
-      console.log(winner);
+    if (b.hasWinner()) {
+      console.log(b.winner);
     } else {
       currPlayer.promptMove(this);
     }
   };
 
-  this.hasWinner = function(){
-    //recursive winning scenario solver
-    return false;
-  };
-  
   currPlayer.promptMove(this);
 
 };
@@ -152,9 +188,9 @@ var View = function() {
       for (var x = 0; x < 7; x++) {
         var c = this.circles[5 - y][x];
         var fillColor = bgColor;
-        if (board[y][x] === 'x') {
+        if (board.cells[y][x] === 'x') {
           fillColor = '#f00';
-        } else if (board[y][x] === 'o') {
+        } else if (board.cells[y][x] === 'o') {
           fillColor = '#ff0';
         }
         c.attr({
