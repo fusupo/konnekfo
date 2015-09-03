@@ -78,8 +78,8 @@ var Game = function() {
   this.view = new View();
   this.view.drawBoard();
 
-  var p1 = new Player('p1');
-  var p2 = new RandomPlayer('p2');
+  var p1 = new RandomPlayer('p1');
+  var p2 = new Player('p2');
 
   var gameOver = false;
   var currPlayer = p1;
@@ -111,7 +111,13 @@ var Game = function() {
 //////////////////////////////////////////////////////////// BOARD
 
 var View = function() {
+
   var bgColor = "#ffffff";
+  var boardWidth = 280 * 1.5;
+  var boardHeight = 240 * 1.5;
+  var cellWidth = boardWidth / 7;
+  var cellHeight = boardHeight / 6;
+  var topMargin = cellHeight;
 
   this.onColSelect = null;
   this.circles = [];
@@ -120,7 +126,7 @@ var View = function() {
     for (var y = 0; y < 6; y++) {
       var row = [];
       for (var x = 0; x < 7; x++) {
-        var c = s.circle(10 + (x * 20), 30 + (y * 20), 6);
+        var c = s.circle((cellWidth/2) + (x * cellWidth), (cellHeight/2 + topMargin)+ (y * cellHeight), .3 * cellWidth);
         c.attr({
           fill: color
         });
@@ -132,9 +138,9 @@ var View = function() {
 
   this.drawButtons = function(s, color) {
     for (var x = 0; x < 7; x++) {
-      var b = s.rect(20 * x, 0, 20, 20);
+      var b = s.rect(cellWidth * x, 0, cellWidth, cellHeight);
       b.attr({
-        fill: color //(Math.round(Math.random() * 255 * 255 * 255)).toString(16)
+        fill: color
       });
 
       var click = function(foo) {
@@ -148,7 +154,7 @@ var View = function() {
       var over = function(foo) {
         return function() {
           foo.attr({
-            fill: '#ccc' //(Math.round(Math.random() * 255 * 255 * 255)).toString(16)
+            fill: '#ccc'
           });
         };
       }(b);
@@ -156,7 +162,7 @@ var View = function() {
       var out = function(foo) {
         return function() {
           foo.attr({
-            fill: bgColor //(Math.round(Math.random() * 255 * 255 * 255)).toString(16)
+            fill: bgColor
           });
         };
       }(b);
@@ -168,13 +174,14 @@ var View = function() {
   };
 
   this.drawBoard = function() {
-    var s = Snap("#svg");
-    var bg = s.rect(0, 0, 140, 140);
+    var s = Snap(boardWidth, boardHeight + topMargin);
+    console.log(s);
+    var bg = s.rect(0, 0, boardWidth, boardHeight + topMargin);
     bg.attr({
       fill: bgColor
     });
 
-    var fg = s.rect(0, 20, 140, 120);
+    var fg = s.rect(0, topMargin, boardWidth, boardHeight);
     fg.attr({
       fill: "#0000bb"
     });

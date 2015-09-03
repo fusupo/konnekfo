@@ -18,11 +18,12 @@ var RandomPlayer = function(id) {
 
 var CPUPlayerMkI = function() {
 
-  var figureOutThePlan = function(){
+  var figureOutThePlan = function() {
     return 3;
   };
 
   this.promptMove = function(game) {
-    figureOutThePlan(game.board);
+    var move = figureOutThePlan(game.board);
+    game.commitMove(move);
   };
-}
+};
