@@ -18,7 +18,11 @@ var RandomPlayer = function(id) {
 
 var CPUPlayerMkI = function() {
 
-  var figureOutThePlan = function() {
+  var figureOutThePlan = function(board) {
+    for (var i = 0; i < 7; i++) {
+      //temporary move at slot i
+      //did win?
+    };
     return 3;
   };
 
