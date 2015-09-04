@@ -1,15 +1,17 @@
 "use strict";
 
-var Board = function() {
-  this.cells = [];
+var Board = function(cells) {
+  this.cells = cells || [];
   this.winnner = null;
 
-  for (var y = 0; y < 6; y++) {
-    var row = [];
-    for (var x = 0; x < 7; x++) {
-      row.push(null);
+  if (this.cells.length === 0) {
+    for (var y = 0; y < 6; y++) {
+      var row = [];
+      for (var x = 0; x < 7; x++) {
+        row.push(null);
+      }
+      this.cells.push(row);
     }
-    this.cells.push(row);
   }
 
   this.move = function(col, del) {
@@ -18,7 +20,8 @@ var Board = function() {
         this.cells[y][col] = del;
         return true;
       };
-    }
+    };
+
     return false;
   };
 
