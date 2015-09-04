@@ -11,17 +11,20 @@ var Player = function(id) {
 };
 
 var RandomPlayer = function(id) {
+  this.id = id;
   this.promptMove = function(game) {
     game.commitMove(Math.round(Math.random() * 7));
   };
 };
 
-var CPUPlayerMkI = function() {
+var CPUPlayerMkI = function(id) {
+  this.id = id;
 
   var figureOutThePlan = function(board) {
     for (var i = 0; i < 7; i++) {
       //temporary move at slot i
       //did win?
+      //board.move(i);
     };
     return 3;
   };
