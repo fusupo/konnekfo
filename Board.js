@@ -75,4 +75,9 @@ var Board = function(cells) {
     }
     return false;
   };
+
+  this.cloneCells = function(){
+    return R.clone(this.cells);
+  };
+  
 };
