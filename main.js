@@ -1,11 +1,12 @@
 var Game = function() {
 
   var b = new Board();
+  this.board = b;
   this.view = new View();
   this.view.drawBoard();
 
-  var p1 = new CPUPlayerMkI('p1');
-  var p2 = new Player('p2');
+  var p1 = new CPUPlayerMkI('x');
+  var p2 = new Player('o');
 
   var gameOver = false;
   var currPlayer = p1;
@@ -14,10 +15,10 @@ var Game = function() {
   this.commitMove = function(colIdx) {
 
     if (currPlayer === p1) {
-      b.move(colIdx, "x");
+      b.move(colIdx, p1.id);
       currPlayer = p2;
     } else {
-      b.move(colIdx, "o");
+      b.move(colIdx, p2.id);
       currPlayer = p1;
     }
 
