@@ -21,16 +21,33 @@ var CPUPlayerMkI = function(id) {
   this.id = id;
 
   var figureOutThePlan = function(board) {
-    for (var i = 0; i < 7; i++) {
-      //temporary move at slot i
-      //did win?
-      //board.move(i);
+
+    var result;
+    var recur = function(bo) {
+      for (var i = 0; i < 7; i++) {
+
+        var b = new Board(bo.cloneCells());
+        var moveResult = b.move(i, id);
+        var hasWin = b.hasWinner();
+        console.table(b.cells);
+
+      };
     };
-    return 3;
+
+    recur(board);
+
+    return Math.round(Math.random() * 7);
+
   };
 
   this.promptMove = function(game) {
     var move = figureOutThePlan(game.board);
     game.commitMove(move);
   };
+
+  this.TreeNode = function() {
+    this.board = null;
+    this.children = [];
+  };
+
 };
