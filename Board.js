@@ -79,5 +79,5 @@ var Board = function(cells) {
   this.cloneCells = function(){
     return R.clone(this.cells);
   };
-  
+
 };
