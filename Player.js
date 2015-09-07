@@ -23,31 +23,45 @@ var CPUPlayerMkI = function(id) {
   var figureOutThePlan = function(board) {
 
     var result;
-    var recur = function(bo) {
-      for (var i = 0; i < 7; i++) {
+    var recur = function(node) {
+      var i = 0;
+      while (i < 7 && result === undefined) {
 
-        var b = new Board(bo.cloneCells());
+        var b = new Board(node.value.cloneCells());
+        var n = new Tree(b);
         var moveResult = b.move(i, id);
         var hasWin = b.hasWinner();
-        console.table(b.cells);
 
-      };
+        if (!hasWin && moveResult) {
+          node.addChild(recur.bind(this)(n));
+        } else {
+          if (hasWin) {
+            result = b;
+          }
+
+          node.addChild(n);
+
+        }
+
+        i++;
+
+      }
+
+      return node;
     };
 
-    recur(board);
+    var n = new Tree(board);
+    var tree = recur.bind(this)(n);
 
-    return Math.round(Math.random() * 7);
+    console.log(tree);
+
+    return Math.floor(Math.random() * 7);
 
   };
 
   this.promptMove = function(game) {
-    var move = figureOutThePlan(game.board);
+    var move = figureOutThePlan.bind(this)(game.board);
     game.commitMove(move);
-  };
-
-  this.TreeNode = function() {
-    this.board = null;
-    this.children = [];
   };
 
 };
