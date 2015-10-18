@@ -34,7 +34,7 @@ var Board = function(cells) {
             this.cells[y][x] === this.cells[y][x + 1] &&
             this.cells[y][x] === this.cells[y][x + 2] &&
             this.cells[y][x] === this.cells[y][x + 3]) {
-          console.log('HORIZONTAL WIN!!! -', this.cells[y][x]);
+          // console.log('HORIZONTAL WIN!!! -', this.cells[y][x]);
           this.winner = this.cells[y][x];
           return true;
         }
@@ -67,7 +67,7 @@ var Board = function(cells) {
             this.cells[y][x] === this.cells[y - 1][x + 1] &&
             this.cells[y][x] === this.cells[y - 2][x + 2] &&
             this.cells[y][x] === this.cells[y - 3][x + 3]) {
-          console.log('DIAGONAL 2 WIN!!! -', this.cells[y][x]);
+          // console.log('DIAGONAL 2 WIN!!! -', this.cells[y][x]);
           this.winner = this.cells[y][x];
           return true;
         }

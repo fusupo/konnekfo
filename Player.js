@@ -75,10 +75,13 @@ var CPUPlayerMkI = function(id) {
     var n = new Tree(board);
     var tree = recur.bind(this)(n);
 
-    console.log(tree);
-    console.log(tree.DFTraverse(function(value) {
+    //console.log(tree);
+    // console.log(tree.DFTraverse(function(value) {
+    //   return value === result;
+    // }));
+    tree.DFTraverse(function(value) {
       return value === result;
-    }));
+    });
 
     return tree.DFTraverse(function(value) {
       return value === result;
