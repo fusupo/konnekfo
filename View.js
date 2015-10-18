@@ -65,7 +65,7 @@ var View = function() {
 
   this.drawBoard = function() {
     var s = Snap(boardWidth, boardHeight + topMargin);
-    console.log(s);
+    // console.log(s);
     var bg = s.rect(0, 0, boardWidth, boardHeight + topMargin);
     bg.attr({
       fill: bgColor

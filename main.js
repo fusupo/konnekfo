@@ -26,6 +26,7 @@ var Game = function() {
     this.view.update(b);
     if (b.hasWinner()) {
       console.log(b.winner);
+      alert(b.winner + ' won!');      
     } else {
       currPlayer.promptMove(this);
     }
