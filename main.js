@@ -1,7 +1,6 @@
 var Game = function() {
 
-  var b = new Board();
-  this.board = b;
+  this.board = new Board();;
   this.view = new View();
   this.view.drawBoard();
 
@@ -15,18 +14,18 @@ var Game = function() {
   this.commitMove = function(colIdx) {
 
     if (currPlayer === p1) {
-      b.move(colIdx, p1.id);
+      this.board.move(colIdx, p1.id);
       currPlayer = p2;
     } else {
-      b.move(colIdx, p2.id);
+      this.board.move(colIdx, p2.id);
       currPlayer = p1;
     }
 
     //redraw board
-    this.view.update(b);
-    if (b.hasWinner()) {
-      console.log(b.winner);
-      alert(b.winner + ' won!');      
+    this.view.update(this.board);
+    var winningDirection = this.board.hasWinner();
+    if (winningDirection) {
+      alert(this.board.winner + ' won! ' + winningDirection);      
     } else {
       currPlayer.promptMove(this);
     }
