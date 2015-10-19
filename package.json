@@ -2,6 +2,6 @@
   "name": "konnekfo",
   "version": "0.0.1",
   "dependencies": {
-    "express": "~4.13.1",
+    "express": "~4.13.1"
   }
 }
