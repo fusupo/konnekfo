@@ -1,6 +1,7 @@
 "use strict";
 
 var Board = function(cells) {
+
   this.cells = cells || [];
   this.winnner = null;
 
@@ -10,6 +11,7 @@ var Board = function(cells) {
       for (var x = 0; x < 7; x++) {
         row.push(null);
       }
+
       this.cells.push(row);
     }
   }
@@ -34,9 +36,8 @@ var Board = function(cells) {
             this.cells[y][x] === this.cells[y][x + 1] &&
             this.cells[y][x] === this.cells[y][x + 2] &&
             this.cells[y][x] === this.cells[y][x + 3]) {
-          // console.log('HORIZONTAL WIN!!! -', this.cells[y][x]);
           this.winner = this.cells[y][x];
-          return true;
+          return 'HORIZONTAL';
         }
 
         // VERTICAL
@@ -45,9 +46,8 @@ var Board = function(cells) {
             this.cells[y][x] === this.cells[y + 1][x] &&
             this.cells[y][x] === this.cells[y + 2][x] &&
             this.cells[y][x] === this.cells[y + 3][x]) {
-          console.log('VERTICAL WIN!!! -', this.cells[y][x]);
           this.winner = this.cells[y][x];
-          return true;
+          return 'VERTICAL';
         }
 
         // DIAGONAL 1
@@ -56,9 +56,8 @@ var Board = function(cells) {
             this.cells[y][x] === this.cells[y + 1][x + 1] &&
             this.cells[y][x] === this.cells[y + 2][x + 2] &&
             this.cells[y][x] === this.cells[y + 3][x + 3]) {
-          console.log('DIAGONAL 1 WIN!!! -', this.cells[y][x]);
           this.winner = this.cells[y][x];
-          return true;
+          return 'DIAGONAL 1';
         }
 
         // DIAGONAL 2
@@ -67,16 +66,16 @@ var Board = function(cells) {
             this.cells[y][x] === this.cells[y - 1][x + 1] &&
             this.cells[y][x] === this.cells[y - 2][x + 2] &&
             this.cells[y][x] === this.cells[y - 3][x + 3]) {
-          // console.log('DIAGONAL 2 WIN!!! -', this.cells[y][x]);
           this.winner = this.cells[y][x];
-          return true;
+          return 'DIAGONAL 2';
         }
       }
     }
+
     return false;
   };
 
-  this.cloneCells = function(){
+  this.cloneCells = function() {
     return R.clone(this.cells);
   };
 
