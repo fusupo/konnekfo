@@ -17,6 +17,39 @@ var RandomPlayer = function(id) {
   };
 };
 
+var CPUPlayerClI = function(id) {
+  this.id = id;
+  
+  this.promptMove = function(game) {
+    var move = figureOutThePlan.bind(this)(game.board);
+    game.commitMove(move);
+  };
+
+  var figureOutThePlan = function(board) {
+
+    // if I can wan win in the next move, win
+    // if my opp win in the next move (ie does my opp have 3 in a row/col/diag, etc),
+      // if yes, can I stop opp from winning on their next move?
+        // if yes, block
+        // else, in checkmate. opp will win. this move doesn't matter 
+    // else play best offensive move
+
+    // plan for best offensive move //////////////////////////////////
+      // start with current board
+      // figure out which move (ie which column) will give us the highest possiblity of winning by calculating all games states with a recursive fxn
+      // recursive fxn (input includes: current player)
+        // initialize our tally ([w,l,d]) note: tally is stats for computer
+        // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
+        // is the game over?
+          // if so return win/lose/draw (base case) [1,0,0]
+          // if not then recurse() and fold results into tally
+        // return tally
+
+
+  };
+
+};
+
 var CPUPlayerMkI = function(id) {
   this.id = id;
 
