@@ -1,11 +1,11 @@
 var Game = function() {
 
-  this.board = new Board();;
+  this.board = new Board();
   this.view = new View();
   this.view.drawBoard();
 
-  var p1 = new CPUPlayerMkI('x');
-  var p2 = new Player('o');
+  var p1 = new Player(1);
+  var p2 = new Player(0);
 
   var gameOver = false;
   var currPlayer = p1;

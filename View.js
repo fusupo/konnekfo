@@ -16,7 +16,7 @@ var View = function() {
     for (var y = 0; y < 6; y++) {
       var row = [];
       for (var x = 0; x < 7; x++) {
-        var c = s.circle((cellWidth/2) + (x * cellWidth), (cellHeight/2 + topMargin)+ (y * cellHeight), .3 * cellWidth);
+        var c = s.circle((cellWidth / 2) + (x * cellWidth), (cellHeight / 2 + topMargin) + (y * cellHeight), .3 * cellWidth);
         c.attr({
           fill: color
         });
@@ -81,19 +81,35 @@ var View = function() {
   };
 
   this.update = function(board) {
-    for (var y = 0; y < 6; y++) {
-      for (var x = 0; x < 7; x++) {
-        var c = this.circles[5 - y][x];
+    for (var col = 0; col < 7; col++) {
+      var binStr = Number(board.cols[col]).toString(2);
+      for (var row = 1; row < binStr.length; row++) {
+        var c = this.circles[5-(row- 1)][col];
         var fillColor = bgColor;
-        if (board.cells[y][x] === 'x') {
+        if (binStr[row] === '1') {
           fillColor = '#f00';
-        } else if (board.cells[y][x] === 'o') {
+        } else if (binStr[row] === '0') {
           fillColor = '#ff0';
         }
         c.attr({
           fill: fillColor
         });
       }
-    }
+    };
+
+    // for (var y = 0; y < 6; y++) {
+    //   for (var x = 0; x < 7; x++) {
+    //     var c = this.circles[5 - y][x];
+    //     var fillColor = bgColor;
+    //     if (board.cells[y][x] === 'x') {
+    //       fillColor = '#f00';
+    //     } else if (board.cells[y][x] === 'o') {
+    //       fillColor = '#ff0';
+    //     }
+    //     c.attr({
+    //       fill: fillColor
+    //     });
+    //   }
+    // }
   };
 };
