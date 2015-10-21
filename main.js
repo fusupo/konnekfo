@@ -4,8 +4,8 @@ var Game = function() {
   this.view = new View();
   this.view.drawBoard();
 
-  var p1 = new Player(1);
-  var p2 = new Player(0);
+  var p1 = new Player("01");
+  var p2 = new Player("10");
 
   var gameOver = false;
   var currPlayer = p1;
