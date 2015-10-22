@@ -81,11 +81,11 @@ var View = function() {
   };
 
   this.update = function(board) {
-    console.log('--------------------');
-    for (var col = 0; col < 1; col++) {
-      col = 6;
+    console.log(board.cols);
+    for (var col = 0; col < 7; col++) {
+      //col = 6;
       var binStr = Number(board.cols[col] >> 4).toString(2);
-      console.log(board.cols[col].toString(2));
+      // console.log(board.cols[col].toString(2));
       for (var row = binStr.length - 1; row >= 0; row -= 2) {
         var s = row-1 >= 0 ? binStr.substr(row-1, 2) : '0' + binStr[0];
         var c = this.circles[Math.floor(row/2)][col];
