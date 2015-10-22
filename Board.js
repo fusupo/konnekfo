@@ -3,7 +3,7 @@
 var Board = function(cols) {
 
   // 1. Init the board
-  this.cols = cols || [2, 2, 2, 2, 2, 2];
+  this.cols = cols || [2, 2, 2, 2, 2, 2, 2];
   this.winner = null;
 
   // function MOVE, takes a column and a player as input and puts the 'piece' at the right row in that column or returns error if no space
