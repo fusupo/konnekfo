@@ -8,34 +8,20 @@ var Board = function(cols) {
 
   // function MOVE, takes a column and a player as input and puts the 'piece' at the right row in that column or returns error if no space
   this.move = function(col, playerID) {
-    var idx = ((this.cols[col] << 28) >>> 28); //shift left 28 discarding piece placement info, zero shift back right to get the index info
-    var currCols = (this.cols[col] >> 4) << 4;
-    // console.log('currCols ', currCols.toString(2));
-    var mvStr = playerID;
-    for (var i = 0; i < idx; i++) {
-      mvStr += '00';
-    }
-
-    //console.log(mvStr, parseInt(mvStr, 2), (idx + 1).toString(2));
+    var idx = ((this.cols[col] << 28) >>> 28); //this operation removes all digits except those that represent the insertion index
+    var currCols = (this.cols[col] >> 4) << 4; //this operation removes all digits except those that represent rows on the gameboard
+    ////////// Notes on bitwise opperators
+    //  a >> b  Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off.
+    //  a >>> b Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
+    // for future reference on bitwise operators https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+    var mv = playerID << (idx * 2);
     idx++;
-    this.cols[col] = idx + currCols + parseInt(mvStr, 2);
-
-      console.log('this.cols ', this.cols[col].toString(2));
-
-    // if (this.cols[col] <= 63) {
-    //   // << - shifts the representation on the col left (adding a zero player to top of col)
-    //   // playerID is either 1 or 0, possibly changing zero player piece to a one player piece
-    //   this.cols[col] = (this.cols[col] << 1) + playerID;
-    // } else {
-    //   console.log('cant put piece there!!!!');
-    //   return false;
-    // };
-    
-  }
+    this.cols[col] = idx + currCols + mv;
+  };
 
   this.hasWinner = function() {
     return false;
-  }
+  };
 
   // function HASWINNER, calculates if either player has won, returns the direction of any win
 
