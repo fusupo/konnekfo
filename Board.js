@@ -1,12 +1,14 @@
 "use strict";
 
-var Board = function(cols) {
+var Board = function(cols, rows, diag1, diag2) {
 
   // 1. Init the board
   this.cols = cols || [2, 2, 2, 2, 2, 2, 2];
+  this.rows = rows || [0, 0, 0, 0, 0, 0];
+  this.diag1 = diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
+  this.diag2 = diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
   this.winner = null;
 
-  // function MOVE, takes a column and a player as input and puts the 'piece' at the right row in that column or returns error if no space
   this.move = function(col, playerID) {
     var idx = ((this.cols[col] << 28) >>> 28); //this operation removes all digits except those that represent the insertion index
     var currCols = (this.cols[col] >> 4) << 4; //this operation removes all digits except those that represent rows on the gameboard
@@ -15,93 +17,69 @@ var Board = function(cols) {
     //  a >>> b Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
     // for future reference on bitwise operators https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
     var mv = playerID << (idx * 2);
-    idx++;
-    this.cols[col] = idx + currCols + mv;
+    this.cols[col] = (idx + 1) + currCols + mv;
+    this.rows[idx - 2] += playerID << (col * 2);
+    this.diag1[idx - 2] += playerID << ((col * 2) + ((idx - 2) * 2));
+    this.diag2[idx - 2] += playerID << ((col * 2) + ((5 - (idx - 2)) * 2));
+
   };
 
   this.hasWinner = function() {
+
+    for (var i = 0; i <= 3; i++) {
+      var c1 = this.cols[i] >> 4;
+      var c2 = this.cols[i + 1] >> 4;
+      var c3 = this.cols[i + 2] >> 4;
+      var c4 = this.cols[i + 3] >> 4;
+      var check = (c1 & c2 & c3 & c4);
+      if (check > 0) {
+        this.winner = check;
+        return ('horizontal win!!');
+      }
+    }
+
+    for (var j = 0; j <= 2; j++) {
+      console.log(this.cols[0] >> 4)
+      var r1 = this.rows[j];
+      var r2 = this.rows[j + 1];
+      var r3 = this.rows[j + 2];
+      var r4 = this.rows[j + 3];
+      var check = (r1 & r2 & r3 & r4);
+      if (check > 0) {
+        this.winner = check;
+        return ('vertical win!!');
+      }
+    }
+
+    for (var k = 0; k <= 2; k++) {
+      var d1 = this.diag1[k];
+      var d2 = this.diag1[k + 1];
+      var d3 = this.diag1[k + 2];
+      var d4 = this.diag1[k + 3];
+      var check = (d1 & d2 & d3 & d4);
+      if (check > 0) {
+        this.winner = check;
+        return ('diag1 win!!');
+      }
+    }
+
+    for (var m = 0; m <= 2; m++) {
+      var d1 = this.diag2[m];
+      var d2 = this.diag2[m + 1];
+      var d3 = this.diag2[m + 2];
+      var d4 = this.diag2[m + 3];
+      var check = (d1 & d2 & d3 & d4);
+      if (check > 0) {
+        this.winner = check;
+        return ('diag2 win!!');
+      }
+    }
+
     return false;
   };
 
-  // function HASWINNER, calculates if either player has won, returns the direction of any win
-
-  // function CLONE_CELLS, returns a copy of the current state of the board
-
-  // this.cells = cells || [];
-  // this.winnner = null;
-
-  // if (this.cells.length === 0) {
-  //   for (var y = 0; y < 6; y++) {
-  //     var row = [];
-  //     for (var x = 0; x < 7; x++) {
-  //       row.push(null);
-  //     }
-
-  //     this.cells.push(row);
-  //   }
-  // }
-
-  // this.move = function(col, del) {
-  //   for (var y = 0; y < 6; y++) {
-  //     if (this.cells[y][col] === null) {
-  //       this.cells[y][col] = del;
-  //       return true;
-  //     };
-  //   };
-
-  //   return false;
-  // };
-
-  // this.hasWinner = function() {
-  //   for (var y = 0; y < 6; y++) {
-  //     for (var x = 0; x < 7; x++) {
-  //       // HORIZONTAL
-  //       if (x <= 3 &&
-  //           this.cells[y][x] !== null &&
-  //           this.cells[y][x] === this.cells[y][x + 1] &&
-  //           this.cells[y][x] === this.cells[y][x + 2] &&
-  //           this.cells[y][x] === this.cells[y][x + 3]) {
-  //         this.winner = this.cells[y][x];
-  //         return 'HORIZONTAL';
-  //       }
-
-  //       // VERTICAL
-  //       if (y <= 2 &&
-  //           this.cells[y][x] !== null &&
-  //           this.cells[y][x] === this.cells[y + 1][x] &&
-  //           this.cells[y][x] === this.cells[y + 2][x] &&
-  //           this.cells[y][x] === this.cells[y + 3][x]) {
-  //         this.winner = this.cells[y][x];
-  //         return 'VERTICAL';
-  //       }
-
-  //       // DIAGONAL 1
-  //       if (x <= 3 && y <= 2 &&
-  //           this.cells[y][x] !== null &&
-  //           this.cells[y][x] === this.cells[y + 1][x + 1] &&
-  //           this.cells[y][x] === this.cells[y + 2][x + 2] &&
-  //           this.cells[y][x] === this.cells[y + 3][x + 3]) {
-  //         this.winner = this.cells[y][x];
-  //         return 'DIAGONAL 1';
-  //       }
-
-  //       // DIAGONAL 2
-  //       if (x <= 3 && y >= 3 &&
-  //           this.cells[y][x] !== null &&
-  //           this.cells[y][x] === this.cells[y - 1][x + 1] &&
-  //           this.cells[y][x] === this.cells[y - 2][x + 2] &&
-  //           this.cells[y][x] === this.cells[y - 3][x + 3]) {
-  //         this.winner = this.cells[y][x];
-  //         return 'DIAGONAL 2';
-  //       }
-  //     }
-  //   }
-
-  //   return false;
-  // };
-
-  // this.cloneCells = function() {
-  //   return R.clone(this.cells);
-  // };
+  this.cloneCols = function() {
+    return R.clone(this.cols, this.rows, this.diag1, this.diag2);
+  };
 
 };
