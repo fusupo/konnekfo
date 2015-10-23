@@ -81,24 +81,29 @@ var View = function() {
   };
 
   this.update = function(board) {
-    console.log(board.cols);
+
     for (var col = 0; col < 7; col++) {
-      //col = 6;
+
       var binStr = Number(board.cols[col] >> 4).toString(2);
-      // console.log(board.cols[col].toString(2));
-      for (var row = binStr.length - 1; row >= 0; row -= 2) {
-        var s = row-1 >= 0 ? binStr.substr(row-1, 2) : '0' + binStr[0];
-        var c = this.circles[Math.floor(row/2)][col];
+      binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
+      var binList = R.reverse(R.splitEvery(2, binStr));
+
+      for (var row = 0; row < binList.length; row++) {
+
+        var s = binList[row];
+        var c = this.circles[5 - row][col];
         var fillColor = bgColor;
-        if (s === '01'|| s === '1') {
+
+        if (s === '01' || s === '1') {
           fillColor = '#f00';
         } else if (s === '10') {
           fillColor = '#ff0';
         }
+
         c.attr({
           fill: fillColor
         });
       }
-    };
+    }
   };
 };
