@@ -5,7 +5,7 @@ var Game = function() {
   this.view.drawBoard();
 
   var p1 = new Player(1);
-  var p2 = new Player(2);
+  var p2 = new CPUPlayerMkI(2);
 
   var gameOver = false;
   var currPlayer = p1;

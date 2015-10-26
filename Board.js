@@ -1,12 +1,12 @@
 "use strict";
 
-var Board = function(cols, rows, diag1, diag2) {
+var Board = function(data) {
 
   // 1. Init the board
-  this.cols = cols || [2, 2, 2, 2, 2, 2, 2];
-  this.rows = rows || [0, 0, 0, 0, 0, 0];
-  this.diag1 = diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
-  this.diag2 = diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
+  this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
+  this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
+  this.diag1 = data && data.diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
+  this.diag2 = data && data.diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
   this.winner = null;
 
   this.move = function(col, playerID) {
@@ -18,6 +18,7 @@ var Board = function(cols, rows, diag1, diag2) {
     // for future reference on bitwise operators https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
     var mv = playerID << (idx * 2);
     this.cols[col] = (idx + 1) + currCols + mv;
+
     this.rows[idx - 2] += playerID << (col * 2);
     this.diag1[idx - 2] += playerID << ((col * 2) + ((idx - 2) * 2));
     this.diag2[idx - 2] += playerID << ((col * 2) + ((5 - (idx - 2)) * 2));
@@ -78,8 +79,13 @@ var Board = function(cols, rows, diag1, diag2) {
     return false;
   };
 
-  this.cloneCols = function() {
-    return R.clone(this.cols, this.rows, this.diag1, this.diag2);
+  this.cloneCells = function() {
+    return {
+      cols: R.clone(this.cols),
+      rows: R.clone(this.rows),
+      diag1: R.clone(this.diag1),
+      diag2: R.clone(this.diag2)
+    };
   };
 
 };

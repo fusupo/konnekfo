@@ -45,7 +45,6 @@ var CPUPlayerClI = function(id) {
           // if not then recurse() and fold results into tally
         // return tally
 
-
   };
 
 };
