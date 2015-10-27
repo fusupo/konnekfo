@@ -18,8 +18,9 @@ var RandomPlayer = function(id) {
 };
 
 var CPUPlayerClI = function(id) {
+
   this.id = id;
-  
+
   this.promptMove = function(game) {
     var startDate = new Date();
     var move = figureOutThePlan.bind(this)(game.board);
@@ -29,139 +30,117 @@ var CPUPlayerClI = function(id) {
     game.commitMove(move);
   };
 
-
-
-  var winBlock = function(board, id){
+  var winBlock = function(board, id) {
     var returnMove = false;
-    for (var i = 0; i < 7; i++) {    
-      var testBoard = new Board(board.cloneCells());
-      testBoard.move(i, id);
-      if(testBoard.hasWinner()){
-        returnMove = i;
-        break;
+    for (var i = 0; i < 7; i++) {
+      if (!board.isColFull(i)) {
+        board.move(i, id);
+        if (board.hasWinner()) {
+          returnMove = i;
+        }
+        board.unmove(i, id);
       }
     }
     return returnMove;
   };
 
-  var offense = function(board, thisID, r){
+  var offense = function(board, thisID, r) {
 
-    var tally = [0,0,0];
-
-    // console.log(r);
-
+    var tally = [0, 0, 0];
 
     // base cases
-    if (board.hasWinner()){
-    // win
-    // console.log('HAS WINNER !!!!!!!!!!!!!!!!!!!!!!!!!! ');
-      tally[board.winner]++;
+    if (board.hasWinner()) {
+      // win
+      tally[board.winner] ++;
       return tally;
+    } else if (board.isBoardFull()) {
+      // draw - all cells are filled and
+      tally[0] ++;
+      return tally;
+    }
 
-    } else if(board.isBoardFull()){
-    // draw - all cells are filled and
-      tally[0]++;
-      return tally;        
-    }        
-
-    if(r >= 6){
+    if (r >= 6) {
       return tally;
     }
 
     // plan for best offensive move //////////////////////////////////
-      // start with current board
-      
-      // figure out which move (ie which column) will give us the highest possiblity of winning by calculating all games states with a recursive fxn
-      // recursive fxn (input includes: current player)
-        // initialize our tally ([w,l,d]) note: tally is stats for computer
-        // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
-    
-    for(var k = 0; k<7; k++){
-      
-      if(!board.isColFull(k)){
-        var testBoard = new Board(board.cloneCells());
-        testBoard.move(k, thisID);
-        // console.log('testBoard', testBoard);
+    // start with current board
 
-        // console.log('thisID before calling the recursive fxn', thisID, ' and thisID^0b11 is ', thisID^0b11); 
-        var tempTally = offense(testBoard, thisID^0b11, r + 1);
-        // console.log('tempTally', tempTally, 'thisID returned from the recursive fxn', thisID);
+    // figure out which move (ie which column) will give us the highest possiblity of winning by calculating all games states with a recursive fxn
+    // recursive fxn (input includes: current player)
+    // initialize our tally ([w,l,d]) note: tally is stats for computer
+    // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
+
+    for (var k = 0; k < 7; k++) {
+
+      if (!board.isColFull(k)) {
+        board.move(k, thisID);
+        var tempTally = offense(board, thisID ^ 0b11, r + 1);
         tally[0] += tempTally[0];
         tally[1] += tempTally[1];
         tally[2] += tempTally[2];
-        // console.log('tally', tally);
+
+        board.unmove(k, thisID);
       }
     }
     // is the game over?
-      // if so return win/lose/draw (base case) [1,0,0]
-      // if not then recurse() and fold results into tally
+    // if so return win/lose/draw (base case) [1,0,0]
+    // if not then recurse() and fold results into tally
     // return tally
     return tally;
 
   };
 
-
-
   var figureOutThePlan = function(board) {
-
-   
-    var returnMove = Math.floor(Math.random() * 7);
-    while(board.isColFull(returnMove) && returnMove<7){
-      returnMove ++; 
-    }
-
-    // if I can wan win in the next move, win    
-    // console.log('win?', winBlock(board, this.id) );
-    // console.log('block?', winBlock(board, this.id^0b11) );
-    // console.log('offense', offense(board) );
-
-    if (winBlock(board, this.id) !== false){
-      returnMove = winBlock(board, this.id);
-    }
-
-    // if my opp win in the next move (ie does my opp have 3 in a row/col/diag, etc),
-      // if yes, can I stop opp from winning on their next move?
-        // if yes, block
-        // else, in checkmate. opp will win. this move doesn't matter    
     
-    else if (winBlock(board, this.id^0b11) !== false){
-      returnMove = winBlock(board, this.id^0b11);
+    var returnMove = Math.floor(Math.random() * 7);
+
+    while (board.isColFull(returnMove) && returnMove < 7) {
+      returnMove++;
     }
 
-
-    // else play best offensive move
-    else {
+    // if I can wan win in the next move, win
+    // if my opp win in the next move (ie does my opp have 3 in a row/col/diag, etc),
+    // if yes, can I stop opp from winning on their next move?
+    // if yes, block
+    // else, in checkmate. opp will win. this move doesn't matter
+    if (winBlock(board, this.id) !== false) {
+      returnMove = winBlock(board, this.id);
+    } else if (winBlock(board, this.id ^ 0b11) !== false) {
+      returnMove = winBlock(board, this.id ^ 0b11);
+    } else {
+      // else play best offensive move
       var columnStats = [];
-      for (var i = 0; i< 7; i++){
-        if(!board.isColFull(i)){
-          var testBoard = new Board(board.cloneCells());
-          testBoard.move(i, id);
-          columnStats[i] = offense(testBoard, id^0b11, 0);
+      for (var i = 0; i < 7; i++) {
+        if (!board.isColFull(i)) {
+          board.move(i, id);
+          columnStats[i] = offense(board, id ^ 0b11, 0);
+          board.unmove(i, id);
         }
       }
 
       console.table(columnStats);
       console.log(columnStats);
 
-      var thisStats = R.map(function(item){
-        return (item[id]);
+      var thisStats = R.map(function(item) {
+        var result = item !== undefined ? item[id] : 0;
+        return result;
       }, columnStats);
 
       console.log(thisStats);
+      
       var max = 0;
-      for(var i = 0; i < thisStats.length; i++){
-        if(thisStats[i] > max){
+      for (var i = 0; i < thisStats.length; i++) {
+        if (thisStats[i] > max) {
           max = thisStats[i];
           returnMove = i;
         }
       }
-
     }
-    
+
     console.log('returnMove', returnMove);
     return returnMove;
   };
-
 };
 
 var CPUPlayerMkI = function(id) {

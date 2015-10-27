@@ -32,6 +32,7 @@ var Board = function(data) {
   //////////////////////////////////////// END HELPER FNs
 
   this.move = function(col, playerID) {
+    
     var idx = getIdx(this.cols[col]); //this operation removes all digits except those that represent the insertion index
     var currCols = removeIdxFromCol(this.cols[col]); //this operation removes all digits except those that represent rows on the gameboard
 
@@ -55,14 +56,7 @@ var Board = function(data) {
     currCols = (currCols << shiftCount) >>> shiftCount;
     idx--;
     this.cols[col] = idx + currCols;
-
-    ////////// Notes on bitwise opperators
-    //  a >> b  Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off.
-    //  a >>> b Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
-    // for future reference on bitwise operators https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
-
     this.rows[idx - 2] -= playerID << (col * 2);
-    
     this.diag1[idx - 2] -= playerID << ((col * 2) + ((idx - 2) * 2));
     this.diag2[idx - 2] -= playerID << ((col * 2) + ((5 - (idx - 2)) * 2));
   };
