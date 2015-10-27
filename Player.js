@@ -21,7 +21,11 @@ var CPUPlayerClI = function(id) {
   this.id = id;
   
   this.promptMove = function(game) {
+    var startDate = new Date();
     var move = figureOutThePlan.bind(this)(game.board);
+    var endDate = new Date();
+    var diff = Math.abs(endDate - startDate);
+    console.log('THINKING DURATION: ', diff)
     game.commitMove(move);
   };
 

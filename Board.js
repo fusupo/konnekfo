@@ -9,9 +9,32 @@ var Board = function(data) {
   this.diag2 = data && data.diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
   this.winner = null;
 
+  ////////////////////////////////////////  HELPER FNs
+
+  var checkToPlayer = function(c) {
+    var str = c.toString(2);
+    if (str.length % 2 !== 0) str = '0' + str;
+    return parseInt(str.substr(0, 2), 2);
+    // while(c > 2){
+    //   c = c >> 1;
+    // }
+    //return c;
+  };
+
+  var getIdx = function(col) {
+    return ((col << 28) >>> 28);
+  };
+
+  var removeIdxFromCol = function(col) {
+    return (col >> 4) << 4;
+  };
+
+  //////////////////////////////////////// END HELPER FNs
+
   this.move = function(col, playerID) {
-    var idx = ((this.cols[col] << 28) >>> 28); //this operation removes all digits except those that represent the insertion index
-    var currCols = (this.cols[col] >> 4) << 4; //this operation removes all digits except those that represent rows on the gameboard
+    var idx = getIdx(this.cols[col]); //this operation removes all digits except those that represent the insertion index
+    var currCols = removeIdxFromCol(this.cols[col]); //this operation removes all digits except those that represent rows on the gameboard
+
     ////////// Notes on bitwise opperators
     //  a >> b  Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off.
     //  a >>> b Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
@@ -25,10 +48,29 @@ var Board = function(data) {
 
   };
 
-  this.isBoardFull = function (){
+  this.unmove = function(col, playerID) {
+    var idx = getIdx(this.cols[col]); //this operation removes all digits except those that represent the insertion index
+    var currCols = removeIdxFromCol(this.cols[col]); //this operation removes all digits except those that represent rows on the gameboard
+    var shiftCount = 32 - ((idx - 1) * 2);
+    currCols = (currCols << shiftCount) >>> shiftCount;
+    idx--;
+    this.cols[col] = idx + currCols;
+
+    ////////// Notes on bitwise opperators
+    //  a >> b  Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off.
+    //  a >>> b Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
+    // for future reference on bitwise operators https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+
+    this.rows[idx - 2] -= playerID << (col * 2);
+    
+    this.diag1[idx - 2] -= playerID << ((col * 2) + ((idx - 2) * 2));
+    this.diag2[idx - 2] -= playerID << ((col * 2) + ((5 - (idx - 2)) * 2));
+  };
+
+  this.isBoardFull = function() {
     var result = true;
-    for (var i = 0; i<7; i++) {
-      if (!this.isColFull(i)){
+    for (var i = 0; i < 7; i++) {
+      if (!this.isColFull(i)) {
         result = false;
         break;
       }
@@ -36,19 +78,9 @@ var Board = function(data) {
     return result;
   };
 
-  this.isColFull = function(col){
+  this.isColFull = function(col) {
     return ((this.cols[col] << 28) >>> 28) >= 8;
   };
-
-  var checkToPlayer = function(c){
-    var str = c.toString(2);
-    if(str.length%2 !== 0) str = '0' + str;
-    return parseInt(str.substr(0,2), 2);
-    // while(c > 2){
-    //   c = c >> 1;
-    // }
-    //return c;
-  }
 
   this.hasWinner = function() {
 
@@ -111,6 +143,14 @@ var Board = function(data) {
       diag1: R.clone(this.diag1),
       diag2: R.clone(this.diag2)
     };
+  };
+
+  this.logTable = function(){
+    console.table(R.reverse(this.rows.map(function(i) {
+      var binStr = i.toString(2);
+      binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
+      return R.reverse(R.splitEvery(2, binStr));
+    })));
   };
 
 };

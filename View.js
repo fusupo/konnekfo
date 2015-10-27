@@ -82,12 +82,6 @@ var View = function() {
 
   this.update = function(board) {
 
-    // console.table(R.reverse(board.cols.map(function(i) {
-    //   var binStr = i.toString(2);
-    //   binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
-    //   return R.reverse(R.splitEvery(2, binStr));
-    // })));
-
     for (var col = 0; col < 7; col++) {
 
       var binStr = (board.cols[col] >> 4).toString(2);
