@@ -45,14 +45,12 @@ var CPUPlayerClI = function(id) {
     var tally = [0,0,0];
 
     // console.log(r);
-    if(r >= 7){
-      return tally;
-    }
+
 
     // base cases
     if (board.hasWinner()){
     // win
-    console.log('HAS WINNER !!!!!!!!!!!!!!!!!!!!!!!!!! ');
+    // console.log('HAS WINNER !!!!!!!!!!!!!!!!!!!!!!!!!! ');
       tally[board.winner]++;
       return tally;
 
@@ -61,6 +59,10 @@ var CPUPlayerClI = function(id) {
       tally[0]++;
       return tally;        
     }        
+
+    if(r >= 6){
+      return tally;
+    }
 
     // plan for best offensive move //////////////////////////////////
       // start with current board
@@ -75,11 +77,15 @@ var CPUPlayerClI = function(id) {
       if(!board.isColFull(k)){
         var testBoard = new Board(board.cloneCells());
         testBoard.move(k, thisID);
+        // console.log('testBoard', testBoard);
 
+        // console.log('thisID before calling the recursive fxn', thisID, ' and thisID^0b11 is ', thisID^0b11); 
         var tempTally = offense(testBoard, thisID^0b11, r + 1);
+        // console.log('tempTally', tempTally, 'thisID returned from the recursive fxn', thisID);
         tally[0] += tempTally[0];
         tally[1] += tempTally[1];
         tally[2] += tempTally[2];
+        // console.log('tally', tally);
       }
     }
     // is the game over?
@@ -95,14 +101,14 @@ var CPUPlayerClI = function(id) {
   var figureOutThePlan = function(board) {
 
    
-    var returnMove = 0;
+    var returnMove = Math.floor(Math.random() * 7);
     while(board.isColFull(returnMove) && returnMove<7){
       returnMove ++; 
     }
 
     // if I can wan win in the next move, win    
-    console.log('win?', winBlock(board, this.id) );
-    console.log('block?', winBlock(board, this.id^0b11) );
+    // console.log('win?', winBlock(board, this.id) );
+    // console.log('block?', winBlock(board, this.id^0b11) );
     // console.log('offense', offense(board) );
 
     if (winBlock(board, this.id) !== false){
@@ -126,11 +132,25 @@ var CPUPlayerClI = function(id) {
         if(!board.isColFull(i)){
           var testBoard = new Board(board.cloneCells());
           testBoard.move(i, id);
-          columnStats[i] = offense(testBoard, id, 0);
+          columnStats[i] = offense(testBoard, id^0b11, 0);
         }
       }
 
       console.table(columnStats);
+      console.log(columnStats);
+
+      var thisStats = R.map(function(item){
+        return (item[id]);
+      }, columnStats);
+
+      console.log(thisStats);
+      var max = 0;
+      for(var i = 0; i < thisStats.length; i++){
+        if(thisStats[i] > max){
+          max = thisStats[i];
+          returnMove = i;
+        }
+      }
 
     }
     
