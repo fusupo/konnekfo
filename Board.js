@@ -25,6 +25,31 @@ var Board = function(data) {
 
   };
 
+  this.isBoardFull = function (){
+    var result = true;
+    for (var i = 0; i<7; i++) {
+      if (!this.isColFull(i)){
+        result = false;
+        break;
+      }
+    }
+    return result;
+  };
+
+  this.isColFull = function(col){
+    return ((this.cols[col] << 28) >>> 28) >= 8;
+  };
+
+  var checkToPlayer = function(c){
+    var str = c.toString(2);
+    if(str.length%2 !== 0) str = '0' + str;
+    return parseInt(str.substr(0,2), 2);
+    // while(c > 2){
+    //   c = c >> 1;
+    // }
+    //return c;
+  }
+
   this.hasWinner = function() {
 
     for (var i = 0; i <= 3; i++) {
@@ -34,20 +59,20 @@ var Board = function(data) {
       var c4 = this.cols[i + 3] >> 4;
       var check = (c1 & c2 & c3 & c4);
       if (check > 0) {
-        this.winner = check;
+        this.winner = checkToPlayer(check);
         return ('horizontal win!!');
       }
     }
 
     for (var j = 0; j <= 2; j++) {
-      console.log(this.cols[0] >> 4)
+      // console.log(this.cols[0] >> 4)
       var r1 = this.rows[j];
       var r2 = this.rows[j + 1];
       var r3 = this.rows[j + 2];
       var r4 = this.rows[j + 3];
       var check = (r1 & r2 & r3 & r4);
       if (check > 0) {
-        this.winner = check;
+        this.winner = checkToPlayer(check);
         return ('vertical win!!');
       }
     }
@@ -59,7 +84,7 @@ var Board = function(data) {
       var d4 = this.diag1[k + 3];
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
-        this.winner = check;
+        this.winner = checkToPlayer(check);
         return ('diag1 win!!');
       }
     }
@@ -71,7 +96,7 @@ var Board = function(data) {
       var d4 = this.diag2[m + 3];
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
-        this.winner = check;
+        this.winner = checkToPlayer(check);
         return ('diag2 win!!');
       }
     }

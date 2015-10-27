@@ -25,26 +25,117 @@ var CPUPlayerClI = function(id) {
     game.commitMove(move);
   };
 
-  var figureOutThePlan = function(board) {
 
-    // if I can wan win in the next move, win
-    // if my opp win in the next move (ie does my opp have 3 in a row/col/diag, etc),
-      // if yes, can I stop opp from winning on their next move?
-        // if yes, block
-        // else, in checkmate. opp will win. this move doesn't matter 
-    // else play best offensive move
+
+  var winBlock = function(board, id){
+    var returnMove = false;
+    for (var i = 0; i < 7; i++) {    
+      var testBoard = new Board(board.cloneCells());
+      testBoard.move(i, id);
+      if(testBoard.hasWinner()){
+        returnMove = i;
+        break;
+      }
+    }
+    return returnMove;
+  };
+
+  var offense = function(board, thisID, r){
+
+    var tally = [0,0,0];
+
+    // console.log(r);
+    if(r >= 7){
+      return tally;
+    }
+
+    // base cases
+    if (board.hasWinner()){
+    // win
+    console.log('HAS WINNER !!!!!!!!!!!!!!!!!!!!!!!!!! ');
+      tally[board.winner]++;
+      return tally;
+
+    } else if(board.isBoardFull()){
+    // draw - all cells are filled and
+      tally[0]++;
+      return tally;        
+    }        
 
     // plan for best offensive move //////////////////////////////////
       // start with current board
+      
       // figure out which move (ie which column) will give us the highest possiblity of winning by calculating all games states with a recursive fxn
       // recursive fxn (input includes: current player)
         // initialize our tally ([w,l,d]) note: tally is stats for computer
         // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
-        // is the game over?
-          // if so return win/lose/draw (base case) [1,0,0]
-          // if not then recurse() and fold results into tally
-        // return tally
+    
+    for(var k = 0; k<7; k++){
+      
+      if(!board.isColFull(k)){
+        var testBoard = new Board(board.cloneCells());
+        testBoard.move(k, thisID);
 
+        var tempTally = offense(testBoard, thisID^0b11, r + 1);
+        tally[0] += tempTally[0];
+        tally[1] += tempTally[1];
+        tally[2] += tempTally[2];
+      }
+    }
+    // is the game over?
+      // if so return win/lose/draw (base case) [1,0,0]
+      // if not then recurse() and fold results into tally
+    // return tally
+    return tally;
+
+  };
+
+
+
+  var figureOutThePlan = function(board) {
+
+   
+    var returnMove = 0;
+    while(board.isColFull(returnMove) && returnMove<7){
+      returnMove ++; 
+    }
+
+    // if I can wan win in the next move, win    
+    console.log('win?', winBlock(board, this.id) );
+    console.log('block?', winBlock(board, this.id^0b11) );
+    // console.log('offense', offense(board) );
+
+    if (winBlock(board, this.id) !== false){
+      returnMove = winBlock(board, this.id);
+    }
+
+    // if my opp win in the next move (ie does my opp have 3 in a row/col/diag, etc),
+      // if yes, can I stop opp from winning on their next move?
+        // if yes, block
+        // else, in checkmate. opp will win. this move doesn't matter    
+    
+    else if (winBlock(board, this.id^0b11) !== false){
+      returnMove = winBlock(board, this.id^0b11);
+    }
+
+
+    // else play best offensive move
+    else {
+      var columnStats = [];
+      for (var i = 0; i< 7; i++){
+        if(!board.isColFull(i)){
+          var testBoard = new Board(board.cloneCells());
+          testBoard.move(i, id);
+          columnStats[i] = offense(testBoard, id, 0);
+        }
+      }
+
+      console.table(columnStats);
+
+    }
+    
+    console.log('returnMove', returnMove);
+    return returnMove;
   };
 
 };
