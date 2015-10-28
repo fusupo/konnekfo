@@ -21,44 +21,44 @@ var Board = function(data) {
     //return c;
   };
 
-  var getIdx = function(col) {
-    return ((col << 28) >>> 28);
+  this.getNextRowIdx = function(colIdx){
+    return ((this.cols[colIdx] << 28) >>> 28);
   };
-
+  
   var removeIdxFromCol = function(col) {
     return (col >> 4) << 4;
   };
 
   //////////////////////////////////////// END HELPER FNs
 
-  this.move = function(col, playerID) {
+  this.move = function(colIdx, playerID) {
     
-    var idx = getIdx(this.cols[col]); //this operation removes all digits except those that represent the insertion index
-    var currCols = removeIdxFromCol(this.cols[col]); //this operation removes all digits except those that represent rows on the gameboard
+    var idx = this.getNextRowIdx(colIdx); //this operation removes all digits except those that represent the insertion index
+    var currCols = removeIdxFromCol(this.cols[colIdx]); //this operation removes all digits except those that represent rows on the gameboard
 
     ////////// Notes on bitwise opperators
     //  a >> b  Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off.
     //  a >>> b Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
     // for future reference on bitwise operators https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
     var mv = playerID << (idx * 2);
-    this.cols[col] = (idx + 1) + currCols + mv;
+    this.cols[colIdx] = (idx + 1) + currCols + mv;
 
-    this.rows[idx - 2] += playerID << (col * 2);
-    this.diag1[idx - 2] += playerID << ((col * 2) + ((idx - 2) * 2));
-    this.diag2[idx - 2] += playerID << ((col * 2) + ((5 - (idx - 2)) * 2));
+    this.rows[idx - 2] += playerID << (colIdx * 2);
+    this.diag1[idx - 2] += playerID << ((colIdx * 2) + ((idx - 2) * 2));
+    this.diag2[idx - 2] += playerID << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
 
   };
 
-  this.unmove = function(col, playerID) {
-    var idx = getIdx(this.cols[col]); //this operation removes all digits except those that represent the insertion index
-    var currCols = removeIdxFromCol(this.cols[col]); //this operation removes all digits except those that represent rows on the gameboard
+  this.unmove = function(colIdx, playerID) {
+    var idx = this.getNextRowIdx(colIdx); //this operation removes all digits except those that represent the insertion index
+    var currCols = removeIdxFromCol(this.cols[colIdx]); //this operation removes all digits except those that represent rows on the gameboard
     var shiftCount = 32 - ((idx - 1) * 2);
     currCols = (currCols << shiftCount) >>> shiftCount;
     idx--;
-    this.cols[col] = idx + currCols;
-    this.rows[idx - 2] -= playerID << (col * 2);
-    this.diag1[idx - 2] -= playerID << ((col * 2) + ((idx - 2) * 2));
-    this.diag2[idx - 2] -= playerID << ((col * 2) + ((5 - (idx - 2)) * 2));
+    this.cols[colIdx] = idx + currCols;
+    this.rows[idx - 2] -= playerID << (colIdx * 2);
+    this.diag1[idx - 2] -= playerID << ((colIdx * 2) + ((idx - 2) * 2));
+    this.diag2[idx - 2] -= playerID << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
   };
 
   this.isBoardFull = function() {
@@ -71,9 +71,9 @@ var Board = function(data) {
     }
     return result;
   };
-
-  this.isColFull = function(col) {
-    return ((this.cols[col] << 28) >>> 28) >= 8;
+  
+  this.isColFull = function(colIdx) {
+    return this.getNextRowIdx(colIdx) >= 8;
   };
 
   this.hasWinner = function() {

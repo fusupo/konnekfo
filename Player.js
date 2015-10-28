@@ -45,7 +45,6 @@ var CPUPlayerClI = function(id) {
   };
 
   var offense = function(board, thisID, r) {
-
     var tally = [0, 0, 0];
 
     // base cases
@@ -126,7 +125,7 @@ var CPUPlayerClI = function(id) {
         var result = item !== undefined ? item[id] : 0;
         return result;
       }, columnStats);
-
+      
       console.log(thisStats);
       
       var max = 0;

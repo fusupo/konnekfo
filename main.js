@@ -4,8 +4,8 @@ var Game = function() {
   this.view = new View();
   this.view.drawBoard();
 
-  var p1 = new Player(1);
-  var p2 = /*new Player(2);*/new CPUPlayerClI(2);
+  var p1 = new CPUPlayerClI(1);
+  var p2 = /*new Player(2);*/ new Player(2);
 
   var gameOver = false;
   var currPlayer = p1;
@@ -23,13 +23,16 @@ var Game = function() {
 
     //console.log('full?', this.board.isBoardFull());
     //redraw board
-    this.view.update(this.board);
-    var winningDirection = this.board.hasWinner();
-    if (winningDirection) {
-      alert(this.board.winner + ' won! ' + winningDirection);      
-    } else {
-      currPlayer.promptMove(this);
-    }
+    //this.view.update(this.board);
+
+    this.view.addPiece(colIdx, 6 - (this.board.getNextRowIdx(colIdx) - 2), currPlayer.id ^ 0b11, (function () {
+      var winningDirection = this.board.hasWinner();
+      if (winningDirection) {
+        alert(this.board.winner + ' won! ' + winningDirection);
+      } else {
+        currPlayer.promptMove(this);
+      }
+    }).bind(this));
   };
 
   currPlayer.promptMove(this);
