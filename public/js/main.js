@@ -41,5 +41,6 @@ var Game = function() {
 
 //////////////////////////////////////////////////////////// INIT
 window.onload = function() {
+  var socket = io();
   var g = new Game();
 };
