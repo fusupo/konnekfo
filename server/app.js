@@ -5,25 +5,29 @@ var app = express();
 var http = require('http').Server(app);
 var port = process.env.PORT || '3000';
 var io = require('socket.io')(http);
+var R = require('ramda');
 
-var numUsers = 0;
-var users = {};
+var users = [];
 
 app.use(express.static(__dirname + '/../public'));
 
 io.on('connection', function(socket) {
 
   console.log('a user connected ' + socket.id);
-  users[socket.id] = 1;
-  numUsers++;
+  var newPlayer = {
+    id: socket.id
+  };
 
-  if (numUsers === 1) {
+  if (users.length === 0) {
     console.log('1 PLAYERS CONNECTED !!');
-    socket.emit('confirm player', 1);
-  } else if (numUsers === 2) {
+    newPlayer.gameID = 1;
+  } else if (users.length === 1) {
     console.log('2 PLAYERS CONNECTED !!');
-    socket.emit('confirm player', 2);
+    newPlayer.gameID = users[0].gameID === 1 ? 2 : 1;
   }
+
+  socket.emit('confirm player', newPlayer.gameID);
+  users.push(newPlayer);
 
   socket.on('commit move', onCommitMove.bind(socket));
   socket.on('disconnect', onDisconnect.bind(socket));
@@ -31,14 +35,15 @@ io.on('connection', function(socket) {
 });
 
 function onCommitMove(colIdx) {
-  console.log(this.id);
-  game.commitMove(colIdx);
+  console.log('broadcast commit move: ', this.id);
 }
 
 function onDisconnect() {
   console.log('user disconnected ' + this.id);
-  delete users[this.id];
-  numUsers--;
+  users = R.reject((function(user) {
+    return user.id === this.id;
+  }).bind(this), users);
+  console.log(users);
 }
 
 http.listen(port, function() {
