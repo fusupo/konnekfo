@@ -10,6 +10,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.17.1/ramda.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
 
   <script src="js/Tree.js"></script>
   <script src="js/Player.js"></script>
@@ -24,30 +25,29 @@
   <h1>konnekFo'</h1>
   <!-- <svg id="svg"> -->
   <!-- </svg> -->
-  
+
   <div id="menu" class="flow">
-      <h2>menu</h2>
-      <ul>
-          <li>
-              <span>versus human</span>
-              <ul>
-                  <li><span>local</span></li>
-                  <li><span>network</span></li>
-              </ul>
-          </li>
-          <li>
-              <span>versus computer</span>
-          </li>
-      </ul>
+    <h2>menu</h2>
+    <ul>
+      <li>
+        <span id="vs-human-local">versus human local</span>
+      </li>
+      <li>
+        <span id="vs-human-network">versus human network</span>
+      </li>
+      <li>
+        <span id="vs-computer">versus computer</span>
+      </li>
+    </ul>
   </div>
   <div id="game" class="flow">
-      game
-      <div id="svg_container">
-      </div>
-      <svg id="gameboard" width="420" height="360"/>
+    <h2>game</h2>
+    <div id="svg_container">
+    </div>
+    <svg id="gameboard" width="420" height="360" />
   </div>
   <div id="conclusion" class="flow">
-      conclusion
+    <h2>conclusion</h2>
   </div>
 </body>
 
