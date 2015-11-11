@@ -14,7 +14,7 @@ var Game = function() {
 
   this.commitMove = function(colIdx) {
 
-    console.log('commit move', colIdx);
+    console.log('commitmove', colIdx);
     socket.emit('commit move', colIdx);
 
     // if (currPlayer === p1) {
@@ -44,8 +44,9 @@ var Game = function() {
 
 window.onload = function() {
   this.socket = io();
-  this.socket.on('confirm player', function(id){
+  this.socket.on('confirm player', function(id) {
     console.log('According to the server, I am player #' + id);
   });
+
   var g = new Game();
 };
