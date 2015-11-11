@@ -13,6 +13,7 @@ var View = function() {
   var cellHeight = boardHeight / 6;
   var topMargin = cellHeight;
 
+  console.log('NEW VIEW');
   this.onColSelect = null;
 
   this.drawCircles = function(s, color) {

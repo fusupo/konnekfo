@@ -2,6 +2,7 @@
 
 var Board = function(data) {
 
+  console.log('New Board');
   // 1. Init the board
   this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
   this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
@@ -21,10 +22,10 @@ var Board = function(data) {
     //return c;
   };
 
-  this.getNextRowIdx = function(colIdx){
+  this.getNextRowIdx = function(colIdx) {
     return ((this.cols[colIdx] << 28) >>> 28);
   };
-  
+
   var removeIdxFromCol = function(col) {
     return (col >> 4) << 4;
   };
@@ -32,7 +33,7 @@ var Board = function(data) {
   //////////////////////////////////////// END HELPER FNs
 
   this.move = function(colIdx, playerID) {
-    
+
     var idx = this.getNextRowIdx(colIdx); //this operation removes all digits except those that represent the insertion index
     var currCols = removeIdxFromCol(this.cols[colIdx]); //this operation removes all digits except those that represent rows on the gameboard
 
@@ -69,9 +70,10 @@ var Board = function(data) {
         break;
       }
     }
+
     return result;
   };
-  
+
   this.isColFull = function(colIdx) {
     return this.getNextRowIdx(colIdx) >= 8;
   };
@@ -139,7 +141,7 @@ var Board = function(data) {
     };
   };
 
-  this.logTable = function(){
+  this.logTable = function() {
     console.table(R.reverse(this.rows.map(function(i) {
       var binStr = i.toString(2);
       binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;

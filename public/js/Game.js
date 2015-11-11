@@ -1,14 +1,14 @@
-var Game = function() {
+var Game = function(p1, p2) {
 
   this.board = new Board();
   this.view = new View();
   this.view.drawBoard();
 
-  var p1 = new CPUPlayerClI(2);
-  var p2 = /*new Player(2);*/ new Player(1);
+  var p1 = p1;// new CPUPlayerClI(2);
+  var p2 = p2;// new Player(1);
 
   var gameOver = false;
-  var currPlayer = p2;
+  var currPlayer = p1;
 
   var winner = 'none';
 
