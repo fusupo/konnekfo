@@ -8,14 +8,12 @@ var View = function() {
   var p2Color = "#F6AE2D";
   var gameboardSVG = document.getElementById('gameboard');
   var boardWidth = gameboardSVG.clientWidth;
-  var boardHeight = gameboardSVG.clientHeight;
+  var boardHeight = gameboardSVG.clientHeight - gameboardSVG.clientHeight/7;
   var cellWidth = boardWidth / 7;
   var cellHeight = boardHeight / 6;
   var topMargin = cellHeight;
 
-  console.log('NEW VIEW');
   this.onColSelect = null;
-
   this.drawCircles = function(s, color) {
     for (var y = 0; y < 6; y++) {
       var row = [];

@@ -8,6 +8,7 @@ window.onload = function() {
     console.log('According to the server, I am player #' + id);
   });
 
+  $('#connect').hide();
   $('#game').hide();
   $('#conclusion').hide();
 
@@ -19,13 +20,27 @@ window.onload = function() {
   });
 
   $('#vs-human-network').click(function() {
-    console.log('vs-human-network');
+    $('#connect').show();
+    $('#menu').hide();
+    window.game = new NetworkGame();
   });
 
   $('#vs-computer').click(function() {
     $('#game').show();
     $('#menu').hide();
     window.game = new LocalGame(new Player(1), new CPUPlayerClI(2));
+  });
+
+  $('#network-new').click(function() {
+    $('#game').show();
+    $('#connect').hide();
+    window.game.new();
+  });
+
+  $('#network-connect').click(function() {
+    $('#game').show();
+    $('#connect').hide();
+    window.game.connect('some connection id');
   });
 
 };
