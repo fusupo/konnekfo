@@ -1,9 +1,9 @@
 "use strict";
 
-var Board = function(data) {
+module.exports = function(data) {
 
   console.log('New Board');
-  // 1. Init the board
+  //  1. Init the board
   this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
   this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
   this.diag1 = data && data.diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left

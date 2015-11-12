@@ -16,7 +16,7 @@ window.onload = function() {
   $vsHumanLocal.click(function() {
     $('#game').show();
     $('#menu').hide();
-    window.game = new LocalGame(new Player(1), new Player(2));
+    window.game = new Game();//LocalGame(new Player(1), new Player(2));
   });
 
   $('#vs-human-network').click(function() {

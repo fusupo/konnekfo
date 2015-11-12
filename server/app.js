@@ -7,8 +7,6 @@ var port = process.env.PORT || '3000';
 var io = require('socket.io')(http);
 var R = require('ramda');
 
-
-
 var users = [];
 
 app.use('/', express.static(__dirname + '/../public'));

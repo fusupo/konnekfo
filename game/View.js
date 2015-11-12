@@ -1,6 +1,6 @@
 "use strict";
 
-var View = function() {
+module.exports = function() {
 
   var bgColor = "#ffffff";
   var boardColor = "#33658A";
