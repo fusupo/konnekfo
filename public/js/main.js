@@ -34,13 +34,17 @@ window.onload = function() {
   $('#network-new').click(function() {
     $('#game').show();
     $('#connect').hide();
-    window.game.new();
+    window.game.new(function() {
+      console.log('new game created!');
+    });
   });
 
   $('#network-connect').click(function() {
     $('#game').show();
     $('#connect').hide();
-    window.game.connect('some connection id');
+    window.game.connect('some connection id', function() {
+      console.log('connected');
+    });
   });
 
 };

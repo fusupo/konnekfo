@@ -1,5 +1,13 @@
 var NetworkGame = function() {
 
+  this.new = function(cbk) {
+    cbk();
+  };
+
+  this.connect = function(connId, cbk) {
+    cbk();
+  };
+
   // this.board = new Board();
   // this.view = new View();
   // this.view.drawBoard();
