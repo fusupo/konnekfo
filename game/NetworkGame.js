@@ -1,4 +1,4 @@
-var NetworkGame = function() {
+module.exports = function() {
 
   this.new = function(cbk) {
     cbk();
