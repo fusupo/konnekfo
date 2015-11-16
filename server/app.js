@@ -65,11 +65,12 @@ app.get('/session/new', function(req, res) {
 
   nsp.on('connection', function(socket) {
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
-      console.log(d);
+      sessions[sessionId].attemptMove(d.playerId, d.colIdx);
     });
 
     console.log(socket.id + 'connected to ' + sessionId);
-    var playerId = sessions[sessionId].provisionPlayer(socket.id);
+
+    var playerId = sessions[sessionId].provisionPlayer(socket);
     socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
   });
 
@@ -87,7 +88,3 @@ app.get('/session/new', function(req, res) {
 http.listen(port, function() {
   console.log('listening on *:' + port);
 });
-
-
-
-

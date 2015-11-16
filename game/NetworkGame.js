@@ -1,9 +1,15 @@
 "use strict";
 
+var Players = require('../game/Player.js');
+var Game = require('../game/Game.js');
+
 module.exports = function() {
+
   console.log('NEW NETWORK GAME');
 
   var p1, p2;
+  var currPlayer;
+  var game;
 
   this.new = function(cbk) {
     cbk();
@@ -13,53 +19,32 @@ module.exports = function() {
     cbk();
   };
 
-  this.provisionPlayer = function() {
+  this.provisionPlayer = function(socket) {
     if (p1 === undefined) {
-      p1 = 'x';
+      p1 = new Players.RemotePlayer(1, socket);
       return 1;
     } else if (p2 === undefined) {
-      p2 = 'x';
+      p2 = new Players.RemotePlayer(2, socket);
+      game = new Game(p1, p2);
       return 2;
     }
+
     return 0;
   };
 
-  // this.board = new Board();
-  // this.view = new View();
-  // this.view.drawBoard();
-
-  // var p1 = p1;
-  // var p2 = p2;
-
-  // var gameOver = false;
-  // var currPlayer = p1;
-
-  // var winner = 'none';
-
-  // this.commitMove = function(colIdx) {
-
-  //   console.log('commitmove', colIdx);
-  //   socket.emit('commit move', colIdx);
-
-  //   // if (currPlayer === p1) {
-  //   //   this.board.move(colIdx, p1.id);
-  //   //   currPlayer = p2;
-  //   // } else {
-  //   //   this.board.move(colIdx, p2.id);
-  //   //   currPlayer = p1;
-  //   // }
-
-  //   // this.view.addPiece(colIdx, 6 - (this.board.getNextRowIdx(colIdx) - 2), currPlayer.id ^ 0b11, (function () {
-  //   //   var winningDirection = this.board.hasWinner();
-  //   //   if (winningDirection) {
-  //   //     alert(this.board.winner + ' won! ' + winningDirection);
-  //   //   } else {
-  //   //     currPlayer.promptMove(this);
-  //   //   }
-  //   // }).bind(this));
-
-  // };
-
-  // currPlayer.promptMove(this);
-
+  this.attemptMove = function(playerId, colIdx) {
+    console.log('palyer ' + playerId + ' wants to make move at ' + colIdx + ', it is player ' + game.currPlayer.id + "'s turn");
+    if (playerId === game.currPlayer.id) {
+      game.currPlayer.socket.emit('their turn');
+      game.commitMove(colIdx);
+      var updateObj = {
+        colIdx: colIdx,
+        rowIdx: 6 - (game.board.getNextRowIdx(colIdx) - 2),
+        playerId: playerId,
+        hasWin: game.board.hasWinner()
+      };
+      p1.socket.emit('board update', updateObj);
+      p2.socket.emit('board update', updateObj);
+    }
+  };
 };

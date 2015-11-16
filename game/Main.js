@@ -8,10 +8,6 @@ var sockConst = require('./SocketConstants.js');
 window.onload = function() {
 
   this.game = 'game';
-  // this.socket = io();
-  // this.socket.on('confirm player', function(id) {
-  //   console.log('According to the server, I am player #' + id);
-  // });
 
   $('#connect').hide();
   $('#game').hide();
@@ -50,13 +46,35 @@ window.onload = function() {
 
   function initSocket(sessionId, view) {
     var socket = io(window.location.href + sessionId);
+    var playerId;
+
     socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
-      console.log(d);
+      playerId = d;
       $('#this-player').html(d);
     });
 
+    socket.on('your turn', function() {
+      $('#whos-turn').html('it\'s your turn');
+    });
+
+    socket.on('their turn', function() {
+      $('#whos-turn').html('it\'s their turn');
+    });
+
+    socket.on('board update', function(d) {
+      console.log(d);
+      view.addPiece(d.colIdx, d.rowIdx, d.playerId, function() {
+        if (d.hasWin) {
+          console.log('player ' + d.playerId + ': ' + d.hasWin);
+        };
+      });
+    });
+
     view.onColSelect = function(colIdx) {
-      socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, colIdx);
+      socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
+        playerId: playerId,
+        colIdx: colIdx
+      });
     };
   }
 
@@ -70,11 +88,6 @@ window.onload = function() {
       view.drawBoard();
       $('#session-id').html(sessionId);
       initSocket(sessionId, view);
-
-      // window.game.new(function() {
-      //   console.log('new game created!');
-      // });
-
     });
   });
 
@@ -87,16 +100,7 @@ window.onload = function() {
     view.drawBoard();
     $('#session-id').html(sessionId);
     initSocket(sessionId, view);
-    //   window.game.connect('some connection id', function() {
-    //     console.log('connected');
-    //   });
   });
-
-  // $('#connect form').submit(function(event) {
-  //   alert("Handler for .submit() called.");
-  //   console.log();
-  //   event.preventDefault();
-  // });
 
   $vsComputer.click(function() {
     $('#game').show();
@@ -105,7 +109,7 @@ window.onload = function() {
     var p1 = new Players.Player(1, view);
     var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
-    window.game = new Game(p1, p2); //new LocalGame(new Player(1), new CPUPlayerClI(2));
+    window.game = new Game(p1, p2); 
     window.game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (window.game.board.getNextRowIdx(colIdx) - 2),
                     window.game.currPlayer.id ^ 3, //0 b11,
