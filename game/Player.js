@@ -89,7 +89,7 @@ module.exports.CPUPlayerClI = function(id) {
 
       if (!board.isColFull(k)) {
         board.move(k, thisID);
-        var tempTally = offense(board, thisID ^ 0 b11, r + 1);
+        var tempTally = offense(board, thisID ^ 3, r + 1);
         tally[0] += tempTally[0];
         tally[1] += tempTally[1];
         tally[2] += tempTally[2];
@@ -120,15 +120,15 @@ module.exports.CPUPlayerClI = function(id) {
     // else, in checkmate. opp will win. this move doesn't matter
     if (winBlock(board, this.id) !== false) {
       returnMove = winBlock(board, this.id);
-    } else if (winBlock(board, this.id ^ 0 b11) !== false) {
-      returnMove = winBlock(board, this.id ^ 0 b11);
+    } else if (winBlock(board, this.id ^ 3) !== false) {
+      returnMove = winBlock(board, this.id ^ 3 );// 0b11);
     } else {
       // else play best offensive move
       var columnStats = [];
       for (var i = 0; i < 7; i++) {
         if (!board.isColFull(i)) {
           board.move(i, id);
-          columnStats[i] = offense(board, id ^ 0 b11, 0);
+          columnStats[i] = offense(board, id ^ 3 );// 0b11, 0);
           board.unmove(i, id);
         }
       }
