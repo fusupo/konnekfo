@@ -45,8 +45,6 @@ window.onload = function() {
   $vsHumanNetwork.click(function() {
     $('#connect').show();
     $('#menu').hide();
-
-    //window.game = new NetworkGame();
   });
 
   $networkNew.click(function() {
@@ -56,7 +54,9 @@ window.onload = function() {
       var socket = io(window.location.href + sessionId);
       $('#game').show();
       $('#connect').hide();
-
+      var view = new View();
+      view.drawBoard();
+      $('#session-id').html(sessionId);
       // window.game.new(function() {
       //   console.log('new game created!');
       // });
@@ -65,12 +65,26 @@ window.onload = function() {
   });
 
   $networkConnect.click(function() {
-    //   $('#game').show();
-    //   $('#connect').hide();
+    var sessionId = prompt('session id');
+    //if sessionId is valid
+    var socket = io(window.location.href + sessionId);
+
+    $('#game').show();
+    $('#connect').hide();
+    var view = new View();
+    view.drawBoard();
+    $('#session-id').html(sessionId);
+
     //   window.game.connect('some connection id', function() {
     //     console.log('connected');
     //   });
   });
+
+  // $('#connect form').submit(function(event) {
+  //   alert("Handler for .submit() called.");
+  //   console.log();
+  //   event.preventDefault();
+  // });
 
   $vsComputer.click(function() {
     $('#game').show();

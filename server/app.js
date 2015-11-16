@@ -60,21 +60,23 @@ var sessions = {};
 
 app.get('/session/new', function(req, res) {
   var sessionId = uid(5);
-  var nsp = io.of('/suckit');// + sessionId);
+  var nsp = io.of(sessionId);
   nsp.on('connection', function(socket) {
     console.log(sessionId + ' someone connected');
   });
 
   sessions[sessionId] = new Game();
-  
+
   res.send(sessionId);
+
   // console.log(Object.keys(io.nsps));
 });
 
 app.get('/session/connect', function(req, res) {
   var url_parts = url.parse(req.url, true);
   var query = url_parts.query;
-  res.send(url_parts);
+  var sessionId = query['session-id'];
+  res.send(sessionId);
 });
 
 http.listen(port, function() {
