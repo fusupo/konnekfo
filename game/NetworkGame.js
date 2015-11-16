@@ -1,4 +1,9 @@
+"use strict";
+
 module.exports = function() {
+  console.log('NEW NETWORK GAME');
+
+  var p1, p2;
 
   this.new = function(cbk) {
     cbk();
@@ -6,6 +11,17 @@ module.exports = function() {
 
   this.connect = function(connId, cbk) {
     cbk();
+  };
+
+  this.provisionPlayer = function() {
+    if (p1 === undefined) {
+      p1 = 'x';
+      return 1;
+    } else if (p2 === undefined) {
+      p2 = 'x';
+      return 2;
+    }
+    return 0;
   };
 
   // this.board = new Board();

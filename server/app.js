@@ -11,8 +11,6 @@ var uid = require('uid');
 
 var Game = require('../game/NetworkGame.js');
 
-var users = [];
-
 app.use('/', express.static(__dirname + '/../public'));
 app.use('/game', express.static(__dirname + '/../game'));
 
@@ -59,25 +57,32 @@ io.on('connection', function(socket) {
 var sessions = {};
 
 app.get('/session/new', function(req, res) {
+
   var sessionId = uid(5);
   var nsp = io.of(sessionId);
-  nsp.on('connection', function(socket) {
-    console.log(sessionId + ' someone connected');
-  });
 
   sessions[sessionId] = new Game();
 
+  nsp.on('connection', function(socket) {
+    socket.on('attempt commit move', function(d) {
+      console.log(d);
+    });
+
+    console.log(socket.id + 'connected to ' + sessionId);
+    var playerId = sessions[sessionId].provisionPlayer(socket.id);
+    socket.emit('dictate player id', playerId);
+  });
+
   res.send(sessionId);
 
-  // console.log(Object.keys(io.nsps));
 });
 
-app.get('/session/connect', function(req, res) {
-  var url_parts = url.parse(req.url, true);
-  var query = url_parts.query;
-  var sessionId = query['session-id'];
-  res.send(sessionId);
-});
+// app.get('/session/connect', function(req, res) {
+//   var url_parts = url.parse(req.url, true);
+//   var query = url_parts.query;
+//   var sessionId = query['session-id'];
+//   res.send(sessionId);
+// });
 
 http.listen(port, function() {
   console.log('listening on *:' + port);

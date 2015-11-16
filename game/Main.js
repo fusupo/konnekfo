@@ -47,17 +47,28 @@ window.onload = function() {
     $('#menu').hide();
   });
 
+  function initSocket(sessionId, view) {
+    var socket = io(window.location.href + sessionId);
+    socket.on('dictate player id', function(d) {
+      console.log(d);
+      $('#this-player').html(d);
+    });
+
+    view.onColSelect = function(colIdx) {
+      socket.emit('attempt commit move', colIdx);
+    };
+  }
+
   $networkNew.click(function() {
     var sessionId;
     $.get("/session/new", function(data, status) {
       sessionId = data;
-      var socket = io(window.location.href + sessionId);
       $('#game').show();
       $('#connect').hide();
       var view = new View();
       view.drawBoard();
       $('#session-id').html(sessionId);
-
+      initSocket(sessionId, view);
       // window.game.new(function() {
       //   console.log('new game created!');
       // });
@@ -67,16 +78,13 @@ window.onload = function() {
 
   $networkConnect.click(function() {
     var sessionId = prompt('session id');
-
     //if sessionId is valid
-    var socket = io(window.location.href + sessionId);
-
     $('#game').show();
     $('#connect').hide();
     var view = new View();
     view.drawBoard();
     $('#session-id').html(sessionId);
-
+    initSocket(sessionId, view);
     //   window.game.connect('some connection id', function() {
     //     console.log('connected');
     //   });
