@@ -215,13 +215,13 @@ window.onload = function() {
     var game = new Game(p1, p2);
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-        game.currPlayer.id ^ 3, //0 b11,
-        function() {
-          var winningDirection = game.board.hasWinner();
-          if (winningDirection) {
-            alert(game.board.winner + ' won! ' + winningDirection);
-          }
-        });
+                    game.currPlayer.id ^ 3, //0 b11,
+                    function() {
+                      var winningDirection = game.board.hasWinner();
+                      if (winningDirection) {
+                        alert(game.board.winner + ' won! ' + winningDirection);
+                      }
+                    });
     };
   });
 
@@ -240,6 +240,7 @@ window.onload = function() {
       var view = new View();
       view.drawBoard();
       $('#session-id').html(sessionId);
+
       // window.game.new(function() {
       //   console.log('new game created!');
       // });
@@ -249,6 +250,7 @@ window.onload = function() {
 
   $networkConnect.click(function() {
     var sessionId = prompt('session id');
+
     //if sessionId is valid
     var socket = io(window.location.href + sessionId);
 
@@ -279,13 +281,13 @@ window.onload = function() {
     window.game = new Game(p1, p2); //new LocalGame(new Player(1), new CPUPlayerClI(2));
     window.game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (window.game.board.getNextRowIdx(colIdx) - 2),
-        window.game.currPlayer.id ^ 3, //0 b11,
-        function() {
-          var winningDirection = window.game.board.hasWinner();
-          if (winningDirection) {
-            alert(window.game.board.winner + ' won! ' + winningDirection);
-          }
-        });
+                    window.game.currPlayer.id ^ 3, //0 b11,
+                    function() {
+                      var winningDirection = window.game.board.hasWinner();
+                      if (winningDirection) {
+                        alert(window.game.board.winner + ' won! ' + winningDirection);
+                      }
+                    });
     };
   });
 };
