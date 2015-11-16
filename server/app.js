@@ -8,7 +8,7 @@ var port = process.env.PORT || '3000';
 var io = require('socket.io')(http);
 var R = require('ramda');
 var uid = require('uid');
-
+var sockConst = require('../game/SocketConstants.js');
 var Game = require('../game/NetworkGame.js');
 
 app.use('/', express.static(__dirname + '/../public'));
@@ -64,13 +64,13 @@ app.get('/session/new', function(req, res) {
   sessions[sessionId] = new Game();
 
   nsp.on('connection', function(socket) {
-    socket.on('attempt commit move', function(d) {
+    socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
       console.log(d);
     });
 
     console.log(socket.id + 'connected to ' + sessionId);
     var playerId = sessions[sessionId].provisionPlayer(socket.id);
-    socket.emit('dictate player id', playerId);
+    socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
   });
 
   res.send(sessionId);
@@ -87,3 +87,7 @@ app.get('/session/new', function(req, res) {
 http.listen(port, function() {
   console.log('listening on *:' + port);
 });
+
+
+
+

@@ -3,6 +3,7 @@
 var Game = require('./Game.js');
 var Players = require('./Player.js');
 var View = require('./View.js');
+var sockConst = require('./SocketConstants.js');
 
 window.onload = function() {
 
@@ -49,13 +50,13 @@ window.onload = function() {
 
   function initSocket(sessionId, view) {
     var socket = io(window.location.href + sessionId);
-    socket.on('dictate player id', function(d) {
+    socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
       console.log(d);
       $('#this-player').html(d);
     });
 
     view.onColSelect = function(colIdx) {
-      socket.emit('attempt commit move', colIdx);
+      socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, colIdx);
     };
   }
 
@@ -69,6 +70,7 @@ window.onload = function() {
       view.drawBoard();
       $('#session-id').html(sessionId);
       initSocket(sessionId, view);
+
       // window.game.new(function() {
       //   console.log('new game created!');
       // });

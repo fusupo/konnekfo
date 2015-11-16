@@ -186,6 +186,7 @@ module.exports = function(p1, p2) {
 var Game = require('./Game.js');
 var Players = require('./Player.js');
 var View = require('./View.js');
+var sockConst = require('./SocketConstants.js');
 
 window.onload = function() {
 
@@ -232,13 +233,13 @@ window.onload = function() {
 
   function initSocket(sessionId, view) {
     var socket = io(window.location.href + sessionId);
-    socket.on('dictate player id', function(d) {
+    socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
       console.log(d);
       $('#this-player').html(d);
     });
 
     view.onColSelect = function(colIdx) {
-      socket.emit('attempt commit move', colIdx);
+      socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, colIdx);
     };
   }
 
@@ -252,6 +253,7 @@ window.onload = function() {
       view.drawBoard();
       $('#session-id').html(sessionId);
       initSocket(sessionId, view);
+
       // window.game.new(function() {
       //   console.log('new game created!');
       // });
@@ -300,7 +302,7 @@ window.onload = function() {
   });
 };
 
-},{"./Game.js":2,"./Player.js":4,"./View.js":5}],4:[function(require,module,exports){
+},{"./Game.js":2,"./Player.js":4,"./SocketConstants.js":5,"./View.js":6}],4:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -537,6 +539,14 @@ module.exports.CPUPlayerMkI = function(id) {
 };
 
 },{}],5:[function(require,module,exports){
+"use strict";
+
+module.exports = {
+  ATTEMPT_COMMIT_MOVE: "attempt commit move",
+  DICTATE_PLAYER_ID: "dictate player id"
+};
+
+},{}],6:[function(require,module,exports){
 "use strict";
 
 module.exports = function() {
