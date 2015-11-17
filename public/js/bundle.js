@@ -173,7 +173,7 @@ module.exports = function(p1, p2) {
       this.currPlayer = p1;
     }
 
-    if (this.moveComitted !== undefined) {
+    if (this.moveCommitted !== undefined) {
       this.moveCommitted(colIdx);
     }
 
@@ -299,14 +299,14 @@ window.onload = function() {
     var p1 = new Players.Player(1, view);
     var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
-    window.game = new Game(p1, p2); 
-    window.game.moveCommitted = function(colIdx) {
-      view.addPiece(colIdx, 6 - (window.game.board.getNextRowIdx(colIdx) - 2),
-                    window.game.currPlayer.id ^ 3, //0 b11,
+    var game = new Game(p1, p2);
+    game.moveCommitted = function(colIdx) {
+      view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
+                    game.currPlayer.id ^ 3, //0 b11,
                     function() {
-                      var winningDirection = window.game.board.hasWinner();
+                      var winningDirection = game.board.hasWinner();
                       if (winningDirection) {
-                        alert(window.game.board.winner + ' won! ' + winningDirection);
+                        alert(game.board.winner + ' won! ' + winningDirection);
                       }
                     });
     };
@@ -358,7 +358,9 @@ module.exports.CPUPlayerClI = function(id) {
     var endDate = new Date();
     var diff = Math.abs(endDate - startDate);
     console.log('THINKING DURATION: ', diff);
-    game.commitMove(move);
+    setTimeout(function() {
+      game.commitMove(move);
+    }, 1000);
   };
 
   var winBlock = function(board, id) {
@@ -437,14 +439,14 @@ module.exports.CPUPlayerClI = function(id) {
     if (winBlock(board, this.id) !== false) {
       returnMove = winBlock(board, this.id);
     } else if (winBlock(board, this.id ^ 3) !== false) {
-      returnMove = winBlock(board, this.id ^ 3 );// 0b11);
+      returnMove = winBlock(board, this.id ^ 3); // 0b11);
     } else {
       // else play best offensive move
       var columnStats = [];
       for (var i = 0; i < 7; i++) {
         if (!board.isColFull(i)) {
           board.move(i, id);
-          columnStats[i] = offense(board, id ^ 3, 0);// 0b11, 0);
+          columnStats[i] = offense(board, id ^ 3, 0); // 0b11, 0);
           board.unmove(i, id);
         }
       }
@@ -668,31 +670,31 @@ module.exports = function() {
     this.drawButtons(s, bgColor);
   };
 
-  this.update = function(board) {
+  // this.update = function(board) {
 
-    for (var col = 0; col < 7; col++) {
+  //   for (var col = 0; col < 7; col++) {
 
-      var binStr = (board.cols[col] >> 4).toString(2);
-      binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
-      var binList = R.reverse(R.splitEvery(2, binStr));
+  //     var binStr = (board.cols[col] >> 4).toString(2);
+  //     binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
+  //     var binList = R.reverse(R.splitEvery(2, binStr));
 
-      //for (var row = 0; row < binList.length; row++) {
-      // var s = binList[row];
-      // var c = this.circles[5 - row][col];
-      // var fillColor = bgColor;
+  //     //for (var row = 0; row < binList.length; row++) {
+  //     // var s = binList[row];
+  //     // var c = this.circles[5 - row][col];
+  //     // var fillColor = bgColor;
 
-      // if (s === '01' || s === '1') {
-      //   fillColor = '#f00';
-      // } else if (s === '10') {
-      //   fillColor = '#ff0';
-      // }
+  //     // if (s === '01' || s === '1') {
+  //     //   fillColor = '#f00';
+  //     // } else if (s === '10') {
+  //     //   fillColor = '#ff0';
+  //     // }
 
-      // c.attr({
-      //   fill: fillColor
-      // });
-      //}
-    }
-  };
+  //     // c.attr({
+  //     //   fill: fillColor
+  //     // });
+  //     //}
+  //   }
+  // };
 
   this.addPiece = function(colIdx, rowIdx, playerID, cbk) {
     var c = s.circle((cellWidth / 2) + (colIdx * cellWidth), 0, 0.4 * cellWidth);

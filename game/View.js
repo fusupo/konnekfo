@@ -105,31 +105,31 @@ module.exports = function() {
     this.drawButtons(s, bgColor);
   };
 
-  this.update = function(board) {
+  // this.update = function(board) {
 
-    for (var col = 0; col < 7; col++) {
+  //   for (var col = 0; col < 7; col++) {
 
-      var binStr = (board.cols[col] >> 4).toString(2);
-      binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
-      var binList = R.reverse(R.splitEvery(2, binStr));
+  //     var binStr = (board.cols[col] >> 4).toString(2);
+  //     binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
+  //     var binList = R.reverse(R.splitEvery(2, binStr));
 
-      //for (var row = 0; row < binList.length; row++) {
-      // var s = binList[row];
-      // var c = this.circles[5 - row][col];
-      // var fillColor = bgColor;
+  //     //for (var row = 0; row < binList.length; row++) {
+  //     // var s = binList[row];
+  //     // var c = this.circles[5 - row][col];
+  //     // var fillColor = bgColor;
 
-      // if (s === '01' || s === '1') {
-      //   fillColor = '#f00';
-      // } else if (s === '10') {
-      //   fillColor = '#ff0';
-      // }
+  //     // if (s === '01' || s === '1') {
+  //     //   fillColor = '#f00';
+  //     // } else if (s === '10') {
+  //     //   fillColor = '#ff0';
+  //     // }
 
-      // c.attr({
-      //   fill: fillColor
-      // });
-      //}
-    }
-  };
+  //     // c.attr({
+  //     //   fill: fillColor
+  //     // });
+  //     //}
+  //   }
+  // };
 
   this.addPiece = function(colIdx, rowIdx, playerID, cbk) {
     var c = s.circle((cellWidth / 2) + (colIdx * cellWidth), 0, 0.4 * cellWidth);

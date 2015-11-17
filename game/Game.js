@@ -18,7 +18,7 @@ module.exports = function(p1, p2) {
       this.currPlayer = p1;
     }
 
-    if (this.moveComitted !== undefined) {
+    if (this.moveCommitted !== undefined) {
       this.moveCommitted(colIdx);
     }
 

@@ -42,7 +42,9 @@ module.exports.CPUPlayerClI = function(id) {
     var endDate = new Date();
     var diff = Math.abs(endDate - startDate);
     console.log('THINKING DURATION: ', diff);
-    game.commitMove(move);
+    setTimeout(function() {
+      game.commitMove(move);
+    }, 1000);
   };
 
   var winBlock = function(board, id) {
@@ -121,14 +123,14 @@ module.exports.CPUPlayerClI = function(id) {
     if (winBlock(board, this.id) !== false) {
       returnMove = winBlock(board, this.id);
     } else if (winBlock(board, this.id ^ 3) !== false) {
-      returnMove = winBlock(board, this.id ^ 3 );// 0b11);
+      returnMove = winBlock(board, this.id ^ 3); // 0b11);
     } else {
       // else play best offensive move
       var columnStats = [];
       for (var i = 0; i < 7; i++) {
         if (!board.isColFull(i)) {
           board.move(i, id);
-          columnStats[i] = offense(board, id ^ 3, 0);// 0b11, 0);
+          columnStats[i] = offense(board, id ^ 3, 0); // 0b11, 0);
           board.unmove(i, id);
         }
       }

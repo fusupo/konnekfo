@@ -110,14 +110,14 @@ window.onload = function() {
     var p1 = new Players.Player(1, view);
     var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
-    window.game = new Game(p1, p2); 
-    window.game.moveCommitted = function(colIdx) {
-      view.addPiece(colIdx, 6 - (window.game.board.getNextRowIdx(colIdx) - 2),
-                    window.game.currPlayer.id ^ 3, //0 b11,
+    var game = new Game(p1, p2);
+    game.moveCommitted = function(colIdx) {
+      view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
+                    game.currPlayer.id ^ 3, //0 b11,
                     function() {
-                      var winningDirection = window.game.board.hasWinner();
+                      var winningDirection = game.board.hasWinner();
                       if (winningDirection) {
-                        alert(window.game.board.winner + ' won! ' + winningDirection);
+                        alert(game.board.winner + ' won! ' + winningDirection);
                       }
                     });
     };

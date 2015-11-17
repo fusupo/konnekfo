@@ -30,6 +30,7 @@ app.get('/session/new', function(req, res) {
   sessions[sessionId] = new Game();
 
   nsp.on('connection', function(socket) {
+
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
       sessions[sessionId].attemptMove(d.playerId, d.colIdx);
     });
@@ -38,6 +39,7 @@ app.get('/session/new', function(req, res) {
 
     var playerId = sessions[sessionId].provisionPlayer(socket);
     socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
+
   });
 
   res.send(sessionId);
