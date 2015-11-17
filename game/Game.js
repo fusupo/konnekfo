@@ -18,6 +18,8 @@ module.exports = function(p1, p2) {
       this.currPlayer = p1;
     }
 
+    this.moveCommitted(colIdx);
+
     var winningDirection = this.board.hasWinner();
     if (!winningDirection) {
       this.currPlayer.promptMove(this);

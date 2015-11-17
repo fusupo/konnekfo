@@ -128,7 +128,7 @@ module.exports.CPUPlayerClI = function(id) {
       for (var i = 0; i < 7; i++) {
         if (!board.isColFull(i)) {
           board.move(i, id);
-          columnStats[i] = offense(board, id ^ 3 );// 0b11, 0);
+          columnStats[i] = offense(board, id ^ 3, 0);// 0b11, 0);
           board.unmove(i, id);
         }
       }
