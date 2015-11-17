@@ -18,7 +18,9 @@ module.exports = function(p1, p2) {
       this.currPlayer = p1;
     }
 
-    this.moveCommitted(colIdx);
+    if (this.moveComitted !== undefined) {
+      this.moveCommitted(colIdx);
+    }
 
     var winningDirection = this.board.hasWinner();
     if (!winningDirection) {
@@ -28,4 +30,3 @@ module.exports = function(p1, p2) {
 
   this.currPlayer.promptMove(this);
 };
-

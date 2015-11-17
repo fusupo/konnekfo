@@ -71,6 +71,7 @@ window.onload = function() {
     });
 
     view.onColSelect = function(colIdx) {
+      console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
       socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
         playerId: playerId,
         colIdx: colIdx

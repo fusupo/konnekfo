@@ -173,7 +173,9 @@ module.exports = function(p1, p2) {
       this.currPlayer = p1;
     }
 
-    this.moveCommitted(colIdx);
+    if (this.moveComitted !== undefined) {
+      this.moveCommitted(colIdx);
+    }
 
     var winningDirection = this.board.hasWinner();
     if (!winningDirection) {
@@ -183,7 +185,6 @@ module.exports = function(p1, p2) {
 
   this.currPlayer.promptMove(this);
 };
-
 
 },{"./Board.js":1}],3:[function(require,module,exports){
 "use strict";
@@ -259,6 +260,7 @@ window.onload = function() {
     });
 
     view.onColSelect = function(colIdx) {
+      console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
       socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
         playerId: playerId,
         colIdx: colIdx
