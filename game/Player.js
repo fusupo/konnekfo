@@ -26,9 +26,6 @@ module.exports.RemotePlayer = function(id, socket) {
   this.promptMove = function(game) {
     socket.emit('your turn');
     console.log('its your turn, player ' + this.id);
-    // setTimeout(3000, function() {
-    //   game.commitMove(Math.floor(Math.random() * 7));
-    // });
   };
 };
 
@@ -159,81 +156,81 @@ module.exports.CPUPlayerClI = function(id) {
   };
 };
 
-module.exports.CPUPlayerMkI = function(id) {
-  this.id = id;
+// module.exports.CPUPlayerMkI = function(id) {
+//   this.id = id;
 
-  var figureOutThePlan = function(board) {
+//   var figureOutThePlan = function(board) {
 
-    var result;
-    var recur = function(node) {
-      var xo = arguments[1] || id;
-      var i = 0;
-      while (i < 7 && result === undefined) {
+//     var result;
+//     var recur = function(node) {
+//       var xo = arguments[1] || id;
+//       var i = 0;
+//       while (i < 7 && result === undefined) {
 
-        var b = new Board(node.value.cloneCells());
-        var n = new Tree(b);
-        var moveResult = b.move(i, id);
-        var hasWin = b.hasWinner();
+//         var b = new Board(node.value.cloneCells());
+//         var n = new Tree(b);
+//         var moveResult = b.move(i, id);
+//         var hasWin = b.hasWinner();
 
-        if (!hasWin && moveResult) {
-          //console.log(arguments);
-          //node.addChild(recur.bind(this)(n, xo)); //xo === "x" ? "o" : "x"));
-          var j = 0;
-          while (j < 7 && result === undefined) {
+//         if (!hasWin && moveResult) {
+//           //console.log(arguments);
+//           //node.addChild(recur.bind(this)(n, xo)); //xo === "x" ? "o" : "x"));
+//           var j = 0;
+//           while (j < 7 && result === undefined) {
 
-            var b2 = new Board(n.value.cloneCells());
-            var n2 = new Tree(b2);
-            var moveResult2 = b2.move(i, xo === "x" ? "o" : "x");
-            var hasWin2 = b2.hasWinner();
+//             var b2 = new Board(n.value.cloneCells());
+//             var n2 = new Tree(b2);
+//             var moveResult2 = b2.move(i, xo === "x" ? "o" : "x");
+//             var hasWin2 = b2.hasWinner();
 
-            if (!hasWin2 && moveResult2) {
-              n.addChild(recur.bind(this)(n2, xo)); //xo === "x" ? "o" : "x"));
-            } else {
-              if (hasWin2) {
-                result = b2;
-              }
+//             if (!hasWin2 && moveResult2) {
+//               n.addChild(recur.bind(this)(n2, xo)); //xo === "x" ? "o" : "x"));
+//             } else {
+//               if (hasWin2) {
+//                 result = b2;
+//               }
 
-              n.addChild(n2);
-            }
+//               n.addChild(n2);
+//             }
 
-            j++;
-          }
+//             j++;
+//           }
 
-          node.addChild(n);
-        } else {
-          if (hasWin) {
-            result = b;
-          }
+//           node.addChild(n);
+//         } else {
+//           if (hasWin) {
+//             result = b;
+//           }
 
-          node.addChild(n);
-        }
+//           node.addChild(n);
+//         }
 
-        i++;
-      }
+//         i++;
+//       }
 
-      return node;
-    };
+//       return node;
+//     };
 
-    var n = new Tree(board);
-    var tree = recur.bind(this)(n);
+//     var n = new Tree(board);
+//     var tree = recur.bind(this)(n);
 
-    //console.log(tree);
-    // console.log(tree.DFTraverse(function(value) {
-    //   return value === result;
-    // }));
-    tree.DFTraverse(function(value) {
-      return value === result;
-    });
+//     //console.log(tree);
+//     // console.log(tree.DFTraverse(function(value) {
+//     //   return value === result;
+//     // }));
+//     tree.DFTraverse(function(value) {
+//       return value === result;
+//     });
 
-    return tree.DFTraverse(function(value) {
-      return value === result;
-    })[0];
+//     return tree.DFTraverse(function(value) {
+//       return value === result;
+//     })[0];
 
-  };
+//   };
 
-  this.promptMove = function(game) {
-    var move = figureOutThePlan.bind(this)(game.board);
-    game.commitMove(move);
-  };
+//   this.promptMove = function(game) {
+//     var move = figureOutThePlan.bind(this)(game.board);
+//     game.commitMove(move);
+//   };
 
-};
+// };

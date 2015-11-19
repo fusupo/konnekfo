@@ -11,14 +11,6 @@ module.exports = function() {
   var currPlayer;
   var game;
 
-  // this.new = function(cbk) {
-  //   cbk();
-  // };
-
-  // this.connect = function(connId, cbk) {
-  //   cbk();
-  // };
-
   this.provisionPlayer = function(socket) {
     if (p1 === undefined) {
       p1 = new Players.RemotePlayer(1, socket);
