@@ -152,6 +152,15 @@ module.exports = function(data) {
 
 };
 },{}],2:[function(require,module,exports){
+"use strict"
+
+module.exports = {
+  p1Color: "#DE6B48",
+  p2Color: "#F6AE2D",
+  boardColor: "#33658A",
+  bgColor: "#FFFFFF"
+}
+},{}],3:[function(require,module,exports){
 "use strict";
 
 var Board = require("./Board.js");
@@ -193,14 +202,14 @@ module.exports = function(p1, p2) {
   };
 
 };
-},{"./Board.js":1}],3:[function(require,module,exports){
+},{"./Board.js":1}],4:[function(require,module,exports){
 "use strict";
 
 var Game = require('./Game.js');
 var Players = require('./Player.js');
 var View = require('./View.js');
 var sockConst = require('./SocketConstants.js');
-
+var Colors = require('./Colors.js');
 window.onload = function() {
 
   this.game = 'game';
@@ -223,12 +232,14 @@ window.onload = function() {
     var p2 = new Players.Player(2, view);
     view.drawBoard();
     var game = new Game(p1, p2);
+    showWhosTurn(game.currPlayer.id);
     $('#conclusion #reset-local').click(function(e) {
       console.log('reset click');
       game.reset();
       view.drawBoard();
       $('#conclusion').hide();
       $('#conclusion #reset-local').click(function() {});
+      showWhosTurn(game.currPlayer.id);
     });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
@@ -241,6 +252,7 @@ window.onload = function() {
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
           }
         });
+      showWhosTurn(game.currPlayer.id);
     };
   });
 
@@ -259,11 +271,11 @@ window.onload = function() {
     });
 
     socket.on('your turn', function() {
-      $('#whos-turn').html('it\'s your turn');
+      showWhosTurn(playerId, "It's Your Turn!");
     });
 
     socket.on('their turn', function() {
-      $('#whos-turn').html('it\'s their turn');
+      showWhosTurn(playerId ^ 3, "It's Their Turn.");
     });
 
     socket.on('board update', function(d) {
@@ -336,6 +348,13 @@ window.onload = function() {
     }
   });
 
+  function showWhosTurn(playerId, msg) {
+    msg = msg || 'it\'s player ' + playerId + '\'s turn';
+    $('#whos-turn')
+      .html(msg)
+      .css('color', Colors['p' + playerId + 'Color']);
+  }
+
   $vsComputer.click(function() {
     $('#game').show();
     $('#menu').hide();
@@ -344,12 +363,14 @@ window.onload = function() {
     var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
     var game = new Game(p1, p2);
+    showWhosTurn(game.currPlayer.id);
     $('#conclusion #reset-local').click(function(e) {
       console.log('reset click');
       game.reset();
       view.drawBoard();
       $('#conclusion').hide();
       $('#conclusion #reset-local').click(function() {});
+      showWhosTurn(game.currPlayer.id);
     });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
@@ -362,10 +383,11 @@ window.onload = function() {
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
           }
         });
+      showWhosTurn(game.currPlayer.id);
     };
   });
 };
-},{"./Game.js":2,"./Player.js":4,"./SocketConstants.js":5,"./View.js":6}],4:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -602,7 +624,7 @@ module.exports.CPUPlayerClI = function(id) {
 //   };
 
 // };
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -610,15 +632,17 @@ module.exports = {
   DICTATE_PLAYER_ID: "dictate player id"
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
+
+var colors = require('./Colors.js');
 
 module.exports = function() {
 
-  var bgColor = "#ffffff";
-  var boardColor = "#33658A";
-  var p1Color = "#DE6B48";
-  var p2Color = "#F6AE2D";
+  var bgColor = colors.bgColor;
+  var boardColor = colors.boardColor;
+  var p1Color = colors.p1Color;
+  var p2Color = colors.p2Color;
   var gameboardSVG = document.getElementById('gameboard');
   var boardWidth = gameboardSVG.clientWidth;
   var boardHeight = gameboardSVG.clientHeight - gameboardSVG.clientHeight / 7;
@@ -730,4 +754,4 @@ module.exports = function() {
     }, 500, mina.bounce, cbk);
   };
 };
-},{}]},{},[3]);
+},{"./Colors.js":2}]},{},[4]);

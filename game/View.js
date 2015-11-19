@@ -1,11 +1,13 @@
 "use strict";
 
+var colors = require('./Colors.js');
+
 module.exports = function() {
 
-  var bgColor = "#ffffff";
-  var boardColor = "#33658A";
-  var p1Color = "#DE6B48";
-  var p2Color = "#F6AE2D";
+  var bgColor = colors.bgColor;
+  var boardColor = colors.boardColor;
+  var p1Color = colors.p1Color;
+  var p2Color = colors.p2Color;
   var gameboardSVG = document.getElementById('gameboard');
   var boardWidth = gameboardSVG.clientWidth;
   var boardHeight = gameboardSVG.clientHeight - gameboardSVG.clientHeight / 7;

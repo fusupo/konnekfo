@@ -4,7 +4,7 @@ var Game = require('./Game.js');
 var Players = require('./Player.js');
 var View = require('./View.js');
 var sockConst = require('./SocketConstants.js');
-
+var Colors = require('./Colors.js');
 window.onload = function() {
 
   this.game = 'game';
@@ -27,12 +27,14 @@ window.onload = function() {
     var p2 = new Players.Player(2, view);
     view.drawBoard();
     var game = new Game(p1, p2);
+    showWhosTurn(game.currPlayer.id);
     $('#conclusion #reset-local').click(function(e) {
       console.log('reset click');
       game.reset();
       view.drawBoard();
       $('#conclusion').hide();
       $('#conclusion #reset-local').click(function() {});
+      showWhosTurn(game.currPlayer.id);
     });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
@@ -45,6 +47,7 @@ window.onload = function() {
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
           }
         });
+      showWhosTurn(game.currPlayer.id);
     };
   });
 
@@ -63,11 +66,11 @@ window.onload = function() {
     });
 
     socket.on('your turn', function() {
-      $('#whos-turn').html('it\'s your turn');
+      showWhosTurn(playerId, "It's Your Turn!");
     });
 
     socket.on('their turn', function() {
-      $('#whos-turn').html('it\'s their turn');
+      showWhosTurn(playerId ^ 3, "It's Their Turn.");
     });
 
     socket.on('board update', function(d) {
@@ -140,6 +143,13 @@ window.onload = function() {
     }
   });
 
+  function showWhosTurn(playerId, msg) {
+    msg = msg || 'it\'s player ' + playerId + '\'s turn';
+    $('#whos-turn')
+      .html(msg)
+      .css('color', Colors['p' + playerId + 'Color']);
+  }
+
   $vsComputer.click(function() {
     $('#game').show();
     $('#menu').hide();
@@ -148,12 +158,14 @@ window.onload = function() {
     var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
     var game = new Game(p1, p2);
+    showWhosTurn(game.currPlayer.id);
     $('#conclusion #reset-local').click(function(e) {
       console.log('reset click');
       game.reset();
       view.drawBoard();
       $('#conclusion').hide();
       $('#conclusion #reset-local').click(function() {});
+      showWhosTurn(game.currPlayer.id);
     });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
@@ -166,6 +178,7 @@ window.onload = function() {
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
           }
         });
+      showWhosTurn(game.currPlayer.id);
     };
   });
 };
