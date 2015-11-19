@@ -11,13 +11,13 @@ module.exports = function() {
   var currPlayer;
   var game;
 
-  this.new = function(cbk) {
-    cbk();
-  };
+  // this.new = function(cbk) {
+  //   cbk();
+  // };
 
-  this.connect = function(connId, cbk) {
-    cbk();
-  };
+  // this.connect = function(connId, cbk) {
+  //   cbk();
+  // };
 
   this.provisionPlayer = function(socket) {
     if (p1 === undefined) {
@@ -46,5 +46,9 @@ module.exports = function() {
       p1.socket.emit('board update', updateObj);
       p2.socket.emit('board update', updateObj);
     }
+  };
+
+  this.reset = function() {
+    game.reset();
   };
 };

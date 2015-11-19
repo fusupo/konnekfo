@@ -88,7 +88,7 @@ module.exports = function(data) {
       var check = (c1 & c2 & c3 & c4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('horizontal win!!');
+        return ('h');
       }
     }
 
@@ -101,7 +101,7 @@ module.exports = function(data) {
       var check = (r1 & r2 & r3 & r4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('vertical win!!');
+        return ('v');
       }
     }
 
@@ -113,7 +113,7 @@ module.exports = function(data) {
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('diag1 win!!');
+        return ('d1');
       }
     }
 
@@ -125,7 +125,7 @@ module.exports = function(data) {
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('diag2 win!!');
+        return ('d2');
       }
     }
 

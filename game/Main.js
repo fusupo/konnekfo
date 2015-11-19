@@ -27,15 +27,24 @@ window.onload = function() {
     var p2 = new Players.Player(2, view);
     view.drawBoard();
     var game = new Game(p1, p2);
+    $('#conclusion #reset-local').click(function(e) {
+      console.log('reset click');
+      game.reset();
+      view.drawBoard();
+      $('#conclusion').hide();
+      $('#conclusion #reset-local').click(function() {});
+    });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-                    game.currPlayer.id ^ 3, //0 b11,
-                    function() {
-                      var winningDirection = game.board.hasWinner();
-                      if (winningDirection) {
-                        alert(game.board.winner + ' won! ' + winningDirection);
-                      }
-                    });
+        game.currPlayer.id ^ 3, //0 b11,
+        function() {
+          var winningDirection = game.board.hasWinner();
+          if (winningDirection) {
+            $('#conclusion').show();
+            $('#reset-network').hide();
+            $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+          }
+        });
     };
   });
 
@@ -65,9 +74,28 @@ window.onload = function() {
       console.log(d);
       view.addPiece(d.colIdx, d.rowIdx, d.playerId, function() {
         if (d.hasWin) {
-          console.log('player ' + d.playerId + ': ' + d.hasWin);
+          $('#conclusion').show();
+          $('#reset-local').hide();
+          $('#conclusion #result').html(d.playerId + ' won! ' + d.hasWin);
         };
       });
+    });
+
+    socket.on('opt-in-reset', function(d) {
+      if (d.playerId !== playerId) {
+        $('#check-reset-them').attr('checked', true);
+      }
+    });
+
+    socket.on('reset', function(d) {
+      console.log('reset fool!');
+      view.drawBoard();
+      $('#check-reset-you').attr({
+        'checked': false,
+        'disabled': false
+      });
+      $('#check-reset-them').attr('checked', false);
+      $('#conclusion').hide();
     });
 
     view.onColSelect = function(colIdx) {
@@ -77,6 +105,13 @@ window.onload = function() {
         colIdx: colIdx
       });
     };
+
+    $('#check-reset-you').change(function(e) {
+      $('#check-reset-you').attr('disabled', true);
+      socket.emit('opt-in-reset', {
+        playerId: playerId
+      });
+    });
   }
 
   $networkNew.click(function() {
@@ -95,12 +130,14 @@ window.onload = function() {
   $networkConnect.click(function() {
     var sessionId = prompt('session id');
     //if sessionId is valid
-    $('#game').show();
-    $('#connect').hide();
-    var view = new View();
-    view.drawBoard();
-    $('#session-id').html(sessionId);
-    initSocket(sessionId, view);
+    if (sessionId) {
+      $('#game').show();
+      $('#connect').hide();
+      var view = new View();
+      view.drawBoard();
+      $('#session-id').html(sessionId);
+      initSocket(sessionId, view);
+    }
   });
 
   $vsComputer.click(function() {
@@ -111,15 +148,24 @@ window.onload = function() {
     var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
     var game = new Game(p1, p2);
+    $('#conclusion #reset-local').click(function(e) {
+      console.log('reset click');
+      game.reset();
+      view.drawBoard();
+      $('#conclusion').hide();
+      $('#conclusion #reset-local').click(function() {});
+    });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-                    game.currPlayer.id ^ 3, //0 b11,
-                    function() {
-                      var winningDirection = game.board.hasWinner();
-                      if (winningDirection) {
-                        alert(game.board.winner + ' won! ' + winningDirection);
-                      }
-                    });
+        game.currPlayer.id ^ 3, //0 b11,
+        function() {
+          var winningDirection = game.board.hasWinner();
+          if (winningDirection) {
+            $('#conclusion').show();
+            $('#reset-network').hide();
+            $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+          }
+        });
     };
   });
 };

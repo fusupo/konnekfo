@@ -26,6 +26,7 @@ app.get('/session/new', function(req, res) {
 
   var sessionId = uid(5);
   var nsp = io.of(sessionId);
+  var resetCount = 0;
 
   sessions[sessionId] = new Game();
 
@@ -33,6 +34,18 @@ app.get('/session/new', function(req, res) {
 
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
       sessions[sessionId].attemptMove(d.playerId, d.colIdx);
+    });
+
+    socket.on('opt-in-reset', function(d) {
+      resetCount++;
+      if (resetCount === 2) {
+        nsp.emit('reset');
+        resetCount = 0;
+        sessions[sessionId].reset();
+      } else {
+        nsp.emit('opt-in-reset', d);
+        console.log('player ' + d.playerId + ' opts in to reset the game!!');
+      }
     });
 
     console.log(socket.id + 'connected to ' + sessionId);

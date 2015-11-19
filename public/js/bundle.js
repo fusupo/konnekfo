@@ -89,7 +89,7 @@ module.exports = function(data) {
       var check = (c1 & c2 & c3 & c4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('horizontal win!!');
+        return ('h');
       }
     }
 
@@ -102,7 +102,7 @@ module.exports = function(data) {
       var check = (r1 & r2 & r3 & r4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('vertical win!!');
+        return ('v');
       }
     }
 
@@ -114,7 +114,7 @@ module.exports = function(data) {
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('diag1 win!!');
+        return ('d1');
       }
     }
 
@@ -126,7 +126,7 @@ module.exports = function(data) {
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('diag2 win!!');
+        return ('d2');
       }
     }
 
@@ -151,7 +151,6 @@ module.exports = function(data) {
   };
 
 };
-
 },{}],2:[function(require,module,exports){
 "use strict";
 
@@ -162,7 +161,7 @@ module.exports = function(p1, p2) {
   console.log('GAME INIT');
 
   this.board = new Board();
-  this.currPlayer = p1;
+  var firstToPlay = this.currPlayer = p1;
 
   this.commitMove = function(colIdx) {
     if (this.currPlayer === p1) {
@@ -184,8 +183,16 @@ module.exports = function(p1, p2) {
   };
 
   this.currPlayer.promptMove(this);
-};
 
+  this.reset = function() {
+    console.log('reset the fuggin game!!');
+    this.board = new Board();
+    // switch who starts every other game...(now I'm gonna have to keep a tally of games won overall #eyeROll)
+    firstToPlay = this.currPlayer = firstToPlay === p1 ? p2 : p1;
+    this.currPlayer.promptMove(this);
+  };
+
+};
 },{"./Board.js":1}],3:[function(require,module,exports){
 "use strict";
 
@@ -216,15 +223,24 @@ window.onload = function() {
     var p2 = new Players.Player(2, view);
     view.drawBoard();
     var game = new Game(p1, p2);
+    $('#conclusion #reset-local').click(function(e) {
+      console.log('reset click');
+      game.reset();
+      view.drawBoard();
+      $('#conclusion').hide();
+      $('#conclusion #reset-local').click(function() {});
+    });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-                    game.currPlayer.id ^ 3, //0 b11,
-                    function() {
-                      var winningDirection = game.board.hasWinner();
-                      if (winningDirection) {
-                        alert(game.board.winner + ' won! ' + winningDirection);
-                      }
-                    });
+        game.currPlayer.id ^ 3, //0 b11,
+        function() {
+          var winningDirection = game.board.hasWinner();
+          if (winningDirection) {
+            $('#conclusion').show();
+            $('#reset-network').hide();
+            $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+          }
+        });
     };
   });
 
@@ -254,9 +270,28 @@ window.onload = function() {
       console.log(d);
       view.addPiece(d.colIdx, d.rowIdx, d.playerId, function() {
         if (d.hasWin) {
-          console.log('player ' + d.playerId + ': ' + d.hasWin);
+          $('#conclusion').show();
+          $('#reset-local').hide();
+          $('#conclusion #result').html(d.playerId + ' won! ' + d.hasWin);
         };
       });
+    });
+
+    socket.on('opt-in-reset', function(d) {
+      if (d.playerId !== playerId) {
+        $('#check-reset-them').attr('checked', true);
+      }
+    });
+
+    socket.on('reset', function(d) {
+      console.log('reset fool!');
+      view.drawBoard();
+      $('#check-reset-you').attr({
+        'checked': false,
+        'disabled': false
+      });
+      $('#check-reset-them').attr('checked', false);
+      $('#conclusion').hide();
     });
 
     view.onColSelect = function(colIdx) {
@@ -266,6 +301,13 @@ window.onload = function() {
         colIdx: colIdx
       });
     };
+
+    $('#check-reset-you').change(function(e) {
+      $('#check-reset-you').attr('disabled', true);
+      socket.emit('opt-in-reset', {
+        playerId: playerId
+      });
+    });
   }
 
   $networkNew.click(function() {
@@ -284,12 +326,14 @@ window.onload = function() {
   $networkConnect.click(function() {
     var sessionId = prompt('session id');
     //if sessionId is valid
-    $('#game').show();
-    $('#connect').hide();
-    var view = new View();
-    view.drawBoard();
-    $('#session-id').html(sessionId);
-    initSocket(sessionId, view);
+    if (sessionId) {
+      $('#game').show();
+      $('#connect').hide();
+      var view = new View();
+      view.drawBoard();
+      $('#session-id').html(sessionId);
+      initSocket(sessionId, view);
+    }
   });
 
   $vsComputer.click(function() {
@@ -300,19 +344,27 @@ window.onload = function() {
     var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
     var game = new Game(p1, p2);
+    $('#conclusion #reset-local').click(function(e) {
+      console.log('reset click');
+      game.reset();
+      view.drawBoard();
+      $('#conclusion').hide();
+      $('#conclusion #reset-local').click(function() {});
+    });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-                    game.currPlayer.id ^ 3, //0 b11,
-                    function() {
-                      var winningDirection = game.board.hasWinner();
-                      if (winningDirection) {
-                        alert(game.board.winner + ' won! ' + winningDirection);
-                      }
-                    });
+        game.currPlayer.id ^ 3, //0 b11,
+        function() {
+          var winningDirection = game.board.hasWinner();
+          if (winningDirection) {
+            $('#conclusion').show();
+            $('#reset-network').hide();
+            $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+          }
+        });
     };
   });
 };
-
 },{"./Game.js":2,"./Player.js":4,"./SocketConstants.js":5,"./View.js":6}],4:[function(require,module,exports){
 "use strict";
 
@@ -669,32 +721,6 @@ module.exports = function() {
     //this.drawCircles(s, bgColor);
     this.drawButtons(s, bgColor);
   };
-
-  // this.update = function(board) {
-
-  //   for (var col = 0; col < 7; col++) {
-
-  //     var binStr = (board.cols[col] >> 4).toString(2);
-  //     binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
-  //     var binList = R.reverse(R.splitEvery(2, binStr));
-
-  //     //for (var row = 0; row < binList.length; row++) {
-  //     // var s = binList[row];
-  //     // var c = this.circles[5 - row][col];
-  //     // var fillColor = bgColor;
-
-  //     // if (s === '01' || s === '1') {
-  //     //   fillColor = '#f00';
-  //     // } else if (s === '10') {
-  //     //   fillColor = '#ff0';
-  //     // }
-
-  //     // c.attr({
-  //     //   fill: fillColor
-  //     // });
-  //     //}
-  //   }
-  // };
 
   this.addPiece = function(colIdx, rowIdx, playerID, cbk) {
     var c = s.circle((cellWidth / 2) + (colIdx * cellWidth), 0, 0.4 * cellWidth);

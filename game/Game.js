@@ -7,7 +7,7 @@ module.exports = function(p1, p2) {
   console.log('GAME INIT');
 
   this.board = new Board();
-  this.currPlayer = p1;
+  var firstToPlay = this.currPlayer = p1;
 
   this.commitMove = function(colIdx) {
     if (this.currPlayer === p1) {
@@ -29,4 +29,13 @@ module.exports = function(p1, p2) {
   };
 
   this.currPlayer.promptMove(this);
+
+  this.reset = function() {
+    console.log('reset the fuggin game!!');
+    this.board = new Board();
+    // switch who starts every other game...(now I'm gonna have to keep a tally of games won overall #eyeROll)
+    firstToPlay = this.currPlayer = firstToPlay === p1 ? p2 : p1;
+    this.currPlayer.promptMove(this);
+  };
+
 };
