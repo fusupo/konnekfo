@@ -32,6 +32,8 @@ app.get('/session/new', function(req, res) {
 
   nsp.on('connection', function(socket) {
 
+    var playerId = sessions[sessionId].provisionPlayer(socket);
+
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
       sessions[sessionId].attemptMove(d.playerId, d.colIdx);
     });
@@ -48,9 +50,12 @@ app.get('/session/new', function(req, res) {
       }
     });
 
+    socket.on('disconnect', function() {
+      sessions[sessionId].removePlayer(playerId);
+    });
+
     console.log(socket.id + 'connected to ' + sessionId);
 
-    var playerId = sessions[sessionId].provisionPlayer(socket);
     socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
 
   });

@@ -306,6 +306,16 @@ window.onload = function() {
       $('#conclusion').hide();
     });
 
+    socket.on('opponent-connect', function() {
+      $('#opponent-connection #indicator').css('background-color', '#00ff00');
+      $('#opponent-connection #text').html('Opponent Connected');
+    });
+
+    socket.on('opponent-disconnect', function() {
+      $('#opponent-connection #indicator').css('background-color', '#ff0000');
+      $('#opponent-connection #text').html('Opponent Disconnected');
+    });
+
     view.onColSelect = function(colIdx) {
       console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
       socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {

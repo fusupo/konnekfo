@@ -18,6 +18,9 @@ module.exports = function() {
     } else if (p2 === undefined) {
       p2 = new Players.RemotePlayer(2, socket);
       game = new Game(p1, p2);
+      p1.socket.emit('opponent-connect');
+      p2.socket.emit('opponent-connect');
+      p2.socket.emit('their turn');
       return 2;
     }
 
@@ -42,5 +45,15 @@ module.exports = function() {
 
   this.reset = function() {
     game.reset();
+  };
+
+  this.removePlayer = function(playerId) {
+    if (playerId === 1) {
+      console.log('RMEOV PLAYER ONE!!!');
+      p2.socket.emit('opponent-disconnect');
+    } else if (playerId === 2) {
+      console.log('REMOVE PLAYER TWO!!!');
+      p1.socket.emit('opponent-disconnect');
+    }
   };
 };
