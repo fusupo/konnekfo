@@ -247,6 +247,15 @@ window.onload = function() {
   var $networkConnect = $('#network-connect');
 
   $vsHumanLocal.click(function() {
+
+    $('#return').click(function() {
+      $('#menu').show();
+      $('#connect').hide();
+      $('#game').hide();
+      $('#conclusion').hide();
+      $('#return').click(function() {});
+    });
+
     $('#game').show();
     $('#menu').hide();
     var view = new View();
@@ -323,10 +332,6 @@ window.onload = function() {
       });
     });
 
-    // socket.on('update game tally', function(d) {
-    //   updateGameTally(d);
-    // });
-
     socket.on('opt-in-reset', function(d) {
       console.log(d.playerId, " OPT IN RESET");
       if (d.playerId !== playerId) {
@@ -370,6 +375,16 @@ window.onload = function() {
         playerId: playerId
       });
     });
+
+    $('#return').click(function() {
+      $('#menu').show();
+      $('#connect').hide();
+      $('#game').hide();
+      $('#conclusion').hide();
+      socket.emit('manual-disconnect');
+      $('#return').click(function() {});
+    });
+
   }
 
   $networkNew.click(function() {
@@ -412,7 +427,15 @@ window.onload = function() {
   }
 
   $vsComputer.click(function() {
-    console.log("adsadsa");
+
+    $('#return').click(function() {
+      $('#menu').show();
+      $('#connect').hide();
+      $('#game').hide();
+      $('#conclusion').hide();
+      $('#return').click(function() {});
+    });
+
     $('#game').show();
     $('#menu').hide();
     var view = new View();

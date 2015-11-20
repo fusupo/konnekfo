@@ -54,6 +54,11 @@ app.get('/session/new', function(req, res) {
       sessions[sessionId].removePlayer(playerId);
     });
 
+    socket.on('manual-disconnect', function() {
+      console.log('FUCKING MANUAL DISCONNECT');
+      sessions[sessionId].removePlayer(playerId);
+    });
+
     console.log(socket.id + 'connected to ' + sessionId);
 
     socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
