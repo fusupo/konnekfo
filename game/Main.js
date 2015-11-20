@@ -47,10 +47,12 @@ window.onload = function() {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+            updateGameTally(game.winTally);
           } else if (game.board.isBoardFull()) {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html('game is draw');
+            updateGameTally(game.winTally);
           }
         });
       showWhosTurn(game.currPlayer.id);
@@ -86,24 +88,19 @@ window.onload = function() {
           $('#conclusion').show();
           $('#reset-local').hide();
           $('#conclusion #result').html(d.playerId + ' won! ' + d.hasWin);
+          updateGameTally(d.winTally);
         } else if (d.isDraw) {
           $('#conclusion').show();
           $('#reset-local').hide();
           $('#conclusion #result').html('game is draw');
+          updateGameTally(d.winTally);
         }
       });
     });
 
-    socket.on('update game tally', function(d) {
-      if (playerId === 1) {
-        $('#game-win-tally #wins').html(d[0]);
-        $('#game-win-tally #losses').html(d[1]);
-      } else {
-        $('#game-win-tally #wins').html(d[1]);
-        $('#game-win-tally #losses').html(d[0]);
-      }
-      $('#game-win-tally #draws').html(d[2]);
-    });
+    // socket.on('update game tally', function(d) {
+    //   updateGameTally(d);
+    // });
 
     socket.on('opt-in-reset', function(d) {
       console.log(d.playerId, " OPT IN RESET");
@@ -183,6 +180,12 @@ window.onload = function() {
       .css('color', Colors['p' + playerId + 'Color']);
   }
 
+  function updateGameTally(tally) {
+    $('#game-win-tally #p1').html(tally[0]);
+    $('#game-win-tally #p2').html(tally[1]);
+    $('#game-win-tally #draws').html(tally[2]);
+  }
+
   $vsComputer.click(function() {
     console.log("adsadsa");
     $('#game').show();
@@ -210,10 +213,12 @@ window.onload = function() {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+            updateGameTally(game.winTally);
           } else if (game.board.isBoardFull()) {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html('game is draw');
+            updateGameTally(game.winTally);
           }
         });
       showWhosTurn(game.currPlayer.id);
