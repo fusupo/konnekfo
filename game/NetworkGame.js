@@ -29,17 +29,18 @@ module.exports = function() {
 
   this.attemptMove = function(playerId, colIdx) {
     console.log('palyer ' + playerId + ' wants to make move at ' + colIdx + ', it is player ' + game.currPlayer.id + "'s turn");
-    if (playerId === game.currPlayer.id) {
+    if (playerId === game.currPlayer.id && !game.board.hasWinner()) {
       game.currPlayer.socket.emit('their turn');
-      game.commitMove(colIdx);
-      var updateObj = {
-        colIdx: colIdx,
-        rowIdx: 6 - (game.board.getNextRowIdx(colIdx) - 2),
-        playerId: playerId,
-        hasWin: game.board.hasWinner()
-      };
-      p1.socket.emit('board update', updateObj);
-      p2.socket.emit('board update', updateObj);
+      if (game.commitMove(colIdx)) {
+        var updateObj = {
+          colIdx: colIdx,
+          rowIdx: 6 - (game.board.getNextRowIdx(colIdx) - 2),
+          playerId: playerId,
+          hasWin: game.board.hasWinner()
+        };
+        p1.socket.emit('board update', updateObj);
+        p2.socket.emit('board update', updateObj);
+      }
     }
   };
 
