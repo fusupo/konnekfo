@@ -169,8 +169,8 @@ module.exports = function(p1, p2) {
 
   console.log('GAME INIT');
 
-  this.board = new Board();
-  var firstToPlay = this.currPlayer = p1;
+  this.winTally = [0, 0, 0];
+  var firstToPlay; // = this.currPlayer = p1;
 
   this.commitMove = function(colIdx) {
     if (!this.board.isColFull(colIdx)) {
@@ -191,6 +191,12 @@ module.exports = function(p1, p2) {
         this.currPlayer.promptMove(this);
       }
 
+      if (winningDirection) {
+        this.winTally[(this.currPlayer.id ^ 3) - 1] ++;
+      } else if (this.board.isBoardFull()) {
+        this.winTally[2] ++;
+      }
+
       return true;
     } else {
       this.currPlayer.promptMove(this);
@@ -198,15 +204,22 @@ module.exports = function(p1, p2) {
     }
   };
 
-  this.currPlayer.promptMove(this);
-
   this.reset = function() {
-    console.log('reset the fuggin game!!');
+
     this.board = new Board();
-    // switch who starts every other game...(now I'm gonna have to keep a tally of games won overall #eyeROll)
-    firstToPlay = this.currPlayer = firstToPlay === p1 ? p2 : p1;
+
+    // switch who starts every other game...
+    if (!firstToPlay) {
+      firstToPlay = this.currPlayer = p1;
+    } else {
+      firstToPlay = this.currPlayer = firstToPlay === p1 ? p2 : p1;
+    }
+
     this.currPlayer.promptMove(this);
+
   };
+
+  this.reset();
 
 };
 },{"./Board.js":1}],4:[function(require,module,exports){
@@ -259,10 +272,12 @@ window.onload = function() {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+            updateGameTally(game.winTally);
           } else if (game.board.isBoardFull()) {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html('game is draw');
+            updateGameTally(game.winTally);
           }
         });
       showWhosTurn(game.currPlayer.id);
@@ -298,24 +313,19 @@ window.onload = function() {
           $('#conclusion').show();
           $('#reset-local').hide();
           $('#conclusion #result').html(d.playerId + ' won! ' + d.hasWin);
+          updateGameTally(d.winTally);
         } else if (d.isDraw) {
           $('#conclusion').show();
           $('#reset-local').hide();
           $('#conclusion #result').html('game is draw');
+          updateGameTally(d.winTally);
         }
       });
     });
 
-    socket.on('update game tally', function(d) {
-      if (playerId === 1) {
-        $('#game-win-tally #wins').html(d[0]);
-        $('#game-win-tally #losses').html(d[1]);
-      } else {
-        $('#game-win-tally #wins').html(d[1]);
-        $('#game-win-tally #losses').html(d[0]);
-      }
-      $('#game-win-tally #draws').html(d[2]);
-    });
+    // socket.on('update game tally', function(d) {
+    //   updateGameTally(d);
+    // });
 
     socket.on('opt-in-reset', function(d) {
       console.log(d.playerId, " OPT IN RESET");
@@ -395,6 +405,12 @@ window.onload = function() {
       .css('color', Colors['p' + playerId + 'Color']);
   }
 
+  function updateGameTally(tally) {
+    $('#game-win-tally #p1').html(tally[0]);
+    $('#game-win-tally #p2').html(tally[1]);
+    $('#game-win-tally #draws').html(tally[2]);
+  }
+
   $vsComputer.click(function() {
     console.log("adsadsa");
     $('#game').show();
@@ -422,10 +438,12 @@ window.onload = function() {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+            updateGameTally(game.winTally);
           } else if (game.board.isBoardFull()) {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html('game is draw');
+            updateGameTally(game.winTally);
           }
         });
       showWhosTurn(game.currPlayer.id);
