@@ -94,6 +94,17 @@ window.onload = function() {
       });
     });
 
+    socket.on('update game tally', function(d) {
+      if (playerId === 1) {
+        $('#game-win-tally #wins').html(d[0]);
+        $('#game-win-tally #losses').html(d[1]);
+      } else {
+        $('#game-win-tally #wins').html(d[1]);
+        $('#game-win-tally #losses').html(d[0]);
+      }
+      $('#game-win-tally #draws').html(d[2]);
+    });
+
     socket.on('opt-in-reset', function(d) {
       console.log(d.playerId, " OPT IN RESET");
       if (d.playerId !== playerId) {

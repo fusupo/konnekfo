@@ -42,6 +42,16 @@ module.exports = function() {
         };
         p1.socket.emit('board update', updateObj);
         p2.socket.emit('board update', updateObj);
+
+        if (updateObj.hasWin) {
+          winTally[playerId - 1] ++;
+          p1.socket.emit('update game tally', winTally);
+          p2.socket.emit('update game tally', winTally);
+        } else if (updateObj.isDraw) {
+          winTally[2] ++;
+          p1.socket.emit('update game tally', winTally);
+          p2.socket.emit('update game tally', winTally);
+        }
       }
     }
   };

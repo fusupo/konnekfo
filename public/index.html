@@ -44,7 +44,28 @@
     </ul>
   </div>
   <div id="game" class="flow">
+
     <h2>game</h2>
+
+    <table id="game-win-tally" style="border-collapse: collapse;">
+      <tr>
+        <th style="padding: 0px 10px 0px 10px">wins</th>
+        <th style="padding: 0px 10px 0px 10px">losses</th>
+        <th style="padding: 0px 10px 0px 10px">draws</th>
+      </tr>
+      <tr>
+        <td style="padding: 0px 10px 0px 10px">
+          <div id="wins"></div>
+        </td>
+        <td style="padding: 0px 10px 0px 10px">
+          <div id="losses"></div>
+        </td>
+        <td style="padding: 0px 10px 0px 10px">
+          <div id="draws"></div>
+        </td>
+      </tr>
+    </table>
+
     <div id="session-id"></div>
     <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
     <div id="opponent-connection">
