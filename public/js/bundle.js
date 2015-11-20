@@ -301,7 +301,7 @@ window.onload = function() {
       console.log(d.playerId, " OPT IN RESET");
       if (d.playerId !== playerId) {
         console.log($('#check-reset-them'));
-        $('#check-reset-them').attr('checked', true);
+        $('#check-reset-them').prop('checked', true);
       }
     });
 
@@ -312,7 +312,7 @@ window.onload = function() {
         'checked': false,
         'disabled': false
       });
-      $('#check-reset-them').attr('checked', false);
+      $('#check-reset-them').prop('checked', false);
       $('#conclusion').hide();
     });
 
@@ -352,9 +352,6 @@ window.onload = function() {
       view.drawBoard();
       $('#session-id').html(sessionId);
       initSocket(sessionId, view);
-
-
-
     });
   });
 
