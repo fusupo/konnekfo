@@ -10,7 +10,6 @@ module.exports = function() {
   var p1, p2;
   var currPlayer;
   var game;
-  var winTally = [0, 0, 0];
 
   this.provisionPlayer = function(socket) {
     if (p1 === undefined) {
@@ -38,20 +37,11 @@ module.exports = function() {
           rowIdx: 6 - (game.board.getNextRowIdx(colIdx) - 2),
           playerId: playerId,
           hasWin: game.board.hasWinner(),
-          isDraw: game.board.isBoardFull()
+          isDraw: game.board.isBoardFull(),
+          winTally: game.winTally
         };
         p1.socket.emit('board update', updateObj);
         p2.socket.emit('board update', updateObj);
-
-        if (updateObj.hasWin) {
-          winTally[playerId - 1] ++;
-          p1.socket.emit('update game tally', winTally);
-          p2.socket.emit('update game tally', winTally);
-        } else if (updateObj.isDraw) {
-          winTally[2] ++;
-          p1.socket.emit('update game tally', winTally);
-          p2.socket.emit('update game tally', winTally);
-        }
       }
     }
   };
