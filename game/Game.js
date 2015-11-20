@@ -24,9 +24,10 @@ module.exports = function(p1, p2) {
       }
 
       var winningDirection = this.board.hasWinner();
-      if (!winningDirection) {
+      if (!winningDirection && !this.board.isBoardFull()) {
         this.currPlayer.promptMove(this);
       }
+
       return true;
     } else {
       this.currPlayer.promptMove(this);

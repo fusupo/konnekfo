@@ -47,6 +47,10 @@ window.onload = function() {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+          } else if (game.board.isBoardFull()) {
+            $('#conclusion').show();
+            $('#reset-network').hide();
+            $('#conclusion #result').html('game is draw');
           }
         });
       showWhosTurn(game.currPlayer.id);
@@ -82,7 +86,11 @@ window.onload = function() {
           $('#conclusion').show();
           $('#reset-local').hide();
           $('#conclusion #result').html(d.playerId + ' won! ' + d.hasWin);
-        };
+        } else if (d.isDraw) {
+          $('#conclusion').show();
+          $('#reset-local').hide();
+          $('#conclusion #result').html('game is draw');
+        }
       });
     });
 
@@ -191,6 +199,10 @@ window.onload = function() {
             $('#conclusion').show();
             $('#reset-network').hide();
             $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+          } else if (game.board.isBoardFull()) {
+            $('#conclusion').show();
+            $('#reset-network').hide();
+            $('#conclusion #result').html('game is draw');
           }
         });
       showWhosTurn(game.currPlayer.id);

@@ -10,6 +10,7 @@ module.exports = function() {
   var p1, p2;
   var currPlayer;
   var game;
+  var winTally = [0, 0, 0];
 
   this.provisionPlayer = function(socket) {
     if (p1 === undefined) {
@@ -36,7 +37,8 @@ module.exports = function() {
           colIdx: colIdx,
           rowIdx: 6 - (game.board.getNextRowIdx(colIdx) - 2),
           playerId: playerId,
-          hasWin: game.board.hasWinner()
+          hasWin: game.board.hasWinner(),
+          isDraw: game.board.isBoardFull()
         };
         p1.socket.emit('board update', updateObj);
         p2.socket.emit('board update', updateObj);
