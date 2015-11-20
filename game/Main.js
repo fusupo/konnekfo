@@ -5,6 +5,8 @@ var Players = require('./Player.js');
 var View = require('./View.js');
 var sockConst = require('./SocketConstants.js');
 var Colors = require('./Colors.js');
+var Clipboard = require('clipboard');
+
 window.onload = function() {
 
   this.game = 'game';
@@ -85,7 +87,9 @@ window.onload = function() {
     });
 
     socket.on('opt-in-reset', function(d) {
+      console.log(d.playerId, " OPT IN RESET");
       if (d.playerId !== playerId) {
+        console.log($('#check-reset-them'));
         $('#check-reset-them').attr('checked', true);
       }
     });
@@ -137,6 +141,9 @@ window.onload = function() {
       view.drawBoard();
       $('#session-id').html(sessionId);
       initSocket(sessionId, view);
+
+
+
     });
   });
 
@@ -161,6 +168,7 @@ window.onload = function() {
   }
 
   $vsComputer.click(function() {
+    console.log("adsadsa");
     $('#game').show();
     $('#menu').hide();
     var view = new View();
@@ -191,4 +199,6 @@ window.onload = function() {
       showWhosTurn(game.currPlayer.id);
     };
   });
+
+  new Clipboard('#copy-button');
 };

@@ -7,13 +7,6 @@
   <link rel="stylesheet" type="text/css" href="css/normalize.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.17.1/ramda.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
-
-  <script src="js/bundle.js"></script>
-
 </head>
 
 <body>
@@ -49,6 +42,7 @@
   <div id="game" class="flow">
     <h2>game</h2>
     <div id="session-id"></div>
+    <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
     <div id="opponent-connection">
       <div id="indicator" style="display:inline-block; border-radius:50%; width:20px; height:20px; background-color:#ff0000"></div>
       <span id="text">Opponent Not Connected</span>
@@ -76,6 +70,14 @@
       </tr>
     </table>
   </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.17.1/ramda.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+
+  <script src="js/bundle.js"></script>
 </body>
 
 </html>
