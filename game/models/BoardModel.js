@@ -2,8 +2,8 @@
 
 var Backbone = require('backbone');
 
-module.exports = Backbone.Model.extend((function()  {
-  
+module.exports = Backbone.Model.extend((function() {
+
   ////////////////////////////////////////  HELPER FNs
 
   var checkToPlayer = function(c) {
@@ -21,43 +21,48 @@ module.exports = Backbone.Model.extend((function()  {
   };
 
   //////////////////////////////////////// END HELPER FNs
-  
+
   return {
     defaults: {
-      cols : [2, 2, 2, 2, 2, 2, 2],
-      rows : [0, 0, 0, 0, 0, 0],
-      diag1 : [0, 0, 0, 0, 0, 0], // bottom right to top left
-      diag2 : [0, 0, 0, 0, 0, 0],
+      cols: [2, 2, 2, 2, 2, 2, 2],
+      rows: [0, 0, 0, 0, 0, 0],
+      diag1: [0, 0, 0, 0, 0, 0], // bottom right to top left
+      diag2: [0, 0, 0, 0, 0, 0],
       winner: null
     },
-    initialize: function(){
-      console.log("new board");
+    initialize: function() {
+      console.log("new board model");
     },
-    move: function(colIdx, playerId){
+    move: function(colIdx, playerId) {
       var cols = this.get("cols");
       var rows = this.get("rows");
       var diag1 = this.get("diag1");
       var diag2 = this.get("diag2");
       var idx = getNextRowIdx(cols[colIdx]);
-      var currCols = removeIdxFromCol(cols[colIdx]); 
+      var currCols = removeIdxFromCol(cols[colIdx]);
       var mv = playerId << (idx * 2);
       cols[colIdx] = (idx + 1) + currCols + mv;
       rows[idx - 2] += playerId << (colIdx * 2);
       diag1[idx - 2] += playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] += playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
       this.set({
-        "cols":cols,
-        "rows":rows,
-        "diag1":diag1,
-        "diag2":diag2
+        "cols": cols,
+        "rows": rows,
+        "diag1": diag1,
+        "diag2": diag2
+      });
+      this.trigger('moveCommitted', {
+        colIdx: colIdx,
+        rowIdx: 6 - (idx - 1),
+        playerId: playerId
       });
     },
-    unmove : function(colIdx, playerId) {
+    unmove: function(colIdx, playerId) {
       var cols = this.get("cols");
       var rows = this.get("rows");
       var diag1 = this.get("diag1");
       var diag2 = this.get("diag2");
-      var idx = getNextRowIdx(cols[colIdx]); 
+      var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
       var shiftCount = 32 - ((idx - 1) * 2);
       currCols = (currCols << shiftCount) >>> shiftCount;
@@ -67,13 +72,13 @@ module.exports = Backbone.Model.extend((function()  {
       diag1[idx - 2] -= playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] -= playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
       this.set({
-        "cols":cols,
-        "rows":rows,
-        "diag1":diag1,
-        "diag2":diag2
+        "cols": cols,
+        "rows": rows,
+        "diag1": diag1,
+        "diag2": diag2
       });
     },
-    isBoardFull : function() {
+    isBoardFull: function() {
       var result = true;
       for (var i = 0; i < 7; i++) {
         if (!this.isColFull(i)) {
@@ -83,10 +88,10 @@ module.exports = Backbone.Model.extend((function()  {
       }
       return result;
     },
-    isColFull : function(colIdx) {
+    isColFull: function(colIdx) {
       return getNextRowIdx(this.get("cols")[colIdx]) >= 8;
     },
-    hasWinner : function() {
+    hasWinner: function() {
       var cols = this.get("cols");
       var rows = this.get("rows");
       var diag1 = this.get("diag1");
@@ -138,7 +143,7 @@ module.exports = Backbone.Model.extend((function()  {
       }
       return false;
     },
-    cloneCells : function() {
+    cloneCells: function() {
       return {
         cols: R.clone(this.get("cols")),
         rows: R.clone(this.get("rows")),
@@ -146,7 +151,7 @@ module.exports = Backbone.Model.extend((function()  {
         diag2: R.clone(this.get("diag2"))
       };
     },
-    logTable : function() {
+    logTable: function() {
       var rows = this.get("rows");
       console.table(R.reverse(rows.map(function(i) {
         var binStr = i.toString(2);
