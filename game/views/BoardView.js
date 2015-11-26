@@ -33,10 +33,6 @@ module.exports = Backbone.View.extend((function() {
       cellWidth = boardWidth / 7;
       cellHeight = boardHeight / 6;
       topMargin = cellHeight;
-      // Compile the template using underscore
-      // var template = _.template( $("#search_template").html(), {} );
-      // Load the compiled HTML into the Backbone "el"
-      this.$el.html("populate teh div nukkah'!!");
       s = Snap(this.el);
       console.log(Snap)
       var bg = s.rect(0, 0, boardWidth, boardHeight + topMargin);
@@ -95,14 +91,14 @@ module.exports = Backbone.View.extend((function() {
     },
     addPiece: function(colIdx, rowIdx, playerID, cbk) {
       var c = s.circle((cellWidth / 2) + (colIdx * cellWidth), 0, 0.4 * cellWidth);
-    c.attr({
-      fill: playerID === 1 ? p1Color : p2Color,
-      opacity: 1
-    });
-    this.circles.add(c);
-    c.animate({
-      cy: (cellHeight / 2 + topMargin) + (rowIdx * cellHeight)
-    }, 500, mina.bounce, cbk);
-  }
-};
-                                      })());
+      c.attr({
+        fill: playerID === 1 ? p1Color : p2Color,
+        opacity: 1
+      });
+      this.circles.add(c);
+      c.animate({
+        cy: (cellHeight / 2 + topMargin) + (rowIdx * cellHeight)
+      }, 500, mina.bounce, cbk);
+    }
+  };
+})());

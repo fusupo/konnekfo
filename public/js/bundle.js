@@ -233,6 +233,7 @@ var sockConst = require('./SocketConstants.js');
 var Colors = require('./Colors.js');
 var Clipboard = require('clipboard');
 
+var MenuView = require('./views/MenuView.js');
 var BoardModel = require('./models/BoardModel.js');
 var BoardView = require('./views/BoardView.js');
 
@@ -464,6 +465,9 @@ window.onload = function() {
 
   new Clipboard('#copy-button');
 
+  window.mv = new MenuView({
+    el: $("#tempMenuView")
+  });
   window.bm = new BoardModel();
   window.bv = new BoardView({
     el: $("#tempBoardView")
@@ -481,7 +485,7 @@ window.onload = function() {
   //
 };
 
-},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/BoardView.js":9,"backbone":10,"clipboard":13}],5:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/BoardView.js":9,"./views/MenuView.js":10,"backbone":11,"clipboard":14}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -850,7 +854,7 @@ module.exports = function() {
   };
 };
 
-},{"./Colors.js":2,"snapsvg":22}],8:[function(require,module,exports){
+},{"./Colors.js":2,"snapsvg":23}],8:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1015,7 +1019,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":10}],9:[function(require,module,exports){
+},{"backbone":11}],9:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1051,10 +1055,6 @@ module.exports = Backbone.View.extend((function() {
       cellWidth = boardWidth / 7;
       cellHeight = boardHeight / 6;
       topMargin = cellHeight;
-      // Compile the template using underscore
-      // var template = _.template( $("#search_template").html(), {} );
-      // Load the compiled HTML into the Backbone "el"
-      this.$el.html("populate teh div nukkah'!!");
       s = Snap(this.el);
       console.log(Snap)
       var bg = s.rect(0, 0, boardWidth, boardHeight + topMargin);
@@ -1113,19 +1113,75 @@ module.exports = Backbone.View.extend((function() {
     },
     addPiece: function(colIdx, rowIdx, playerID, cbk) {
       var c = s.circle((cellWidth / 2) + (colIdx * cellWidth), 0, 0.4 * cellWidth);
-    c.attr({
-      fill: playerID === 1 ? p1Color : p2Color,
-      opacity: 1
-    });
-    this.circles.add(c);
-    c.animate({
-      cy: (cellHeight / 2 + topMargin) + (rowIdx * cellHeight)
-    }, 500, mina.bounce, cbk);
-  }
-};
-                                      })());
+      c.attr({
+        fill: playerID === 1 ? p1Color : p2Color,
+        opacity: 1
+      });
+      this.circles.add(c);
+      c.animate({
+        cy: (cellHeight / 2 + topMargin) + (rowIdx * cellHeight)
+      }, 500, mina.bounce, cbk);
+    }
+  };
+})());
 
-},{"../Colors.js":2,"backbone":10,"snapsvg":22}],10:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":11,"snapsvg":23}],10:[function(require,module,exports){
+"use strict";
+
+var Backbone = require('backbone');
+var _ = require('underscore');
+var colors = require('../Colors.js');
+
+module.exports = Backbone.View.extend((function() {
+  return {
+    initialize: function() {
+      console.log("new menu view");
+      this.render();
+    },
+    render: function() {
+      this.renderMain();
+    },
+    events: {
+      "click #vs-human-local": function() {
+        console.log("click nukkah!");
+        this.renderReturn();
+      },
+      "click #vs-human-network": function() {
+        this.renderConnect();
+      },
+      "click #vs-computer": function() {
+        console.log("cpmputer");
+        this.renderReturn();
+      },
+      "click #network-new": function(){
+        console.log("network new");
+        this.renderReturn();
+      },
+      "click #network-connect": function(){
+        console.log("network connect");
+        this.renderReturn();
+      },
+      "click #back-to-main": function(){
+        this.renderMain();
+      }
+    },
+    renderMain: function() {
+      console.log(this);
+      var template = _.template($("#main_menu_template").html());
+      this.$el.html(template);
+    },
+    renderConnect: function() {
+      console.log(this);
+      var template = _.template($("#connect_menu_template").html());
+      this.$el.html(template);
+    },
+    renderReturn: function(){
+      this.$el.html("<div id='back-to-main'>Back To Main</div>");
+    }
+  };
+})());
+
+},{"../Colors.js":2,"backbone":11,"underscore":25}],11:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -3023,7 +3079,7 @@ module.exports = Backbone.View.extend((function() {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":21,"underscore":11}],11:[function(require,module,exports){
+},{"jquery":22,"underscore":12}],12:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4573,7 +4629,7 @@ module.exports = Backbone.View.extend((function() {
   }
 }.call(this));
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4806,7 +4862,7 @@ var ClipboardAction = (function () {
 
 exports['default'] = ClipboardAction;
 module.exports = exports['default'];
-},{"select":19}],13:[function(require,module,exports){
+},{"select":20}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4964,7 +5020,7 @@ function getAttributeValue(suffix, element) {
 
 exports['default'] = Clipboard;
 module.exports = exports['default'];
-},{"./clipboard-action":12,"good-listener":18,"tiny-emitter":20}],14:[function(require,module,exports){
+},{"./clipboard-action":13,"good-listener":19,"tiny-emitter":21}],15:[function(require,module,exports){
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf) {
@@ -4976,7 +5032,7 @@ module.exports = function (element, selector, checkYoSelf) {
   }
 }
 
-},{"matches-selector":15}],15:[function(require,module,exports){
+},{"matches-selector":16}],16:[function(require,module,exports){
 
 /**
  * Element prototype.
@@ -5017,7 +5073,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var closest = require('closest');
 
 /**
@@ -5062,7 +5118,7 @@ function listener(element, selector, type, callback) {
 
 module.exports = delegate;
 
-},{"closest":14}],17:[function(require,module,exports){
+},{"closest":15}],18:[function(require,module,exports){
 /**
  * Check if argument is a HTML element.
  *
@@ -5113,7 +5169,7 @@ exports.function = function(value) {
     return type === '[object Function]';
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var is = require('./is');
 var delegate = require('delegate');
 
@@ -5210,7 +5266,7 @@ function listenSelector(selector, type, callback) {
 
 module.exports = listen;
 
-},{"./is":17,"delegate":16}],19:[function(require,module,exports){
+},{"./is":18,"delegate":17}],20:[function(require,module,exports){
 function select(element) {
     var selectedText;
 
@@ -5240,7 +5296,7 @@ function select(element) {
 
 module.exports = select;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -5308,7 +5364,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -14520,7 +14576,7 @@ return jQuery;
 
 }));
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -22692,7 +22748,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":23}],23:[function(require,module,exports){
+},{"eve":24}],24:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23097,4 +23153,6 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}]},{},[4]);
+},{}],25:[function(require,module,exports){
+arguments[4][12][0].apply(exports,arguments)
+},{"dup":12}]},{},[4]);

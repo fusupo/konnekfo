@@ -8,6 +8,7 @@ var sockConst = require('./SocketConstants.js');
 var Colors = require('./Colors.js');
 var Clipboard = require('clipboard');
 
+var MenuView = require('./views/MenuView.js');
 var BoardModel = require('./models/BoardModel.js');
 var BoardView = require('./views/BoardView.js');
 
@@ -239,6 +240,9 @@ window.onload = function() {
 
   new Clipboard('#copy-button');
 
+  window.mv = new MenuView({
+    el: $("#tempMenuView")
+  });
   window.bm = new BoardModel();
   window.bv = new BoardView({
     el: $("#tempBoardView")
