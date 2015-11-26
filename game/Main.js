@@ -1,11 +1,15 @@
 "use strict";
 
+var Backbone = require('backbone');
 var Game = require('./Game.js');
 var Players = require('./Player.js');
 var View = require('./View.js');
 var sockConst = require('./SocketConstants.js');
 var Colors = require('./Colors.js');
 var Clipboard = require('clipboard');
+
+var BoardModel = require('./models/BoardModel.js');
+var BoardView = require('./views/BoardView.js');
 
 window.onload = function() {
 
@@ -22,7 +26,6 @@ window.onload = function() {
   var $networkConnect = $('#network-connect');
 
   $vsHumanLocal.click(function() {
-
     $('#return').click(function() {
       $('#menu').show();
       $('#connect').hide();
@@ -49,21 +52,21 @@ window.onload = function() {
     });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-        game.currPlayer.id ^ 3, //0 b11,
-        function() {
-          var winningDirection = game.board.hasWinner();
-          if (winningDirection) {
-            $('#conclusion').show();
-            $('#reset-network').hide();
-            $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
-            updateGameTally(game.winTally);
-          } else if (game.board.isBoardFull()) {
-            $('#conclusion').show();
-            $('#reset-network').hide();
-            $('#conclusion #result').html('game is draw');
-            updateGameTally(game.winTally);
-          }
-        });
+                    game.currPlayer.id ^ 3, //0 b11,
+                    function() {
+                      var winningDirection = game.board.hasWinner();
+                      if (winningDirection) {
+                        $('#conclusion').show();
+                        $('#reset-network').hide();
+                        $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+                        updateGameTally(game.winTally);
+                      } else if (game.board.isBoardFull()) {
+                        $('#conclusion').show();
+                        $('#reset-network').hide();
+                        $('#conclusion #result').html('game is draw');
+                        updateGameTally(game.winTally);
+                      }
+                    });
       showWhosTurn(game.currPlayer.id);
     };
   });
@@ -76,20 +79,16 @@ window.onload = function() {
   function initSocket(sessionId, view) {
     var socket = io(window.location.href + sessionId);
     var playerId;
-
     socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
       playerId = d;
       $('#this-player').html(d);
     });
-
     socket.on('your turn', function() {
       showWhosTurn(playerId, "It's Your Turn!");
     });
-
     socket.on('their turn', function() {
       showWhosTurn(playerId ^ 3, "It's Their Turn.");
     });
-
     socket.on('board update', function(d) {
       console.log(d);
       view.addPiece(d.colIdx, d.rowIdx, d.playerId, function() {
@@ -106,7 +105,6 @@ window.onload = function() {
         }
       });
     });
-
     socket.on('opt-in-reset', function(d) {
       console.log(d.playerId, " OPT IN RESET");
       if (d.playerId !== playerId) {
@@ -114,7 +112,6 @@ window.onload = function() {
         $('#check-reset-them').prop('checked', true);
       }
     });
-
     socket.on('reset', function(d) {
       console.log('reset fool!');
       view.drawBoard();
@@ -125,17 +122,14 @@ window.onload = function() {
       $('#check-reset-them').prop('checked', false);
       $('#conclusion').hide();
     });
-
     socket.on('opponent-connect', function() {
       $('#opponent-connection #indicator').css('background-color', '#00ff00');
       $('#opponent-connection #text').html('Opponent Connected');
     });
-
     socket.on('opponent-disconnect', function() {
       $('#opponent-connection #indicator').css('background-color', '#ff0000');
       $('#opponent-connection #text').html('Opponent Disconnected');
     });
-
     view.onColSelect = function(colIdx) {
       console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
       socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
@@ -143,14 +137,12 @@ window.onload = function() {
         colIdx: colIdx
       });
     };
-
     $('#check-reset-you').change(function(e) {
       $('#check-reset-you').attr('disabled', true);
       socket.emit('opt-in-reset', {
         playerId: playerId
       });
     });
-
     $('#return').click(function() {
       $('#menu').show();
       $('#connect').hide();
@@ -159,7 +151,6 @@ window.onload = function() {
       socket.emit('manual-disconnect');
       $('#return').click(function() {});
     });
-
   }
 
   $networkNew.click(function() {
@@ -202,7 +193,6 @@ window.onload = function() {
   }
 
   $vsComputer.click(function() {
-
     $('#return').click(function() {
       $('#menu').show();
       $('#connect').hide();
@@ -210,7 +200,6 @@ window.onload = function() {
       $('#conclusion').hide();
       $('#return').click(function() {});
     });
-
     $('#game').show();
     $('#menu').hide();
     var view = new View();
@@ -229,24 +218,40 @@ window.onload = function() {
     });
     game.moveCommitted = function(colIdx) {
       view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-        game.currPlayer.id ^ 3, //0 b11,
-        function() {
-          var winningDirection = game.board.hasWinner();
-          if (winningDirection) {
-            $('#conclusion').show();
-            $('#reset-network').hide();
-            $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
-            updateGameTally(game.winTally);
-          } else if (game.board.isBoardFull()) {
-            $('#conclusion').show();
-            $('#reset-network').hide();
-            $('#conclusion #result').html('game is draw');
-            updateGameTally(game.winTally);
-          }
-        });
+                    game.currPlayer.id ^ 3, //0 b11,
+                    function() {
+                      var winningDirection = game.board.hasWinner();
+                      if (winningDirection) {
+                        $('#conclusion').show();
+                        $('#reset-network').hide();
+                        $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+                        updateGameTally(game.winTally);
+                      } else if (game.board.isBoardFull()) {
+                        $('#conclusion').show();
+                        $('#reset-network').hide();
+                        $('#conclusion #result').html('game is draw');
+                        updateGameTally(game.winTally);
+                      }
+                    });
       showWhosTurn(game.currPlayer.id);
     };
   });
 
   new Clipboard('#copy-button');
+
+  window.bm = new BoardModel();
+  window.bv = new BoardView({
+    el: $("#tempBoardView")
+  });
+
+  var pID = 1;
+  window.bv.on("suck", function(x){
+    window.bm.move(x, pID);
+    //window.bm.logTable();
+    pID = pID ^ 3;
+  });
+  window.bm.on("moveCommitted", function(x){
+    window.bv.addPiece(x.colIdx, x.rowIdx, x.playerId);
+  });
+  //
 };

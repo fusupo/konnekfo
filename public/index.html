@@ -8,95 +8,95 @@
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.17.1/ramda.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
   <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
   <script type="text/javascript" src="js/bundle.js"></script>
 </head>
 
 <body>
-  <h1>konnekFo'</h1>
-  <!-- <svg id="svg"> -->
-  <!-- </svg> -->
+    <h1>konnekFo'</h1>
+    <!-- <svg id="svg"> -->
+    <!-- </svg> -->
 
-  <div id="menu" class="flow">
-    <h2>menu</h2>
-    <ul>
-      <li>
-        <span id="vs-human-local">versus human local</span>
-      </li>
-      <li>
-        <span id="vs-human-network">versus human network</span>
-      </li>
-      <li>
-        <span id="vs-computer">versus computer</span>
-      </li>
-    </ul>
-  </div>
-  <div id="connect" class="flow">
-    <h2>connect</h2>
-    <ul>
-      <li>
-        <span id="network-new">start new game as player 1</span>
-      </li>
-      <li>
-        <span id="network-connect">connect to a game </span>
-      </li>
-    </ul>
-  </div>
-  <div id="game" class="flow">
-
-    <div id="return">main menu</div>
-
-    <h2>game</h2>
-
-    <table id="game-win-tally" style="border-collapse: collapse;">
-      <tr>
-        <th style="padding: 0px 10px 0px 10px">p1</th>
-        <th style="padding: 0px 10px 0px 10px">p2</th>
-        <th style="padding: 0px 10px 0px 10px">draws</th>
-      </tr>
-      <tr>
-        <td style="padding: 0px 10px 0px 10px">
-          <div id="p1"></div>
-        </td>
-        <td style="padding: 0px 10px 0px 10px">
-          <div id="p2"></div>
-        </td>
-        <td style="padding: 0px 10px 0px 10px">
-          <div id="draws"></div>
-        </td>
-      </tr>
-    </table>
-
-    <div id="session-id"></div>
-    <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
-    <div id="opponent-connection">
-      <div id="indicator" style="display:inline-block; border-radius:50%; width:20px; height:20px; background-color:#ff0000"></div>
-      <span id="text">Opponent Not Connected</span>
+    <div id="menu" class="flow">
+        <h2>menu</h2>
+        <ul>
+            <li>
+                <span id="vs-human-local">versus human local</span>
+            </li>
+            <li>
+                <span id="vs-human-network">versus human network</span>
+            </li>
+            <li>
+                <span id="vs-computer">versus computer</span>
+            </li>
+        </ul>
     </div>
-    <div id="this-player"></div>
-    <div id="whos-turn"></div>
-    <svg id="gameboard" width="420" height="360">
-  </div>
-  <div id="conclusion" class="flow">
-    <h2>conclusion</h2>
-    <div id="result"></div>
-    <div id="reset-local">RESET!</div>
-    <table id="reset-network" style="border-collapse: collapse;">
-      <tr>
-        <th style="padding: 0px 10px 0px 10px">you</th>
-        <th style="padding: 0px 10px 0px 10px">them</th>
-      </tr>
-      <tr>
-        <td style="padding: 0px 10px 0px 10px">
-          <input id="check-reset-you" type="checkbox">
-        </td>
-        <td style="padding: 0px 10px 0px 10px">
-          <input id="check-reset-them" type="checkbox" disabled="true">
-        </td>
-      </tr>
-    </table>
-  </div>
+    <div id="connect" class="flow">
+        <h2>connect</h2>
+        <ul>
+            <li>
+                <span id="network-new">start new game as player 1</span>
+            </li>
+            <li>
+                <span id="network-connect">connect to a game </span>
+            </li>
+        </ul>
+    </div>
+    <div id="game" class="flow">
+
+        <div id="return">main menu</div>
+
+        <h2>game</h2>
+
+        <table id="game-win-tally" style="border-collapse: collapse;">
+            <tr>
+                <th style="padding: 0px 10px 0px 10px">p1</th>
+                <th style="padding: 0px 10px 0px 10px">p2</th>
+                <th style="padding: 0px 10px 0px 10px">draws</th>
+            </tr>
+            <tr>
+                <td style="padding: 0px 10px 0px 10px">
+                    <div id="p1"></div>
+                </td>
+                <td style="padding: 0px 10px 0px 10px">
+                    <div id="p2"></div>
+                </td>
+                <td style="padding: 0px 10px 0px 10px">
+                    <div id="draws"></div>
+                </td>
+            </tr>
+        </table>
+
+        <div id="session-id"></div>
+        <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
+        <div id="opponent-connection">
+            <div id="indicator" style="display:inline-block; border-radius:50%; width:20px; height:20px; background-color:#ff0000"></div>
+            <span id="text">Opponent Not Connected</span>
+        </div>
+        <div id="this-player"></div>
+        <div id="whos-turn"></div>
+        <svg id="gameboard" width="420" height="360">
+    </div>
+    <div id="conclusion" class="flow">
+        <h2>conclusion</h2>
+        <div id="result"></div>
+        <div id="reset-local">RESET!</div>
+        <table id="reset-network" style="border-collapse: collapse;">
+            <tr>
+                <th style="padding: 0px 10px 0px 10px">you</th>
+                <th style="padding: 0px 10px 0px 10px">them</th>
+            </tr>
+            <tr>
+                <td style="padding: 0px 10px 0px 10px">
+                    <input id="check-reset-you" type="checkbox">
+                </td>
+                <td style="padding: 0px 10px 0px 10px">
+                    <input id="check-reset-them" type="checkbox" disabled="true">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <svg id="tempBoardView" width="420" height="360"></svg>
 </body>
 
 </html>
