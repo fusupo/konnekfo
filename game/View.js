@@ -1,6 +1,7 @@
 "use strict";
 
 var colors = require('./Colors.js');
+var Snap = require('snapsvg');
 
 module.exports = function() {
 
