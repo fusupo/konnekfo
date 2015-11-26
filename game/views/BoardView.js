@@ -10,31 +10,42 @@ module.exports = Backbone.View.extend((function() {
   var boardColor;
   var p1Color;
   var p2Color;
-  var gameboardSVG; //ocument.getElementById('gameboard');
+  var gameboardSVG;
   var boardWidth;
   var boardHeight;
   var cellWidth;
   var cellHeight;
   var topMargin;
   var s;
+  
   return {
+
+    el:'<svg width="210" height="180"></svg>',
+
+    //tagName:'svg',
+    
+    // attributes: {
+    //   width: 50,
+    //   height: 30
+    // },
+
     initialize: function() {
       console.log("new board view");
-      this.render();
+      //this.render();
     },
+
     render: function() {
       bgColor = colors.bgColor;
       boardColor = colors.boardColor;
       p1Color = colors.p1Color;
       p2Color = colors.p2Color;
-      gameboardSVG = this.el; //ocument.getElementById('gameboard');
+      gameboardSVG = this.el;
       boardWidth = gameboardSVG.clientWidth;
       boardHeight = gameboardSVG.clientHeight - gameboardSVG.clientHeight / 7;
       cellWidth = boardWidth / 7;
       cellHeight = boardHeight / 6;
       topMargin = cellHeight;
       s = Snap(this.el);
-      console.log(Snap)
       var bg = s.rect(0, 0, boardWidth, boardHeight + topMargin);
       bg.attr({
         fill: bgColor
@@ -56,6 +67,7 @@ module.exports = Backbone.View.extend((function() {
       });
       this.drawButtons(s, bgColor);
     },
+
     drawButtons: function(s, color) {
       for (var x = 0; x < 7; x++) {
         var b = s.rect(cellWidth * x, 0, cellWidth, cellHeight * 7);
@@ -89,6 +101,7 @@ module.exports = Backbone.View.extend((function() {
         b.mouseup(click.bind(this));
       }
     },
+
     addPiece: function(colIdx, rowIdx, playerID, cbk) {
       var c = s.circle((cellWidth / 2) + (colIdx * cellWidth), 0, 0.4 * cellWidth);
       c.attr({
@@ -99,6 +112,15 @@ module.exports = Backbone.View.extend((function() {
       c.animate({
         cy: (cellHeight / 2 + topMargin) + (rowIdx * cellHeight)
       }, 500, mina.bounce, cbk);
+    },
+
+    hide: function(){
+      this.$el.hide();
+    },
+
+    show: function(){
+      this.$el.show();
     }
+    
   };
 })());

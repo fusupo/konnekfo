@@ -16,6 +16,7 @@ module.exports = Backbone.View.extend((function() {
     events: {
       "click #vs-human-local": function() {
         console.log("click nukkah!");
+        this.trigger("select:vsHumanLocal");
         this.renderReturn();
       },
       "click #vs-human-network": function() {
@@ -23,6 +24,7 @@ module.exports = Backbone.View.extend((function() {
       },
       "click #vs-computer": function() {
         console.log("cpmputer");
+        this.trigger("select:vsComputer");
         this.renderReturn();
       },
       "click #network-new": function(){
@@ -34,6 +36,7 @@ module.exports = Backbone.View.extend((function() {
         this.renderReturn();
       },
       "click #back-to-main": function(){
+        this.trigger("select:backToMain");
         this.renderMain();
       }
     },

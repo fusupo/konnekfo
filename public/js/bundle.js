@@ -233,7 +233,7 @@ var sockConst = require('./SocketConstants.js');
 var Colors = require('./Colors.js');
 var Clipboard = require('clipboard');
 
-var MenuView = require('./views/MenuView.js');
+var AppView = require('./views/AppView.js');
 var BoardModel = require('./models/BoardModel.js');
 var BoardView = require('./views/BoardView.js');
 
@@ -465,27 +465,30 @@ window.onload = function() {
 
   new Clipboard('#copy-button');
 
-  window.mv = new MenuView({
-    el: $("#tempMenuView")
-  });
-  window.bm = new BoardModel();
-  window.bv = new BoardView({
-    el: $("#tempBoardView")
+  ////////////////////////////////////////////////////////////////////////////////
+  
+  window.av = new AppView({
+    el: $('#tempAppView')
   });
 
-  var pID = 1;
-  window.bv.on("suck", function(x){
-    window.bm.move(x, pID);
-    //window.bm.logTable();
-    pID = pID ^ 3;
-  });
-  window.bm.on("moveCommitted", function(x){
-    window.bv.addPiece(x.colIdx, x.rowIdx, x.playerId);
-  });
+  //   window.bm = new BoardModel();
+  // window.bv = new BoardView({
+  //   el: $("#tempBoardView")
+  // });
+
+  // var pID = 1;
+  // window.bv.on("suck", function(x){
+  //   window.bm.move(x, pID);
+  //   //window.bm.logTable();
+  //   pID = pID ^ 3;
+  // });
+  // window.bm.on("moveCommitted", function(x){
+  //   window.bv.addPiece(x.colIdx, x.rowIdx, x.playerId);
+  // });
   //
 };
 
-},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/BoardView.js":9,"./views/MenuView.js":10,"backbone":11,"clipboard":14}],5:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":9,"./views/BoardView.js":10,"backbone":12,"clipboard":15}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -854,7 +857,7 @@ module.exports = function() {
   };
 };
 
-},{"./Colors.js":2,"snapsvg":23}],8:[function(require,module,exports){
+},{"./Colors.js":2,"snapsvg":24}],8:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1019,7 +1022,57 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":11}],9:[function(require,module,exports){
+},{"backbone":12}],9:[function(require,module,exports){
+"use strict";
+
+var Backbone = require('backbone');
+var _ = require('underscore');
+var colors = require('../Colors.js');
+
+var MenuView = require('./MenuView.js');
+var BoardModel = require('../models/BoardModel.js');
+var BoardView = require('./BoardView.js');
+
+module.exports = Backbone.View.extend((function() {
+  return {
+
+    initialize: function() {
+      console.log("new app view");
+      var menu = new MenuView({
+        el: this.$("#menuHolder")
+      });
+      this.boardView = new BoardView();
+      this.$('#boardHolder').append(this.boardView.$el);
+      this.boardView.render();
+      this.boardView.hide();
+      menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
+      menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
+      menu.on('select:backToMain', this.backToMain.bind(this));
+      //this.render();
+    },
+
+    // render: function() {
+    //   this.$el.html('MUTHER FUCKING APP VIEW');
+    // },
+    
+    events: {},
+    
+    startVsHumanLocalGame: function() {
+      this.boardView.show();
+    },
+    
+    startVsComputerGame: function() {
+      this.boardView.show();
+    },
+    
+    backToMain: function() {
+      this.boardView.hide();
+    }
+    
+  };
+})());
+
+},{"../Colors.js":2,"../models/BoardModel.js":8,"./BoardView.js":10,"./MenuView.js":11,"backbone":12,"underscore":26}],10:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1032,31 +1085,42 @@ module.exports = Backbone.View.extend((function() {
   var boardColor;
   var p1Color;
   var p2Color;
-  var gameboardSVG; //ocument.getElementById('gameboard');
+  var gameboardSVG;
   var boardWidth;
   var boardHeight;
   var cellWidth;
   var cellHeight;
   var topMargin;
   var s;
+  
   return {
+
+    el:'<svg width="210" height="180"></svg>',
+
+    //tagName:'svg',
+    
+    // attributes: {
+    //   width: 50,
+    //   height: 30
+    // },
+
     initialize: function() {
       console.log("new board view");
-      this.render();
+      //this.render();
     },
+
     render: function() {
       bgColor = colors.bgColor;
       boardColor = colors.boardColor;
       p1Color = colors.p1Color;
       p2Color = colors.p2Color;
-      gameboardSVG = this.el; //ocument.getElementById('gameboard');
+      gameboardSVG = this.el;
       boardWidth = gameboardSVG.clientWidth;
       boardHeight = gameboardSVG.clientHeight - gameboardSVG.clientHeight / 7;
       cellWidth = boardWidth / 7;
       cellHeight = boardHeight / 6;
       topMargin = cellHeight;
       s = Snap(this.el);
-      console.log(Snap)
       var bg = s.rect(0, 0, boardWidth, boardHeight + topMargin);
       bg.attr({
         fill: bgColor
@@ -1078,6 +1142,7 @@ module.exports = Backbone.View.extend((function() {
       });
       this.drawButtons(s, bgColor);
     },
+
     drawButtons: function(s, color) {
       for (var x = 0; x < 7; x++) {
         var b = s.rect(cellWidth * x, 0, cellWidth, cellHeight * 7);
@@ -1111,6 +1176,7 @@ module.exports = Backbone.View.extend((function() {
         b.mouseup(click.bind(this));
       }
     },
+
     addPiece: function(colIdx, rowIdx, playerID, cbk) {
       var c = s.circle((cellWidth / 2) + (colIdx * cellWidth), 0, 0.4 * cellWidth);
       c.attr({
@@ -1121,11 +1187,20 @@ module.exports = Backbone.View.extend((function() {
       c.animate({
         cy: (cellHeight / 2 + topMargin) + (rowIdx * cellHeight)
       }, 500, mina.bounce, cbk);
+    },
+
+    hide: function(){
+      this.$el.hide();
+    },
+
+    show: function(){
+      this.$el.show();
     }
+    
   };
 })());
 
-},{"../Colors.js":2,"backbone":11,"snapsvg":23}],10:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":12,"snapsvg":24}],11:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1144,6 +1219,7 @@ module.exports = Backbone.View.extend((function() {
     events: {
       "click #vs-human-local": function() {
         console.log("click nukkah!");
+        this.trigger("select:vsHumanLocal");
         this.renderReturn();
       },
       "click #vs-human-network": function() {
@@ -1151,6 +1227,7 @@ module.exports = Backbone.View.extend((function() {
       },
       "click #vs-computer": function() {
         console.log("cpmputer");
+        this.trigger("select:vsComputer");
         this.renderReturn();
       },
       "click #network-new": function(){
@@ -1162,6 +1239,7 @@ module.exports = Backbone.View.extend((function() {
         this.renderReturn();
       },
       "click #back-to-main": function(){
+        this.trigger("select:backToMain");
         this.renderMain();
       }
     },
@@ -1181,7 +1259,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":11,"underscore":25}],11:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":12,"underscore":26}],12:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -3079,7 +3157,7 @@ module.exports = Backbone.View.extend((function() {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":22,"underscore":12}],12:[function(require,module,exports){
+},{"jquery":23,"underscore":13}],13:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4629,7 +4707,7 @@ module.exports = Backbone.View.extend((function() {
   }
 }.call(this));
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4862,7 +4940,7 @@ var ClipboardAction = (function () {
 
 exports['default'] = ClipboardAction;
 module.exports = exports['default'];
-},{"select":20}],14:[function(require,module,exports){
+},{"select":21}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5020,7 +5098,7 @@ function getAttributeValue(suffix, element) {
 
 exports['default'] = Clipboard;
 module.exports = exports['default'];
-},{"./clipboard-action":13,"good-listener":19,"tiny-emitter":21}],15:[function(require,module,exports){
+},{"./clipboard-action":14,"good-listener":20,"tiny-emitter":22}],16:[function(require,module,exports){
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf) {
@@ -5032,7 +5110,7 @@ module.exports = function (element, selector, checkYoSelf) {
   }
 }
 
-},{"matches-selector":16}],16:[function(require,module,exports){
+},{"matches-selector":17}],17:[function(require,module,exports){
 
 /**
  * Element prototype.
@@ -5073,7 +5151,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var closest = require('closest');
 
 /**
@@ -5118,7 +5196,7 @@ function listener(element, selector, type, callback) {
 
 module.exports = delegate;
 
-},{"closest":15}],18:[function(require,module,exports){
+},{"closest":16}],19:[function(require,module,exports){
 /**
  * Check if argument is a HTML element.
  *
@@ -5169,7 +5247,7 @@ exports.function = function(value) {
     return type === '[object Function]';
 };
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var is = require('./is');
 var delegate = require('delegate');
 
@@ -5266,7 +5344,7 @@ function listenSelector(selector, type, callback) {
 
 module.exports = listen;
 
-},{"./is":18,"delegate":17}],20:[function(require,module,exports){
+},{"./is":19,"delegate":18}],21:[function(require,module,exports){
 function select(element) {
     var selectedText;
 
@@ -5296,7 +5374,7 @@ function select(element) {
 
 module.exports = select;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -5364,7 +5442,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -14576,7 +14654,7 @@ return jQuery;
 
 }));
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -22748,7 +22826,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":24}],24:[function(require,module,exports){
+},{"eve":25}],25:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23153,6 +23231,6 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}],25:[function(require,module,exports){
-arguments[4][12][0].apply(exports,arguments)
-},{"dup":12}]},{},[4]);
+},{}],26:[function(require,module,exports){
+arguments[4][13][0].apply(exports,arguments)
+},{"dup":13}]},{},[4]);
