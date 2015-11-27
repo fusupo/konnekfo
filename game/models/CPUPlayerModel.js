@@ -34,7 +34,7 @@ module.exports = PlayerModel.extend((function() {
       //console.log('draw', tally);
       return tally;
     }
-    if (r >= 7) {
+    if (r >= 6) {
       return tally;
     }
     // plan for best offensive move //////////////////////////////////
@@ -104,10 +104,11 @@ module.exports = PlayerModel.extend((function() {
           return result;
         }, columnStats);
         console.log(thisStats);
-        var max = 0;
+        var max = Number.NEGATIVE_INFINITY;
         for (var i = 0; i < thisStats.length; i++) {
           if (thisStats[i] > max) {
             max = thisStats[i];
+            console.log('max',max);
             returnMove = i;
           }else if(thisStats[i] === max){
             returnMove = Math.round(Math.random()) === 0 ? returnMove : i;
