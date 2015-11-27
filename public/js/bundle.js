@@ -725,6 +725,7 @@ module.exports.CPUPlayerClI = function(id) {
 //   };
 
 // };
+
 },{}],6:[function(require,module,exports){
 "use strict";
 
@@ -864,6 +865,12 @@ var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend((function() {
 
+  var cols= [2, 2, 2, 2, 2, 2, 2];
+  var rows= [0, 0, 0, 0, 0, 0];
+  var diag1= [0, 0, 0, 0, 0, 0]; // bottom right to top left
+  var diag2= [0, 0, 0, 0, 0, 0];
+  //var winner= null;
+
   ////////////////////////////////////////  HELPER FNs
 
   var checkToPlayer = function(c) {
@@ -884,26 +891,22 @@ module.exports = Backbone.Model.extend((function() {
 
   return {
 
-    defaults: function() {
-      return {
-        cols: [2, 2, 2, 2, 2, 2, 2],
-        rows: [0, 0, 0, 0, 0, 0],
-        diag1: [0, 0, 0, 0, 0, 0], // bottom right to top left
-        diag2: [0, 0, 0, 0, 0, 0],
-        winner: null
-      };
-    },
-
+    // defaults: function() {
+    //   return {
+    //   };
+    // }
+    
     initialize: function() {
       console.log("new board model", this);
       console.log(this.attributes);
+      this.winner = null;
     },
 
     move: function(colIdx, playerId, surpressEvents) {
-      var cols = this.get("cols");
-      var rows = this.get("rows");
-      var diag1 = this.get("diag1");
-      var diag2 = this.get("diag2");
+      // var cols = this.get("cols");
+      // var rows = this.get("rows");
+      // var diag1 = this.get("diag1");
+      // var diag2 = this.get("diag2");
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
       var mv = playerId << (idx * 2);
@@ -911,12 +914,12 @@ module.exports = Backbone.Model.extend((function() {
       rows[idx - 2] += playerId << (colIdx * 2);
       diag1[idx - 2] += playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] += playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
-      this.set({
-        "cols": cols,
-        "rows": rows,
-        "diag1": diag1,
-        "diag2": diag2
-      });
+      // this.set({
+      //   "cols": cols,
+      //   "rows": rows,
+      //   "diag1": diag1,
+      //   "diag2": diag2
+      // });
       if (!surpressEvents) {
         this.trigger('moveCommitted', {
           colIdx: colIdx,
@@ -927,10 +930,10 @@ module.exports = Backbone.Model.extend((function() {
     },
 
     unmove: function(colIdx, playerId) {
-      var cols = this.get("cols");
-      var rows = this.get("rows");
-      var diag1 = this.get("diag1");
-      var diag2 = this.get("diag2");
+      // var cols = this.get("cols");
+      // var rows = this.get("rows");
+      // var diag1 = this.get("diag1");
+      // var diag2 = this.get("diag2");
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
       var shiftCount = 32 - ((idx - 1) * 2);
@@ -940,12 +943,12 @@ module.exports = Backbone.Model.extend((function() {
       rows[idx - 2] -= playerId << (colIdx * 2);
       diag1[idx - 2] -= playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] -= playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
-      this.set({
-        "cols": cols,
-        "rows": rows,
-        "diag1": diag1,
-        "diag2": diag2
-      });
+      // this.set({
+      //   "cols": cols,
+      //   "rows": rows,
+      //   "diag1": diag1,
+      //   "diag2": diag2
+      // });
     },
 
     isBoardFullP: function() {
@@ -960,15 +963,16 @@ module.exports = Backbone.Model.extend((function() {
     },
 
     isColFullP: function(colIdx) {
-      return getNextRowIdx(this.get("cols")[colIdx]) >= 8;
+      return getNextRowIdx(cols[colIdx]) >= 8;
+      //return getNextRowIdx(this.get("cols")[colIdx]) >= 8;
     },
 
     hasWinnerP: function() {
-      var cols = this.get("cols");
-      var rows = this.get("rows");
-      var diag1 = this.get("diag1");
-      var diag2 = this.get("diag2");
-      var winner = this.get("winner");
+      // var cols = this.get("cols");
+      // var rows = this.get("rows");
+      // var diag1 = this.get("diag1");
+      // var diag2 = this.get("diag2");
+      // var winner = this.get("winner");
       for (var i = 0; i <= 3; i++) {
         var c1 = cols[i] >> 4;
         var c2 = cols[i + 1] >> 4;
@@ -976,7 +980,7 @@ module.exports = Backbone.Model.extend((function() {
         var c4 = cols[i + 3] >> 4;
         var check = (c1 & c2 & c3 & c4);
         if (check > 0) {
-          winner = checkToPlayer(check);
+          this.winner = checkToPlayer(check);
           return ('h');
         }
       }
@@ -987,7 +991,7 @@ module.exports = Backbone.Model.extend((function() {
         var r4 = rows[j + 3];
         var check = (r1 & r2 & r3 & r4);
         if (check > 0) {
-          winner = checkToPlayer(check);
+          this.winner = checkToPlayer(check);
           return ('v');
         }
       }
@@ -998,7 +1002,7 @@ module.exports = Backbone.Model.extend((function() {
         var d4 = diag1[k + 3];
         var check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          winner = checkToPlayer(check);
+          this.winner = checkToPlayer(check);
           return ('d1');
         }
       }
@@ -1009,7 +1013,7 @@ module.exports = Backbone.Model.extend((function() {
         var d4 = diag2[m + 3];
         var check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          winner = checkToPlayer(check);
+          this.winner = checkToPlayer(check);
           return ('d2');
         }
       }
@@ -1017,7 +1021,7 @@ module.exports = Backbone.Model.extend((function() {
     },
 
     logTable: function() {
-      var rows = this.get("rows");
+      // var rows = this.get("rows");
       console.table(R.reverse(rows.map(function(i) {
         var binStr = i.toString(2);
         binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
@@ -1035,6 +1039,8 @@ var PlayerModel = require('./PlayerModel.js');
 
 module.exports = PlayerModel.extend((function() {
 
+  var id;
+  
   var winBlock = function(board, id) {
     var returnMove = false;
     for (var i = 0; i < 7; i++) {
@@ -1055,13 +1061,15 @@ module.exports = PlayerModel.extend((function() {
     if (board.hasWinnerP()) {
       // win
       tally[board.winner] ++;
+      //console.log('winner', tally);
       return tally;
     } else if (board.isBoardFullP()) {
       // draw - all cells are filled and
       tally[0] ++;
+      //console.log('draw', tally);
       return tally;
     }
-    if (r >= 6) {
+    if (r >= 7) {
       return tally;
     }
     // plan for best offensive move //////////////////////////////////
@@ -1071,14 +1079,12 @@ module.exports = PlayerModel.extend((function() {
     // initialize our tally ([w,l,d]) note: tally is stats for computer
     // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
     for (var k = 0; k < 7; k++) {
-
       if (!board.isColFullP(k)) {
         board.move(k, thisID, true );
         var tempTally = offense(board, thisID ^ 3, r + 1);
         tally[0] += tempTally[0];
         tally[1] += tempTally[1];
         tally[2] += tempTally[2];
-
         board.unmove(k, thisID);
       }
     }
@@ -1086,6 +1092,7 @@ module.exports = PlayerModel.extend((function() {
     // if so return win/lose/draw (base case) [1,0,0]
     // if not then recurse() and fold results into tally
     // return tally
+    //console.log('other',tally);
     return tally;
   };
 
@@ -1096,12 +1103,12 @@ module.exports = PlayerModel.extend((function() {
       //   boardView.off('click:column');
       //   this.attemptMove(colIdx);
       // }).bind(this));
+      id = this.get('playerId');
       var colIdx =  this.figureOutThePlan.bind(this)(this.get('boardModel'));
       this.attemptMove(colIdx);
     },
 
     figureOutThePlan: function(board){
-      var id = this.get('playerId');
       var returnMove = Math.floor(Math.random() * 7);
       while (board.isColFullP(returnMove) && returnMove < 7) {
         returnMove++;
@@ -1125,22 +1132,24 @@ module.exports = PlayerModel.extend((function() {
             board.unmove(i, id);
           }
         }
-        //console.table(columnStats);
-        //console.log(columnStats);
+        console.table(columnStats);
+        console.log(columnStats);
         var thisStats = R.map(function(item) {
-          var result = item !== undefined ? item[id] : 0;
+          var result = item !== undefined ? item[id]/item[id^3] : 0;
           return result;
         }, columnStats);
-        //console.log(thisStats);
+        console.log(thisStats);
         var max = 0;
         for (var i = 0; i < thisStats.length; i++) {
           if (thisStats[i] > max) {
             max = thisStats[i];
             returnMove = i;
+          }else if(thisStats[i] === max){
+            returnMove = Math.round(Math.random()) === 0 ? returnMove : i;
           }
         }
       }
-      //console.log('returnMove', returnMove);
+      console.log('returnMove', returnMove);
       return returnMove;
     }
     

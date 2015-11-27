@@ -4,6 +4,8 @@ var PlayerModel = require('./PlayerModel.js');
 
 module.exports = PlayerModel.extend((function() {
 
+  var id;
+  
   var winBlock = function(board, id) {
     var returnMove = false;
     for (var i = 0; i < 7; i++) {
@@ -24,13 +26,15 @@ module.exports = PlayerModel.extend((function() {
     if (board.hasWinnerP()) {
       // win
       tally[board.winner] ++;
+      //console.log('winner', tally);
       return tally;
     } else if (board.isBoardFullP()) {
       // draw - all cells are filled and
       tally[0] ++;
+      //console.log('draw', tally);
       return tally;
     }
-    if (r >= 6) {
+    if (r >= 7) {
       return tally;
     }
     // plan for best offensive move //////////////////////////////////
@@ -40,14 +44,12 @@ module.exports = PlayerModel.extend((function() {
     // initialize our tally ([w,l,d]) note: tally is stats for computer
     // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
     for (var k = 0; k < 7; k++) {
-
       if (!board.isColFullP(k)) {
         board.move(k, thisID, true );
         var tempTally = offense(board, thisID ^ 3, r + 1);
         tally[0] += tempTally[0];
         tally[1] += tempTally[1];
         tally[2] += tempTally[2];
-
         board.unmove(k, thisID);
       }
     }
@@ -55,6 +57,7 @@ module.exports = PlayerModel.extend((function() {
     // if so return win/lose/draw (base case) [1,0,0]
     // if not then recurse() and fold results into tally
     // return tally
+    //console.log('other',tally);
     return tally;
   };
 
@@ -65,12 +68,12 @@ module.exports = PlayerModel.extend((function() {
       //   boardView.off('click:column');
       //   this.attemptMove(colIdx);
       // }).bind(this));
+      id = this.get('playerId');
       var colIdx =  this.figureOutThePlan.bind(this)(this.get('boardModel'));
       this.attemptMove(colIdx);
     },
 
     figureOutThePlan: function(board){
-      var id = this.get('playerId');
       var returnMove = Math.floor(Math.random() * 7);
       while (board.isColFullP(returnMove) && returnMove < 7) {
         returnMove++;
@@ -94,22 +97,24 @@ module.exports = PlayerModel.extend((function() {
             board.unmove(i, id);
           }
         }
-        //console.table(columnStats);
-        //console.log(columnStats);
+        console.table(columnStats);
+        console.log(columnStats);
         var thisStats = R.map(function(item) {
-          var result = item !== undefined ? item[id] : 0;
+          var result = item !== undefined ? item[id]/item[id^3] : 0;
           return result;
         }, columnStats);
-        //console.log(thisStats);
+        console.log(thisStats);
         var max = 0;
         for (var i = 0; i < thisStats.length; i++) {
           if (thisStats[i] > max) {
             max = thisStats[i];
             returnMove = i;
+          }else if(thisStats[i] === max){
+            returnMove = Math.round(Math.random()) === 0 ? returnMove : i;
           }
         }
       }
-      //console.log('returnMove', returnMove);
+      console.log('returnMove', returnMove);
       return returnMove;
     }
     
