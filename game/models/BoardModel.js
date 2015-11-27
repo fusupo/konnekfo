@@ -23,6 +23,7 @@ module.exports = Backbone.Model.extend((function() {
   //////////////////////////////////////// END HELPER FNs
 
   return {
+
     defaults: {
       cols: [2, 2, 2, 2, 2, 2, 2],
       rows: [0, 0, 0, 0, 0, 0],
@@ -30,9 +31,11 @@ module.exports = Backbone.Model.extend((function() {
       diag2: [0, 0, 0, 0, 0, 0],
       winner: null
     },
+
     initialize: function() {
       console.log("new board model");
     },
+
     move: function(colIdx, playerId) {
       var cols = this.get("cols");
       var rows = this.get("rows");
@@ -57,6 +60,7 @@ module.exports = Backbone.Model.extend((function() {
         playerId: playerId
       });
     },
+
     unmove: function(colIdx, playerId) {
       var cols = this.get("cols");
       var rows = this.get("rows");
@@ -78,20 +82,23 @@ module.exports = Backbone.Model.extend((function() {
         "diag2": diag2
       });
     },
-    isBoardFull: function() {
+
+    isBoardFullP: function() {
       var result = true;
       for (var i = 0; i < 7; i++) {
-        if (!this.isColFull(i)) {
+        if (!this.isColFullP(i)) {
           result = false;
           break;
         }
       }
       return result;
     },
-    isColFull: function(colIdx) {
+
+    isColFullP: function(colIdx) {
       return getNextRowIdx(this.get("cols")[colIdx]) >= 8;
     },
-    hasWinner: function() {
+
+    hasWinnerP: function() {
       var cols = this.get("cols");
       var rows = this.get("rows");
       var diag1 = this.get("diag1");
@@ -143,14 +150,16 @@ module.exports = Backbone.Model.extend((function() {
       }
       return false;
     },
-    cloneCells: function() {
-      return {
-        cols: R.clone(this.get("cols")),
-        rows: R.clone(this.get("rows")),
-        diag1: R.clone(this.get("diag1")),
-        diag2: R.clone(this.get("diag2"))
-      };
-    },
+
+    // cloneCells: function() {
+    //   return {
+    //     cols: R.clone(this.get("cols")),
+    //     rows: R.clone(this.get("rows")),
+    //     diag1: R.clone(this.get("diag1")),
+    //     diag2: R.clone(this.get("diag2"))
+    //   };
+    // },
+
     logTable: function() {
       var rows = this.get("rows");
       console.table(R.reverse(rows.map(function(i) {
@@ -159,5 +168,6 @@ module.exports = Backbone.Model.extend((function() {
         return R.reverse(R.splitEvery(2, binStr));
       })));
     }
+
   };
 })());

@@ -488,7 +488,7 @@ window.onload = function() {
   //
 };
 
-},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":9,"./views/BoardView.js":10,"backbone":12,"clipboard":15}],5:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":12,"./views/BoardView.js":13,"backbone":15,"clipboard":18}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -857,7 +857,7 @@ module.exports = function() {
   };
 };
 
-},{"./Colors.js":2,"snapsvg":24}],8:[function(require,module,exports){
+},{"./Colors.js":2,"snapsvg":27}],8:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -883,6 +883,7 @@ module.exports = Backbone.Model.extend((function() {
   //////////////////////////////////////// END HELPER FNs
 
   return {
+
     defaults: {
       cols: [2, 2, 2, 2, 2, 2, 2],
       rows: [0, 0, 0, 0, 0, 0],
@@ -890,9 +891,11 @@ module.exports = Backbone.Model.extend((function() {
       diag2: [0, 0, 0, 0, 0, 0],
       winner: null
     },
+
     initialize: function() {
       console.log("new board model");
     },
+
     move: function(colIdx, playerId) {
       var cols = this.get("cols");
       var rows = this.get("rows");
@@ -917,6 +920,7 @@ module.exports = Backbone.Model.extend((function() {
         playerId: playerId
       });
     },
+
     unmove: function(colIdx, playerId) {
       var cols = this.get("cols");
       var rows = this.get("rows");
@@ -938,20 +942,23 @@ module.exports = Backbone.Model.extend((function() {
         "diag2": diag2
       });
     },
-    isBoardFull: function() {
+
+    isBoardFullP: function() {
       var result = true;
       for (var i = 0; i < 7; i++) {
-        if (!this.isColFull(i)) {
+        if (!this.isColFullP(i)) {
           result = false;
           break;
         }
       }
       return result;
     },
-    isColFull: function(colIdx) {
+
+    isColFullP: function(colIdx) {
       return getNextRowIdx(this.get("cols")[colIdx]) >= 8;
     },
-    hasWinner: function() {
+
+    hasWinnerP: function() {
       var cols = this.get("cols");
       var rows = this.get("rows");
       var diag1 = this.get("diag1");
@@ -1003,14 +1010,16 @@ module.exports = Backbone.Model.extend((function() {
       }
       return false;
     },
-    cloneCells: function() {
-      return {
-        cols: R.clone(this.get("cols")),
-        rows: R.clone(this.get("rows")),
-        diag1: R.clone(this.get("diag1")),
-        diag2: R.clone(this.get("diag2"))
-      };
-    },
+
+    // cloneCells: function() {
+    //   return {
+    //     cols: R.clone(this.get("cols")),
+    //     rows: R.clone(this.get("rows")),
+    //     diag1: R.clone(this.get("diag1")),
+    //     diag2: R.clone(this.get("diag2"))
+    //   };
+    // },
+
     logTable: function() {
       var rows = this.get("rows");
       console.table(R.reverse(rows.map(function(i) {
@@ -1019,10 +1028,113 @@ module.exports = Backbone.Model.extend((function() {
         return R.reverse(R.splitEvery(2, binStr));
       })));
     }
+
   };
 })());
 
-},{"backbone":12}],9:[function(require,module,exports){
+},{"backbone":15}],9:[function(require,module,exports){
+"use strict";
+
+var Backbone = require('backbone');
+
+module.exports = Backbone.Model.extend((function() {
+  return {
+    
+    defaults: {
+      currPlayerId: 1
+    },
+    
+    initialize: function(foo) {
+      console.log(foo);
+      this.get('p1').on('attemptMove', (function(colIdx) {
+        this.attemptMove(colIdx);
+      }).bind(this));
+      this.get('p2').on('attemptMove', (function(colIdx) {
+        this.attemptMove(colIdx);
+      }).bind(this));
+    },
+    
+    startGameLoop: function() {
+      if (this.get('currPlayerId') === 1) {
+        this.get('p1').prompt();
+      } else {
+        this.get('p2').prompt();
+      }
+      // prompt current player
+      // on player move
+      // // if move is valid
+      // // // commit move to board
+      // // // if board has win
+      // // // // end game on player win
+      // // // else if board is full
+      // // // // end game on draw
+      // // // else
+      // // // // swap current player
+      // // // // restart gameloop
+      // // else
+      // // // restart gameloop
+    },
+    
+    attemptMove: function(colIdx){
+      var board = this.get('board');
+      var currPlayerId = this.get('currPlayerId');
+      console.log('p' + currPlayerId + ' attemptMove:', colIdx);
+      if(!board.isColFullP(colIdx)){
+        board.move(colIdx, currPlayerId); 
+        if(board.hasWinnerP()){
+          console.log('player',currPlayerId,'has won the game'); 
+        }else if(board.isBoardFullP()){
+          console.log('the game is draw'); 
+        }else{
+          this.set("currPlayerId", currPlayerId ^ 3);
+          this.startGameLoop(); 
+        }
+      }else{
+        this.startGameLoop(); 
+      }
+    }
+    
+  }
+})());
+
+},{"backbone":15}],10:[function(require,module,exports){
+"use strict";
+
+var PlayerModel = require('./PlayerModel.js');
+
+module.exports = PlayerModel.extend((function() {
+  return {
+    prompt: function() {
+      var boardView = this.get("boardView");
+      boardView.on('click:column', (function(colIdx){
+        boardView.off('click:column');
+        this.attemptMove(colIdx);
+      }).bind(this));
+    }
+  };
+})());
+
+},{"./PlayerModel.js":11}],11:[function(require,module,exports){
+"use strict";
+
+var Backbone = require('backbone');
+
+module.exports = Backbone.Model.extend((function() {
+  return {
+    initialize: function(initObj) {
+      console.log('new player', initObj);
+      //this.playerId = initObj.playerId;
+    },
+    prompt: function() {
+      console.log('make a move fool');
+    },
+    attemptMove: function(colIdx){
+      this.trigger('attemptMove', colIdx);
+    }
+  };
+})());
+
+},{"backbone":15}],12:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1032,6 +1144,8 @@ var colors = require('../Colors.js');
 var MenuView = require('./MenuView.js');
 var BoardModel = require('../models/BoardModel.js');
 var BoardView = require('./BoardView.js');
+var LocalPlayerModel = require('../models/LocalPlayerModel.js');
+var LocalGameModel = require('../models/LocalGameModel.js');
 
 module.exports = Backbone.View.extend((function() {
   return {
@@ -1041,10 +1155,6 @@ module.exports = Backbone.View.extend((function() {
       var menu = new MenuView({
         el: this.$("#menuHolder")
       });
-      this.boardView = new BoardView();
-      this.$('#boardHolder').append(this.boardView.$el);
-      this.boardView.render();
-      this.boardView.hide();
       menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
       menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
       menu.on('select:backToMain', this.backToMain.bind(this));
@@ -1054,25 +1164,46 @@ module.exports = Backbone.View.extend((function() {
     // render: function() {
     //   this.$el.html('MUTHER FUCKING APP VIEW');
     // },
-    
+
     events: {},
-    
+
     startVsHumanLocalGame: function() {
-      this.boardView.show();
+      var boardModel = new BoardModel();
+      this.createBoard(boardModel);
+      var gameModel = new LocalGameModel({
+        board: boardModel,
+        p1: new LocalPlayerModel({
+          playerId: 1,
+          boardView: this.boardView
+        }),
+        p2: new LocalPlayerModel({
+          playerId: 2,
+          boardView: this.boardView
+        })
+      });
+      gameModel.startGameLoop();
     },
-    
+
     startVsComputerGame: function() {
-      this.boardView.show();
+      this.createBoard();
     },
-    
+
     backToMain: function() {
-      this.boardView.hide();
+      this.boardView.remove();
+    },
+
+    createBoard: function(boardModel) {
+      this.boardView = new BoardView({
+        model: boardModel
+      });
+      this.$('#boardHolder').append(this.boardView.$el);
+      this.boardView.render();
     }
-    
+
   };
 })());
 
-},{"../Colors.js":2,"../models/BoardModel.js":8,"./BoardView.js":10,"./MenuView.js":11,"backbone":12,"underscore":26}],10:[function(require,module,exports){
+},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/LocalGameModel.js":9,"../models/LocalPlayerModel.js":10,"./BoardView.js":13,"./MenuView.js":14,"backbone":15,"underscore":29}],13:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1092,21 +1223,25 @@ module.exports = Backbone.View.extend((function() {
   var cellHeight;
   var topMargin;
   var s;
-  
+
   return {
 
-    el:'<svg width="210" height="180"></svg>',
+    el: '<svg width="210" height="180"></svg>',
 
     //tagName:'svg',
-    
+
     // attributes: {
     //   width: 50,
     //   height: 30
     // },
 
-    initialize: function() {
-      console.log("new board view");
-      //this.render();
+    initialize: function(initObj) {
+      console.log("new board view ", initObj);
+      this.model = initObj.model;
+      this.model.on('moveCommitted', (function (x) {
+        console.log('boardView addPiece',x);
+        this.addPiece(x.colIdx, x.rowIdx, x.playerId);
+      }).bind(this));
     },
 
     render: function() {
@@ -1152,7 +1287,7 @@ module.exports = Backbone.View.extend((function() {
         });
         var click = (function(foo) {
           return function(e) {
-            this.trigger('suck', foo);
+            this.trigger('click:column', foo);
           };
         })(x);
         var over = (function(foo) {
@@ -1189,18 +1324,18 @@ module.exports = Backbone.View.extend((function() {
       }, 500, mina.bounce, cbk);
     },
 
-    hide: function(){
+    hide: function() {
       this.$el.hide();
     },
 
-    show: function(){
+    show: function() {
       this.$el.show();
     }
-    
+
   };
 })());
 
-},{"../Colors.js":2,"backbone":12,"snapsvg":24}],11:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":15,"snapsvg":27}],14:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1259,7 +1394,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":12,"underscore":26}],12:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":15,"underscore":29}],15:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -3157,7 +3292,7 @@ module.exports = Backbone.View.extend((function() {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":23,"underscore":13}],13:[function(require,module,exports){
+},{"jquery":26,"underscore":16}],16:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4707,7 +4842,7 @@ module.exports = Backbone.View.extend((function() {
   }
 }.call(this));
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4940,7 +5075,7 @@ var ClipboardAction = (function () {
 
 exports['default'] = ClipboardAction;
 module.exports = exports['default'];
-},{"select":21}],15:[function(require,module,exports){
+},{"select":24}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5098,7 +5233,7 @@ function getAttributeValue(suffix, element) {
 
 exports['default'] = Clipboard;
 module.exports = exports['default'];
-},{"./clipboard-action":14,"good-listener":20,"tiny-emitter":22}],16:[function(require,module,exports){
+},{"./clipboard-action":17,"good-listener":23,"tiny-emitter":25}],19:[function(require,module,exports){
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf) {
@@ -5110,7 +5245,7 @@ module.exports = function (element, selector, checkYoSelf) {
   }
 }
 
-},{"matches-selector":17}],17:[function(require,module,exports){
+},{"matches-selector":20}],20:[function(require,module,exports){
 
 /**
  * Element prototype.
@@ -5151,7 +5286,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var closest = require('closest');
 
 /**
@@ -5196,7 +5331,7 @@ function listener(element, selector, type, callback) {
 
 module.exports = delegate;
 
-},{"closest":16}],19:[function(require,module,exports){
+},{"closest":19}],22:[function(require,module,exports){
 /**
  * Check if argument is a HTML element.
  *
@@ -5247,7 +5382,7 @@ exports.function = function(value) {
     return type === '[object Function]';
 };
 
-},{}],20:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var is = require('./is');
 var delegate = require('delegate');
 
@@ -5344,7 +5479,7 @@ function listenSelector(selector, type, callback) {
 
 module.exports = listen;
 
-},{"./is":19,"delegate":18}],21:[function(require,module,exports){
+},{"./is":22,"delegate":21}],24:[function(require,module,exports){
 function select(element) {
     var selectedText;
 
@@ -5374,7 +5509,7 @@ function select(element) {
 
 module.exports = select;
 
-},{}],22:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -5442,7 +5577,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -14654,7 +14789,7 @@ return jQuery;
 
 }));
 
-},{}],24:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -22826,7 +22961,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":25}],25:[function(require,module,exports){
+},{"eve":28}],28:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23231,6 +23366,6 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}],26:[function(require,module,exports){
-arguments[4][13][0].apply(exports,arguments)
-},{"dup":13}]},{},[4]);
+},{}],29:[function(require,module,exports){
+arguments[4][16][0].apply(exports,arguments)
+},{"dup":16}]},{},[4]);

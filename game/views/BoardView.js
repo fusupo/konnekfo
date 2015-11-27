@@ -17,21 +17,25 @@ module.exports = Backbone.View.extend((function() {
   var cellHeight;
   var topMargin;
   var s;
-  
+
   return {
 
-    el:'<svg width="210" height="180"></svg>',
+    el: '<svg width="210" height="180"></svg>',
 
     //tagName:'svg',
-    
+
     // attributes: {
     //   width: 50,
     //   height: 30
     // },
 
-    initialize: function() {
-      console.log("new board view");
-      //this.render();
+    initialize: function(initObj) {
+      console.log("new board view ", initObj);
+      this.model = initObj.model;
+      this.model.on('moveCommitted', (function (x) {
+        console.log('boardView addPiece',x);
+        this.addPiece(x.colIdx, x.rowIdx, x.playerId);
+      }).bind(this));
     },
 
     render: function() {
@@ -77,7 +81,7 @@ module.exports = Backbone.View.extend((function() {
         });
         var click = (function(foo) {
           return function(e) {
-            this.trigger('suck', foo);
+            this.trigger('click:column', foo);
           };
         })(x);
         var over = (function(foo) {
@@ -114,13 +118,13 @@ module.exports = Backbone.View.extend((function() {
       }, 500, mina.bounce, cbk);
     },
 
-    hide: function(){
+    hide: function() {
       this.$el.hide();
     },
 
-    show: function(){
+    show: function() {
       this.$el.show();
     }
-    
+
   };
 })());
