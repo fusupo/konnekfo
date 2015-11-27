@@ -39,7 +39,7 @@ module.exports = Backbone.Model.extend((function() {
       console.log(this.attributes);
     },
 
-    move: function(colIdx, playerId) {
+    move: function(colIdx, playerId, surpressEvents) {
       var cols = this.get("cols");
       var rows = this.get("rows");
       var diag1 = this.get("diag1");
@@ -57,11 +57,13 @@ module.exports = Backbone.Model.extend((function() {
         "diag1": diag1,
         "diag2": diag2
       });
-      this.trigger('moveCommitted', {
-        colIdx: colIdx,
-        rowIdx: 6 - (idx - 1),
-        playerId: playerId
-      });
+      if (!surpressEvents) {
+        this.trigger('moveCommitted', {
+          colIdx: colIdx,
+          rowIdx: 6 - (idx - 1),
+          playerId: playerId
+        });
+      }
     },
 
     unmove: function(colIdx, playerId) {

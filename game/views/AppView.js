@@ -8,6 +8,7 @@ var MenuView = require('./MenuView.js');
 var BoardModel = require('../models/BoardModel.js');
 var BoardView = require('./BoardView.js');
 var LocalPlayerModel = require('../models/LocalPlayerModel.js');
+var CPUPlayerModel = require('../models/CPUPlayerModel.js');
 var LocalGameModel = require('../models/LocalGameModel.js');
 
 module.exports = Backbone.View.extend((function() {
@@ -28,31 +29,30 @@ module.exports = Backbone.View.extend((function() {
     startVsHumanLocalGame: function() {
       console.log('///////////////////////// NEW HUMAN VS HUMAN GAME ////////////////////');
       this.boardModel = new BoardModel();
-      this.createBoard();
-      this.boardModel.on('moveCommitted', (function (x) {
-        console.log('boardView addPiece',x);
-        this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
-      }).bind(this));
-      this.gameModel = new LocalGameModel({
-        board: this.boardModel,
-        p1: new LocalPlayerModel({
-          playerId: 1,
-          boardView: this.boardView
-        }),
-        p2: new LocalPlayerModel({
-          playerId: 2,
-          boardView: this.boardView
-        })
-      });
-      this.gameModel.startGameLoop();
+      this.boardView = new BoardView();
+      this.createLocalGame(new LocalPlayerModel({
+        playerId: 1,
+        boardView: this.boardView
+      }), new LocalPlayerModel({
+        playerId: 2,
+        boardView: this.boardView
+      }));
     },
 
     startVsComputerGame: function() {
-      this.createBoard();
+      console.log('///////////////////////// NEW HUMAN VS CPU GAME ////////////////////');
+      this.boardModel = new BoardModel();
+      this.boardView = new BoardView();
+      this.createLocalGame(new LocalPlayerModel({
+        playerId: 1,
+        boardView: this.boardView
+      }), new CPUPlayerModel({
+        playerId: 2,
+        boardModel: this.boardModel
+      }));
     },
 
     backToMain: function() {
-      console.log('shithead <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
       this.boardModel.off('moveCommitted');
       this.boardModel = null;
       this.gameModel.terminate();
@@ -61,10 +61,19 @@ module.exports = Backbone.View.extend((function() {
       this.boardView = null;
     },
 
-    createBoard: function() {
-      this.boardView = new BoardView();
+    createLocalGame: function(p1, p2) {
+      this.boardModel.on('moveCommitted', (function(x) {
+        console.log('boardView addPiece', x);
+        this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
+      }).bind(this));
       this.$('#boardHolder').append(this.boardView.$el);
       this.boardView.render();
+      this.gameModel = new LocalGameModel({
+        p1: p1,
+        p2: p2,
+        board: this.boardModel
+      });
+      this.gameModel.startGameLoop();
     }
 
   };

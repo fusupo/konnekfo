@@ -488,7 +488,7 @@ window.onload = function() {
   //
 };
 
-},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":12,"./views/BoardView.js":13,"backbone":15,"clipboard":18}],5:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":13,"./views/BoardView.js":14,"backbone":16,"clipboard":19}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -857,7 +857,7 @@ module.exports = function() {
   };
 };
 
-},{"./Colors.js":2,"snapsvg":27}],8:[function(require,module,exports){
+},{"./Colors.js":2,"snapsvg":28}],8:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -899,7 +899,7 @@ module.exports = Backbone.Model.extend((function() {
       console.log(this.attributes);
     },
 
-    move: function(colIdx, playerId) {
+    move: function(colIdx, playerId, surpressEvents) {
       var cols = this.get("cols");
       var rows = this.get("rows");
       var diag1 = this.get("diag1");
@@ -917,11 +917,13 @@ module.exports = Backbone.Model.extend((function() {
         "diag1": diag1,
         "diag2": diag2
       });
-      this.trigger('moveCommitted', {
-        colIdx: colIdx,
-        rowIdx: 6 - (idx - 1),
-        playerId: playerId
-      });
+      if (!surpressEvents) {
+        this.trigger('moveCommitted', {
+          colIdx: colIdx,
+          rowIdx: 6 - (idx - 1),
+          playerId: playerId
+        });
+      }
     },
 
     unmove: function(colIdx, playerId) {
@@ -1026,7 +1028,126 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":15}],9:[function(require,module,exports){
+},{"backbone":16}],9:[function(require,module,exports){
+"use strict";
+
+var PlayerModel = require('./PlayerModel.js');
+
+module.exports = PlayerModel.extend((function() {
+
+  var winBlock = function(board, id) {
+    var returnMove = false;
+    for (var i = 0; i < 7; i++) {
+      if (!board.isColFullP(i)) {
+        board.move(i, id, true);
+        if (board.hasWinnerP()) {
+          returnMove = i;
+        }
+        board.unmove(i, id);
+      }
+    }
+    return returnMove;
+  };
+
+  var offense = function(board, thisID, r) {
+    var tally = [0, 0, 0];
+    // base cases
+    if (board.hasWinnerP()) {
+      // win
+      tally[board.winner] ++;
+      return tally;
+    } else if (board.isBoardFullP()) {
+      // draw - all cells are filled and
+      tally[0] ++;
+      return tally;
+    }
+    if (r >= 6) {
+      return tally;
+    }
+    // plan for best offensive move //////////////////////////////////
+    // start with current board
+    // figure out which move (ie which column) will give us the highest possiblity of winning by calculating all games states with a recursive fxn
+    // recursive fxn (input includes: current player)
+    // initialize our tally ([w,l,d]) note: tally is stats for computer
+    // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
+    for (var k = 0; k < 7; k++) {
+
+      if (!board.isColFullP(k)) {
+        board.move(k, thisID, true );
+        var tempTally = offense(board, thisID ^ 3, r + 1);
+        tally[0] += tempTally[0];
+        tally[1] += tempTally[1];
+        tally[2] += tempTally[2];
+
+        board.unmove(k, thisID);
+      }
+    }
+    // is the game over?
+    // if so return win/lose/draw (base case) [1,0,0]
+    // if not then recurse() and fold results into tally
+    // return tally
+    return tally;
+  };
+
+  return {
+    prompt: function() {
+      // var boardView = this.get("boardView");
+      // boardView.on('click:column', (function(colIdx){
+      //   boardView.off('click:column');
+      //   this.attemptMove(colIdx);
+      // }).bind(this));
+      var colIdx =  this.figureOutThePlan.bind(this)(this.get('boardModel'));
+      this.attemptMove(colIdx);
+    },
+
+    figureOutThePlan: function(board){
+      var id = this.get('playerId');
+      var returnMove = Math.floor(Math.random() * 7);
+      while (board.isColFullP(returnMove) && returnMove < 7) {
+        returnMove++;
+      }
+      // if I can wan win in the next move, win
+      // if my opp win in the next move (ie does my opp have 3 in a row/col/diag, etc),
+      // if yes, can I stop opp from winning on their next move?
+      // if yes, block
+      // else, in checkmate. opp will win. this move doesn't matter
+      if (winBlock(board, this.id) !== false) {
+        returnMove = winBlock(board, this.id);
+      } else if (winBlock(board, this.id ^ 3) !== false) {
+        returnMove = winBlock(board, this.id ^ 3); // 0b11);
+      } else {
+        // else play best offensive move
+        var columnStats = [];
+        for (var i = 0; i < 7; i++) {
+          if (!board.isColFullP(i)) {
+            board.move(i, id,true);
+            columnStats[i] = offense(board, id ^ 3, 0); // 0b11, 0);
+            board.unmove(i, id);
+          }
+        }
+        //console.table(columnStats);
+        //console.log(columnStats);
+        var thisStats = R.map(function(item) {
+          var result = item !== undefined ? item[id] : 0;
+          return result;
+        }, columnStats);
+        //console.log(thisStats);
+        var max = 0;
+        for (var i = 0; i < thisStats.length; i++) {
+          if (thisStats[i] > max) {
+            max = thisStats[i];
+            returnMove = i;
+          }
+        }
+      }
+      //console.log('returnMove', returnMove);
+      return returnMove;
+    }
+    
+  };
+})());
+
+},{"./PlayerModel.js":12}],10:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1099,7 +1220,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":15}],10:[function(require,module,exports){
+},{"backbone":16}],11:[function(require,module,exports){
 "use strict";
 
 var PlayerModel = require('./PlayerModel.js');
@@ -1116,7 +1237,7 @@ module.exports = PlayerModel.extend((function() {
   };
 })());
 
-},{"./PlayerModel.js":11}],11:[function(require,module,exports){
+},{"./PlayerModel.js":12}],12:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1136,7 +1257,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":15}],12:[function(require,module,exports){
+},{"backbone":16}],13:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1147,6 +1268,7 @@ var MenuView = require('./MenuView.js');
 var BoardModel = require('../models/BoardModel.js');
 var BoardView = require('./BoardView.js');
 var LocalPlayerModel = require('../models/LocalPlayerModel.js');
+var CPUPlayerModel = require('../models/CPUPlayerModel.js');
 var LocalGameModel = require('../models/LocalGameModel.js');
 
 module.exports = Backbone.View.extend((function() {
@@ -1167,31 +1289,30 @@ module.exports = Backbone.View.extend((function() {
     startVsHumanLocalGame: function() {
       console.log('///////////////////////// NEW HUMAN VS HUMAN GAME ////////////////////');
       this.boardModel = new BoardModel();
-      this.createBoard();
-      this.boardModel.on('moveCommitted', (function (x) {
-        console.log('boardView addPiece',x);
-        this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
-      }).bind(this));
-      this.gameModel = new LocalGameModel({
-        board: this.boardModel,
-        p1: new LocalPlayerModel({
-          playerId: 1,
-          boardView: this.boardView
-        }),
-        p2: new LocalPlayerModel({
-          playerId: 2,
-          boardView: this.boardView
-        })
-      });
-      this.gameModel.startGameLoop();
+      this.boardView = new BoardView();
+      this.createLocalGame(new LocalPlayerModel({
+        playerId: 1,
+        boardView: this.boardView
+      }), new LocalPlayerModel({
+        playerId: 2,
+        boardView: this.boardView
+      }));
     },
 
     startVsComputerGame: function() {
-      this.createBoard();
+      console.log('///////////////////////// NEW HUMAN VS CPU GAME ////////////////////');
+      this.boardModel = new BoardModel();
+      this.boardView = new BoardView();
+      this.createLocalGame(new LocalPlayerModel({
+        playerId: 1,
+        boardView: this.boardView
+      }), new CPUPlayerModel({
+        playerId: 2,
+        boardModel: this.boardModel
+      }));
     },
 
     backToMain: function() {
-      console.log('shithead <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
       this.boardModel.off('moveCommitted');
       this.boardModel = null;
       this.gameModel.terminate();
@@ -1200,16 +1321,25 @@ module.exports = Backbone.View.extend((function() {
       this.boardView = null;
     },
 
-    createBoard: function() {
-      this.boardView = new BoardView();
+    createLocalGame: function(p1, p2) {
+      this.boardModel.on('moveCommitted', (function(x) {
+        console.log('boardView addPiece', x);
+        this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
+      }).bind(this));
       this.$('#boardHolder').append(this.boardView.$el);
       this.boardView.render();
+      this.gameModel = new LocalGameModel({
+        p1: p1,
+        p2: p2,
+        board: this.boardModel
+      });
+      this.gameModel.startGameLoop();
     }
 
   };
 })());
 
-},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/LocalGameModel.js":9,"../models/LocalPlayerModel.js":10,"./BoardView.js":13,"./MenuView.js":14,"backbone":15,"underscore":29}],13:[function(require,module,exports){
+},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/CPUPlayerModel.js":9,"../models/LocalGameModel.js":10,"../models/LocalPlayerModel.js":11,"./BoardView.js":14,"./MenuView.js":15,"backbone":16,"underscore":30}],14:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1329,7 +1459,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":15,"snapsvg":27}],14:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":16,"snapsvg":28}],15:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1388,7 +1518,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":15,"underscore":29}],15:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":16,"underscore":30}],16:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -3286,7 +3416,7 @@ module.exports = Backbone.View.extend((function() {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":26,"underscore":16}],16:[function(require,module,exports){
+},{"jquery":27,"underscore":17}],17:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4836,7 +4966,7 @@ module.exports = Backbone.View.extend((function() {
   }
 }.call(this));
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5069,7 +5199,7 @@ var ClipboardAction = (function () {
 
 exports['default'] = ClipboardAction;
 module.exports = exports['default'];
-},{"select":24}],18:[function(require,module,exports){
+},{"select":25}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5227,7 +5357,7 @@ function getAttributeValue(suffix, element) {
 
 exports['default'] = Clipboard;
 module.exports = exports['default'];
-},{"./clipboard-action":17,"good-listener":23,"tiny-emitter":25}],19:[function(require,module,exports){
+},{"./clipboard-action":18,"good-listener":24,"tiny-emitter":26}],20:[function(require,module,exports){
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf) {
@@ -5239,7 +5369,7 @@ module.exports = function (element, selector, checkYoSelf) {
   }
 }
 
-},{"matches-selector":20}],20:[function(require,module,exports){
+},{"matches-selector":21}],21:[function(require,module,exports){
 
 /**
  * Element prototype.
@@ -5280,7 +5410,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var closest = require('closest');
 
 /**
@@ -5325,7 +5455,7 @@ function listener(element, selector, type, callback) {
 
 module.exports = delegate;
 
-},{"closest":19}],22:[function(require,module,exports){
+},{"closest":20}],23:[function(require,module,exports){
 /**
  * Check if argument is a HTML element.
  *
@@ -5376,7 +5506,7 @@ exports.function = function(value) {
     return type === '[object Function]';
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var is = require('./is');
 var delegate = require('delegate');
 
@@ -5473,7 +5603,7 @@ function listenSelector(selector, type, callback) {
 
 module.exports = listen;
 
-},{"./is":22,"delegate":21}],24:[function(require,module,exports){
+},{"./is":23,"delegate":22}],25:[function(require,module,exports){
 function select(element) {
     var selectedText;
 
@@ -5503,7 +5633,7 @@ function select(element) {
 
 module.exports = select;
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -5571,7 +5701,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -14783,7 +14913,7 @@ return jQuery;
 
 }));
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -22955,7 +23085,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":28}],28:[function(require,module,exports){
+},{"eve":29}],29:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23360,6 +23490,6 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}],29:[function(require,module,exports){
-arguments[4][16][0].apply(exports,arguments)
-},{"dup":16}]},{},[4]);
+},{}],30:[function(require,module,exports){
+arguments[4][17][0].apply(exports,arguments)
+},{"dup":17}]},{},[4]);
