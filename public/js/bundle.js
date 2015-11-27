@@ -884,16 +884,19 @@ module.exports = Backbone.Model.extend((function() {
 
   return {
 
-    defaults: {
-      cols: [2, 2, 2, 2, 2, 2, 2],
-      rows: [0, 0, 0, 0, 0, 0],
-      diag1: [0, 0, 0, 0, 0, 0], // bottom right to top left
-      diag2: [0, 0, 0, 0, 0, 0],
-      winner: null
+    defaults: function() {
+      return {
+        cols: [2, 2, 2, 2, 2, 2, 2],
+        rows: [0, 0, 0, 0, 0, 0],
+        diag1: [0, 0, 0, 0, 0, 0], // bottom right to top left
+        diag2: [0, 0, 0, 0, 0, 0],
+        winner: null
+      };
     },
 
     initialize: function() {
-      console.log("new board model");
+      console.log("new board model", this);
+      console.log(this.attributes);
     },
 
     move: function(colIdx, playerId) {
@@ -1011,15 +1014,6 @@ module.exports = Backbone.Model.extend((function() {
       return false;
     },
 
-    // cloneCells: function() {
-    //   return {
-    //     cols: R.clone(this.get("cols")),
-    //     rows: R.clone(this.get("rows")),
-    //     diag1: R.clone(this.get("diag1")),
-    //     diag2: R.clone(this.get("diag2"))
-    //   };
-    // },
-
     logTable: function() {
       var rows = this.get("rows");
       console.table(R.reverse(rows.map(function(i) {
@@ -1039,11 +1033,11 @@ var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend((function() {
   return {
-    
+
     defaults: {
       currPlayerId: 1
     },
-    
+
     initialize: function(foo) {
       console.log(foo);
       this.get('p1').on('attemptMove', (function(colIdx) {
@@ -1053,7 +1047,15 @@ module.exports = Backbone.Model.extend((function() {
         this.attemptMove(colIdx);
       }).bind(this));
     },
-    
+
+    terminate: function() {
+      this.get('p1').off('attemptMove');
+      this.get('p2').off('attemptMove');
+      this.set('p1', null);
+      this.set('p2', null);
+      this.set('board', null);
+    },
+
     startGameLoop: function() {
       if (this.get('currPlayerId') === 1) {
         this.get('p1').prompt();
@@ -1074,27 +1076,27 @@ module.exports = Backbone.Model.extend((function() {
       // // else
       // // // restart gameloop
     },
-    
-    attemptMove: function(colIdx){
+
+    attemptMove: function(colIdx) {
       var board = this.get('board');
       var currPlayerId = this.get('currPlayerId');
       console.log('p' + currPlayerId + ' attemptMove:', colIdx);
-      if(!board.isColFullP(colIdx)){
-        board.move(colIdx, currPlayerId); 
-        if(board.hasWinnerP()){
-          console.log('player',currPlayerId,'has won the game'); 
-        }else if(board.isBoardFullP()){
-          console.log('the game is draw'); 
-        }else{
+      if (!board.isColFullP(colIdx)) {
+        board.move(colIdx, currPlayerId);
+        if (board.hasWinnerP()) {
+          console.log('player', currPlayerId, 'has won the game');
+        } else if (board.isBoardFullP()) {
+          console.log('the game is draw');
+        } else {
           this.set("currPlayerId", currPlayerId ^ 3);
-          this.startGameLoop(); 
+          this.startGameLoop();
         }
-      }else{
-        this.startGameLoop(); 
+      } else {
+        this.startGameLoop();
       }
     }
-    
-  }
+
+  };
 })());
 
 },{"backbone":15}],10:[function(require,module,exports){
@@ -1158,20 +1160,20 @@ module.exports = Backbone.View.extend((function() {
       menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
       menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
       menu.on('select:backToMain', this.backToMain.bind(this));
-      //this.render();
     },
-
-    // render: function() {
-    //   this.$el.html('MUTHER FUCKING APP VIEW');
-    // },
 
     events: {},
 
     startVsHumanLocalGame: function() {
-      var boardModel = new BoardModel();
-      this.createBoard(boardModel);
-      var gameModel = new LocalGameModel({
-        board: boardModel,
+      console.log('///////////////////////// NEW HUMAN VS HUMAN GAME ////////////////////');
+      this.boardModel = new BoardModel();
+      this.createBoard();
+      this.boardModel.on('moveCommitted', (function (x) {
+        console.log('boardView addPiece',x);
+        this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
+      }).bind(this));
+      this.gameModel = new LocalGameModel({
+        board: this.boardModel,
         p1: new LocalPlayerModel({
           playerId: 1,
           boardView: this.boardView
@@ -1181,7 +1183,7 @@ module.exports = Backbone.View.extend((function() {
           boardView: this.boardView
         })
       });
-      gameModel.startGameLoop();
+      this.gameModel.startGameLoop();
     },
 
     startVsComputerGame: function() {
@@ -1189,13 +1191,17 @@ module.exports = Backbone.View.extend((function() {
     },
 
     backToMain: function() {
+      console.log('shithead <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+      this.boardModel.off('moveCommitted');
+      this.boardModel = null;
+      this.gameModel.terminate();
+      this.gameModel = null;
       this.boardView.remove();
+      this.boardView = null;
     },
 
-    createBoard: function(boardModel) {
-      this.boardView = new BoardView({
-        model: boardModel
-      });
+    createBoard: function() {
+      this.boardView = new BoardView();
       this.$('#boardHolder').append(this.boardView.$el);
       this.boardView.render();
     }
@@ -1228,20 +1234,8 @@ module.exports = Backbone.View.extend((function() {
 
     el: '<svg width="210" height="180"></svg>',
 
-    //tagName:'svg',
-
-    // attributes: {
-    //   width: 50,
-    //   height: 30
-    // },
-
     initialize: function(initObj) {
-      console.log("new board view ", initObj);
-      this.model = initObj.model;
-      this.model.on('moveCommitted', (function (x) {
-        console.log('boardView addPiece',x);
-        this.addPiece(x.colIdx, x.rowIdx, x.playerId);
-      }).bind(this));
+      console.log("new board view ");
     },
 
     render: function() {

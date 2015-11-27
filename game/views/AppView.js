@@ -21,20 +21,20 @@ module.exports = Backbone.View.extend((function() {
       menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
       menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
       menu.on('select:backToMain', this.backToMain.bind(this));
-      //this.render();
     },
-
-    // render: function() {
-    //   this.$el.html('MUTHER FUCKING APP VIEW');
-    // },
 
     events: {},
 
     startVsHumanLocalGame: function() {
-      var boardModel = new BoardModel();
-      this.createBoard(boardModel);
-      var gameModel = new LocalGameModel({
-        board: boardModel,
+      console.log('///////////////////////// NEW HUMAN VS HUMAN GAME ////////////////////');
+      this.boardModel = new BoardModel();
+      this.createBoard();
+      this.boardModel.on('moveCommitted', (function (x) {
+        console.log('boardView addPiece',x);
+        this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
+      }).bind(this));
+      this.gameModel = new LocalGameModel({
+        board: this.boardModel,
         p1: new LocalPlayerModel({
           playerId: 1,
           boardView: this.boardView
@@ -44,7 +44,7 @@ module.exports = Backbone.View.extend((function() {
           boardView: this.boardView
         })
       });
-      gameModel.startGameLoop();
+      this.gameModel.startGameLoop();
     },
 
     startVsComputerGame: function() {
@@ -52,13 +52,17 @@ module.exports = Backbone.View.extend((function() {
     },
 
     backToMain: function() {
+      console.log('shithead <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+      this.boardModel.off('moveCommitted');
+      this.boardModel = null;
+      this.gameModel.terminate();
+      this.gameModel = null;
       this.boardView.remove();
+      this.boardView = null;
     },
 
-    createBoard: function(boardModel) {
-      this.boardView = new BoardView({
-        model: boardModel
-      });
+    createBoard: function() {
+      this.boardView = new BoardView();
       this.$('#boardHolder').append(this.boardView.$el);
       this.boardView.render();
     }

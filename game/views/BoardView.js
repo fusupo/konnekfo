@@ -22,20 +22,8 @@ module.exports = Backbone.View.extend((function() {
 
     el: '<svg width="210" height="180"></svg>',
 
-    //tagName:'svg',
-
-    // attributes: {
-    //   width: 50,
-    //   height: 30
-    // },
-
     initialize: function(initObj) {
-      console.log("new board view ", initObj);
-      this.model = initObj.model;
-      this.model.on('moveCommitted', (function (x) {
-        console.log('boardView addPiece',x);
-        this.addPiece(x.colIdx, x.rowIdx, x.playerId);
-      }).bind(this));
+      console.log("new board view ");
     },
 
     render: function() {

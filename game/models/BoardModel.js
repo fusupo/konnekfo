@@ -24,16 +24,19 @@ module.exports = Backbone.Model.extend((function() {
 
   return {
 
-    defaults: {
-      cols: [2, 2, 2, 2, 2, 2, 2],
-      rows: [0, 0, 0, 0, 0, 0],
-      diag1: [0, 0, 0, 0, 0, 0], // bottom right to top left
-      diag2: [0, 0, 0, 0, 0, 0],
-      winner: null
+    defaults: function() {
+      return {
+        cols: [2, 2, 2, 2, 2, 2, 2],
+        rows: [0, 0, 0, 0, 0, 0],
+        diag1: [0, 0, 0, 0, 0, 0], // bottom right to top left
+        diag2: [0, 0, 0, 0, 0, 0],
+        winner: null
+      };
     },
 
     initialize: function() {
-      console.log("new board model");
+      console.log("new board model", this);
+      console.log(this.attributes);
     },
 
     move: function(colIdx, playerId) {
@@ -150,15 +153,6 @@ module.exports = Backbone.Model.extend((function() {
       }
       return false;
     },
-
-    // cloneCells: function() {
-    //   return {
-    //     cols: R.clone(this.get("cols")),
-    //     rows: R.clone(this.get("rows")),
-    //     diag1: R.clone(this.get("diag1")),
-    //     diag2: R.clone(this.get("diag2"))
-    //   };
-    // },
 
     logTable: function() {
       var rows = this.get("rows");
