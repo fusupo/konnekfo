@@ -4,7 +4,7 @@ var PlayerModel = require('./PlayerModel.js');
 
 module.exports = PlayerModel.extend((function() {
 
-  var id;
+  var playerId;
   
   var winBlock = function(board, id) {
     var returnMove = false;
@@ -60,7 +60,7 @@ module.exports = PlayerModel.extend((function() {
     //console.log('other',tally);
     return tally;
   };
-
+  
   return {
     prompt: function() {
       // var boardView = this.get("boardView");
@@ -68,7 +68,8 @@ module.exports = PlayerModel.extend((function() {
       //   boardView.off('click:column');
       //   this.attemptMove(colIdx);
       // }).bind(this));
-      id = this.get('playerId');
+      playerId = this.get('playerId');
+      console.log('PROMPT -- > ', playerId);
       var colIdx =  this.figureOutThePlan.bind(this)(this.get('boardModel'));
       this.attemptMove(colIdx);
     },
@@ -83,24 +84,24 @@ module.exports = PlayerModel.extend((function() {
       // if yes, can I stop opp from winning on their next move?
       // if yes, block
       // else, in checkmate. opp will win. this move doesn't matter
-      if (winBlock(board, this.id) !== false) {
-        returnMove = winBlock(board, this.id);
-      } else if (winBlock(board, this.id ^ 3) !== false) {
-        returnMove = winBlock(board, this.id ^ 3); // 0b11);
+      if (winBlock(board, playerId) !== false) {
+        returnMove = winBlock(board, playerId);
+      } else if (winBlock(board, playerId ^ 3) !== false) {
+        returnMove = winBlock(board, playerId ^ 3); // 0b11);
       } else {
         // else play best offensive move
         var columnStats = [];
         for (var i = 0; i < 7; i++) {
           if (!board.isColFullP(i)) {
-            board.move(i, id,true);
-            columnStats[i] = offense(board, id ^ 3, 0); // 0b11, 0);
-            board.unmove(i, id);
+            board.move(i, playerId,true);
+            columnStats[i] = offense(board, playerId ^ 3, 0); // 0b11, 0);
+            board.unmove(i, playerId);
           }
         }
         console.table(columnStats);
         console.log(columnStats);
         var thisStats = R.map(function(item) {
-          var result = item !== undefined ? item[id]/item[id^3] : 0;
+          var result = item !== undefined ? item[playerId]/item[playerId^3] : 0;
           return result;
         }, columnStats);
         console.log(thisStats);

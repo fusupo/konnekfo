@@ -23,10 +23,18 @@ module.exports = Backbone.View.extend((function() {
     el: '<svg width="210" height="180"></svg>',
 
     initialize: function(initObj) {
-      console.log("new board view ");
+      console.log("new board view ",this.model);
+      this.listenTo(this.model, "moveCommitted", (function(x) {
+          console.log('boardView addPiece', x);
+        this.addPiece(x.colIdx, x.rowIdx, x.playerId);
+      }).bind(this));
+      this.listenTo(this.model, "resetComplete", (function() {
+        this.render();
+      }).bind(this));
     },
 
     render: function() {
+      console.log("RENNDER THE VIEW!!!!!!!!!");
       bgColor = colors.bgColor;
       boardColor = colors.boardColor;
       p1Color = colors.p1Color;

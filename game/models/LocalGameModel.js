@@ -6,6 +6,7 @@ module.exports = Backbone.Model.extend((function() {
   return {
 
     defaults: {
+      startPlayerId: 1,
       currPlayerId: 1,
       tally: [0, 0, 0]
     },
@@ -56,8 +57,14 @@ module.exports = Backbone.Model.extend((function() {
       if (!board.isColFullP(colIdx)) {
         board.move(colIdx, currPlayerId);
         if (board.hasWinnerP()) {
+          var tempTally = this.get('tally');
+          tempTally[board.winner]++;
+          this.set('tally', tempTally);
           this.trigger('gameComplete');
         } else if (board.isBoardFullP()) {
+          var tempTally = this.get('tally');
+          tempTally[0]++;
+          this.set('tally', tempTally);
           this.trigger('gameComplete');
         } else {
           this.set("currPlayerId", currPlayerId ^ 3);
@@ -68,8 +75,18 @@ module.exports = Backbone.Model.extend((function() {
       }
     },
 
-    reset: function(){
-      console.log('reset the model!!'); 
+    reset: function() {
+      console.log('reset the model!!', this.get('startPlayerId'));
+      //x this.set('tally', [0,0,0]);
+      var tempStartPlayerId = this.get('startPlayerId');
+      console.log(tempStartPlayerId);
+      tempStartPlayerId = tempStartPlayerId ^ 3;
+      console.log(tempStartPlayerId);
+
+      this.set('startPlayerId', tempStartPlayerId);
+      this.set('currPlayerId', tempStartPlayerId);
+      console.log(this.get('currPlayerId'));
+
     }
   };
 })());

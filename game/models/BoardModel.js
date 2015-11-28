@@ -32,13 +32,23 @@ module.exports = Backbone.Model.extend((function() {
     initialize: function() {
       console.log("new board model", this);
       console.log(this.attributes);
+      this.reset();
+    },
+
+    reset: function(){
+      console.log('resettign board <-------------------', this);
+      cols = [2, 2, 2, 2, 2, 2, 2];
+      rows = [0, 0, 0, 0, 0, 0];
+      diag1 = [0, 0, 0, 0, 0, 0]; // bottom right to top left
+      diag2 = [0, 0, 0, 0, 0, 0];
       this.hasOutcome = false;
       this.hasWinner = false;
       this.winner = null;
       this.winDir = null;
       this.winPos = null;
+      this.trigger('resetComplete');
     },
-
+    
     move: function(colIdx, playerId, surpressEvents) {
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
