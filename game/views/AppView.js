@@ -77,6 +77,7 @@
           p1: players[0],
           p2: players[1],
           board: this.boardModel,
+          view: this.boardView,
           gameResultModel: this.gameResultModel
         });
         this.outcomePanelView = new OutcomePanelView({

@@ -30,7 +30,7 @@ module.exports = Backbone.Model.extend((function() {
       this.set('board', null);
     },
 
-    startGame: function(){
+    startGame: function() {
       this.startGameLoop();
       this.trigger('gameStart');
     },
@@ -68,15 +68,21 @@ module.exports = Backbone.Model.extend((function() {
           tempTally = this.get('tally');
           tempTally[this.get('gameResultModel').get('winner')]++;
           this.set('tally', tempTally);
-          this.trigger('gameComplete');
+          this.listenToOnce(this.get('view'), "animComplete", function() {
+            this.trigger('gameComplete');
+          });
         } else if (board.isBoardFullP()) {
           tempTally = this.get('tally');
           tempTally[0]++;
           this.set('tally', tempTally);
-          this.trigger('gameComplete');
+          this.listenToOnce(this.get('view'), "animComplete", function() {
+            this.trigger('gameComplete');
+          });
         } else {
           this.set("currPlayerId", currPlayerId ^ 3);
-          this.startGameLoop();
+          this.listenToOnce(this.get('view'), "animComplete", function() {
+            this.startGameLoop();
+          });
         }
       } else {
         this.startGameLoop();
@@ -89,6 +95,6 @@ module.exports = Backbone.Model.extend((function() {
       this.set('startPlayerId', tempStartPlayerId);
       this.set('currPlayerId', tempStartPlayerId);
     }
-    
+
   };
 })());

@@ -111,7 +111,9 @@ module.exports = Backbone.View.extend((function() {
       this.circles.add(c);
       c.animate({
         cy: (cellHeight / 2 + topMargin) + (rowIdx * cellHeight)
-      }, 500, mina.bounce, cbk);
+      }, 500, mina.bounce, (function () {
+        this.trigger('animComplete'); 
+      }).bind(this));
     },
 
     hide: function() {

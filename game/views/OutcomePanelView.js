@@ -71,7 +71,8 @@ module.exports = Backbone.View.extend((function() {
 
     showResult: function() {
       if (this.model.get('gameResultModel').get('hasWinner')) {
-        this.$result.html(this.model.get('gameResultModel').get('winner')+' has won the game');
+        this.$result.html(this.model.get('gameResultModel').get('winner')+' has won the game')
+          .css('color', Colors['p' + this.model.get('gameResultModel').get('winner') + 'Color']);
       } else {
         this.$result.html('game is draw');
       }
