@@ -31,24 +31,17 @@ module.exports = Backbone.Model.extend((function() {
 
     initialize: function() {
       console.log("new board model", this);
-      console.log(this.attributes);
       this.reset();
     },
 
-    reset: function(){
-      console.log('resettign board <-------------------', this);
+    reset: function() {
       cols = [2, 2, 2, 2, 2, 2, 2];
       rows = [0, 0, 0, 0, 0, 0];
       diag1 = [0, 0, 0, 0, 0, 0]; // bottom right to top left
       diag2 = [0, 0, 0, 0, 0, 0];
-      this.hasOutcome = false;
-      this.hasWinner = false;
-      this.winner = null;
-      this.winDir = null;
-      this.winPos = null;
       this.trigger('resetComplete');
     },
-    
+
     move: function(colIdx, playerId, surpressEvents) {
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
@@ -93,16 +86,21 @@ module.exports = Backbone.Model.extend((function() {
       return getNextRowIdx(cols[colIdx]) >= 8;
     },
 
-    hasWinnerP: function() {
+    hasWinnerP: function(suppressRegistration) {
+      var check;
+      var winningPlayerId;
       for (var i = 0; i <= 3; i++) {
         var c1 = cols[i] >> 4;
         var c2 = cols[i + 1] >> 4;
         var c3 = cols[i + 2] >> 4;
         var c4 = cols[i + 3] >> 4;
-        var check = (c1 & c2 & c3 & c4);
+        check = (c1 & c2 & c3 & c4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'h', i);
-          return ('h');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'h', i);
+          }
+          return winningPlayerId;
         }
       }
       for (var j = 0; j <= 2; j++) {
@@ -110,10 +108,13 @@ module.exports = Backbone.Model.extend((function() {
         var r2 = rows[j + 1];
         var r3 = rows[j + 2];
         var r4 = rows[j + 3];
-        var check = (r1 & r2 & r3 & r4);
+        check = (r1 & r2 & r3 & r4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'v', j);
-          return ('v');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'v', j);
+          }
+          return winningPlayerId;
         }
       }
       for (var k = 0; k <= 2; k++) {
@@ -121,10 +122,13 @@ module.exports = Backbone.Model.extend((function() {
         var d2 = diag1[k + 1];
         var d3 = diag1[k + 2];
         var d4 = diag1[k + 3];
-        var check = (d1 & d2 & d3 & d4);
+        check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'd1', k);
-          return ('d1');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'd1', k);
+          }
+          return winningPlayerId;
         }
       }
       for (var m = 0; m <= 2; m++) {
@@ -132,21 +136,25 @@ module.exports = Backbone.Model.extend((function() {
         var d2 = diag2[m + 1];
         var d3 = diag2[m + 2];
         var d4 = diag2[m + 3];
-        var check = (d1 & d2 & d3 & d4);
+        check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'd2', m);
-          return ('d2');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'd2', m);
+          }
+          return winningPlayerId;
         }
       }
       return false;
     },
 
     registerWin: function(winner, dir, pos) {
-      this.hasOutcome = true;
-      this.hasWinner = true;
-      this.winner = winner;
-      this.winDir = dir;
-      this.winPos = pos;
+      var gameResult = this.get('gameResultModel');
+      gameResult.set('hasOutcome', true);
+      gameResult.set('hasWinner', true);
+      gameResult.set('winner', winner);
+      gameResult.set('winDir', dir);
+      gameResult.set('winPos', pos);
     },
 
     logTable: function() {

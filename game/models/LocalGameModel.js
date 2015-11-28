@@ -11,14 +11,15 @@ module.exports = Backbone.Model.extend((function() {
       tally: [0, 0, 0]
     },
 
-    initialize: function(foo) {
-      console.log(foo);
+    initialize: function() {
+      console.log('new LocalGameModel');
       this.get('p1').on('attemptMove', (function(colIdx) {
         this.attemptMove(colIdx);
       }).bind(this));
       this.get('p2').on('attemptMove', (function(colIdx) {
         this.attemptMove(colIdx);
       }).bind(this));
+      console.log(this.attributes);
     },
 
     terminate: function() {
@@ -29,11 +30,18 @@ module.exports = Backbone.Model.extend((function() {
       this.set('board', null);
     },
 
+    startGame: function(){
+      this.startGameLoop();
+      this.trigger('gameStart');
+    },
+
     startGameLoop: function() {
       if (this.get('currPlayerId') === 1) {
         this.get('p1').prompt();
+        this.trigger('promptPlayer', 1);
       } else {
         this.get('p2').prompt();
+        this.trigger('promptPlayer', 2);
       }
     },
 
@@ -53,16 +61,16 @@ module.exports = Backbone.Model.extend((function() {
       // // // restart gameloop
       var board = this.get('board');
       var currPlayerId = this.get('currPlayerId');
-      console.log('p' + currPlayerId + ' attemptMove:', colIdx);
       if (!board.isColFullP(colIdx)) {
         board.move(colIdx, currPlayerId);
+        var tempTally;
         if (board.hasWinnerP()) {
-          var tempTally = this.get('tally');
-          tempTally[board.winner]++;
+          tempTally = this.get('tally');
+          tempTally[this.get('gameResultModel').get('winner')]++;
           this.set('tally', tempTally);
           this.trigger('gameComplete');
         } else if (board.isBoardFullP()) {
-          var tempTally = this.get('tally');
+          tempTally = this.get('tally');
           tempTally[0]++;
           this.set('tally', tempTally);
           this.trigger('gameComplete');
@@ -76,17 +84,11 @@ module.exports = Backbone.Model.extend((function() {
     },
 
     reset: function() {
-      console.log('reset the model!!', this.get('startPlayerId'));
-      //x this.set('tally', [0,0,0]);
       var tempStartPlayerId = this.get('startPlayerId');
-      console.log(tempStartPlayerId);
       tempStartPlayerId = tempStartPlayerId ^ 3;
-      console.log(tempStartPlayerId);
-
       this.set('startPlayerId', tempStartPlayerId);
       this.set('currPlayerId', tempStartPlayerId);
-      console.log(this.get('currPlayerId'));
-
     }
+    
   };
 })());

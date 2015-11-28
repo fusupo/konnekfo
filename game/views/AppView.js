@@ -7,6 +7,7 @@
   var colors = require('../Colors.js');
 
   var MenuView = require('./MenuView.js');
+  var GameResultModel = require('../models/GameResultModel.js');
   var BoardModel = require('../models/BoardModel.js');
   var BoardView = require('./BoardView.js');
   var OutcomePanelView = require('./OutcomePanelView.js');
@@ -15,6 +16,7 @@
   var LocalGameModel = require('../models/LocalGameModel.js');
 
   module.exports = Backbone.View.extend((function() {
+    
     return {
 
       initialize: function() {
@@ -25,10 +27,6 @@
         menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
         menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
         menu.on('select:backToMain', this.backToMain.bind(this));
-
-        this.outcomePanelView = new OutcomePanelView();
-        this.$('#outcomeHolder').append(this.outcomePanelView.$el);
-        this.hideOutcomePanelView();
       },
 
       events: {},
@@ -51,7 +49,8 @@
       },
 
       createLocalGame: function(playerTypes) {
-        this.boardModel = new BoardModel();
+        this.gameResultModel = new GameResultModel();
+        this.boardModel = new BoardModel({gameResultModel: this.gameResultModel});
         this.boardView = new BoardView({
           model: this.boardModel
         });
@@ -74,36 +73,27 @@
           }
           return p;
         }, this);
-        console.log('PLAYERS',players);
         this.gameModel = new LocalGameModel({
           p1: players[0],
           p2: players[1],
-          board: this.boardModel
+          board: this.boardModel,
+          gameResultModel: this.gameResultModel
         });
-        this.gameModel.on('gameComplete', this.showOutcomePanelView.bind(this));
+        this.outcomePanelView = new OutcomePanelView({
+          model: this.gameModel
+        });
+        this.$('#outcomeHolder').append(this.outcomePanelView.$el);
         this.outcomePanelView.on('click:reset', (function() {
-          console.log('resetGame');
+          this.gameResultModel.reset();
           this.gameModel.reset();
           this.boardModel.reset();
-          this.gameModel.startGameLoop();
-          this.hideOutcomePanelView();
+          this.gameModel.startGame();
         }).bind(this));
-        this.gameModel.startGameLoop();
-      },
-
-      hideOutcomePanelView: function() {
-        this.outcomePanelView.$el.hide();
-      },
-
-      showOutcomePanelView: function() {
-        this.outcomePanelView.$el.show();
-        console.log(this.boardModel.hasWinner,
-                    this.boardModel.winner,
-                    this.boardModel.winDir,
-                    this.boardModel.winPos);
-        console.log(this.gameModel.get('tally'));
+        this.gameModel.startGame();
       }
+
     };
+    
   })());
 
 }());

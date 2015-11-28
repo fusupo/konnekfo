@@ -11,7 +11,7 @@ module.exports = PlayerModel.extend((function() {
     for (var i = 0; i < 7; i++) {
       if (!board.isColFullP(i)) {
         board.move(i, id, true);
-        if (board.hasWinnerP()) {
+        if (board.hasWinnerP(true)) {
           returnMove = i;
         }
         board.unmove(i, id);
@@ -23,9 +23,10 @@ module.exports = PlayerModel.extend((function() {
   var offense = function(board, thisID, r) {
     var tally = [0, 0, 0];
     // base cases
-    if (board.hasWinnerP()) {
+    var winningPlayerId = board.hasWinnerP(true);
+    if (winningPlayerId) {
       // win
-      tally[board.winner] ++;
+      tally[winningPlayerId] ++;
       //console.log('winner', tally);
       return tally;
     } else if (board.isBoardFullP()) {
@@ -101,7 +102,12 @@ module.exports = PlayerModel.extend((function() {
         console.table(columnStats);
         console.log(columnStats);
         var thisStats = R.map(function(item) {
-          var result = item !== undefined ? item[playerId]/item[playerId^3] : 0;
+          if (item !== undefined) {
+            var result = item[playerId]/item[playerId^3];
+            result = result === Number.POSITIVE_INFINITY ? item[playerId]:result;
+          } else {
+            var result = 0;
+          }
           return result;
         }, columnStats);
         console.log(thisStats);

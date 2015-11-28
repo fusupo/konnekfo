@@ -131,6 +131,25 @@
         <script type="text/template" id="conclusion_panel_template">
             <h2>conclusion</h2>
             <div id="result"></div>
+            <div id="whos-turn"></div>
+            <table id="game-win-tally" style="border-collapse: collapse;">
+                <tr>
+                    <th style="padding: 0px 10px 0px 10px">p1</th>
+                    <th style="padding: 0px 10px 0px 10px">p2</th>
+                    <th style="padding: 0px 10px 0px 10px">draws</th>
+                </tr>
+                <tr>
+                    <td style="padding: 0px 10px 0px 10px">
+                        <div id="p1"></div>
+                    </td>
+                    <td style="padding: 0px 10px 0px 10px">
+                        <div id="p2"></div>
+                    </td>
+                    <td style="padding: 0px 10px 0px 10px">
+                        <div id="draws"></div>
+                    </td>
+                </tr>
+            </table>
             <div id="reset-local">RESET!</div>
             <table id="reset-network" style="border-collapse: collapse;">
                 <tr>
@@ -148,4 +167,5 @@
             </table>
         </script>
     </body>
+
 </html>

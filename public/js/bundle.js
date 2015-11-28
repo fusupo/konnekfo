@@ -488,7 +488,7 @@ window.onload = function() {
   //
 };
 
-},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":13,"./views/BoardView.js":14,"backbone":17,"clipboard":20}],5:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":14,"./views/BoardView.js":15,"backbone":18,"clipboard":21}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -858,7 +858,7 @@ module.exports = function() {
   };
 };
 
-},{"./Colors.js":2,"snapsvg":29}],8:[function(require,module,exports){
+},{"./Colors.js":2,"snapsvg":30}],8:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -892,24 +892,17 @@ module.exports = Backbone.Model.extend((function() {
 
     initialize: function() {
       console.log("new board model", this);
-      console.log(this.attributes);
       this.reset();
     },
 
-    reset: function(){
-      console.log('resettign board <-------------------', this);
+    reset: function() {
       cols = [2, 2, 2, 2, 2, 2, 2];
       rows = [0, 0, 0, 0, 0, 0];
       diag1 = [0, 0, 0, 0, 0, 0]; // bottom right to top left
       diag2 = [0, 0, 0, 0, 0, 0];
-      this.hasOutcome = false;
-      this.hasWinner = false;
-      this.winner = null;
-      this.winDir = null;
-      this.winPos = null;
       this.trigger('resetComplete');
     },
-    
+
     move: function(colIdx, playerId, surpressEvents) {
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
@@ -954,16 +947,21 @@ module.exports = Backbone.Model.extend((function() {
       return getNextRowIdx(cols[colIdx]) >= 8;
     },
 
-    hasWinnerP: function() {
+    hasWinnerP: function(suppressRegistration) {
+      var check;
+      var winningPlayerId;
       for (var i = 0; i <= 3; i++) {
         var c1 = cols[i] >> 4;
         var c2 = cols[i + 1] >> 4;
         var c3 = cols[i + 2] >> 4;
         var c4 = cols[i + 3] >> 4;
-        var check = (c1 & c2 & c3 & c4);
+        check = (c1 & c2 & c3 & c4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'h', i);
-          return ('h');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'h', i);
+          }
+          return winningPlayerId;
         }
       }
       for (var j = 0; j <= 2; j++) {
@@ -971,10 +969,13 @@ module.exports = Backbone.Model.extend((function() {
         var r2 = rows[j + 1];
         var r3 = rows[j + 2];
         var r4 = rows[j + 3];
-        var check = (r1 & r2 & r3 & r4);
+        check = (r1 & r2 & r3 & r4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'v', j);
-          return ('v');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'v', j);
+          }
+          return winningPlayerId;
         }
       }
       for (var k = 0; k <= 2; k++) {
@@ -982,10 +983,13 @@ module.exports = Backbone.Model.extend((function() {
         var d2 = diag1[k + 1];
         var d3 = diag1[k + 2];
         var d4 = diag1[k + 3];
-        var check = (d1 & d2 & d3 & d4);
+        check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'd1', k);
-          return ('d1');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'd1', k);
+          }
+          return winningPlayerId;
         }
       }
       for (var m = 0; m <= 2; m++) {
@@ -993,21 +997,25 @@ module.exports = Backbone.Model.extend((function() {
         var d2 = diag2[m + 1];
         var d3 = diag2[m + 2];
         var d4 = diag2[m + 3];
-        var check = (d1 & d2 & d3 & d4);
+        check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.registerWin(checkToPlayer(check), 'd2', m);
-          return ('d2');
+          winningPlayerId = checkToPlayer(check);
+          if (!suppressRegistration) {
+            this.registerWin(winningPlayerId, 'd2', m);
+          }
+          return winningPlayerId;
         }
       }
       return false;
     },
 
     registerWin: function(winner, dir, pos) {
-      this.hasOutcome = true;
-      this.hasWinner = true;
-      this.winner = winner;
-      this.winDir = dir;
-      this.winPos = pos;
+      var gameResult = this.get('gameResultModel');
+      gameResult.set('hasOutcome', true);
+      gameResult.set('hasWinner', true);
+      gameResult.set('winner', winner);
+      gameResult.set('winDir', dir);
+      gameResult.set('winPos', pos);
     },
 
     logTable: function() {
@@ -1021,7 +1029,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":17}],9:[function(require,module,exports){
+},{"backbone":18}],9:[function(require,module,exports){
 "use strict";
 
 var PlayerModel = require('./PlayerModel.js');
@@ -1035,7 +1043,7 @@ module.exports = PlayerModel.extend((function() {
     for (var i = 0; i < 7; i++) {
       if (!board.isColFullP(i)) {
         board.move(i, id, true);
-        if (board.hasWinnerP()) {
+        if (board.hasWinnerP(true)) {
           returnMove = i;
         }
         board.unmove(i, id);
@@ -1047,9 +1055,10 @@ module.exports = PlayerModel.extend((function() {
   var offense = function(board, thisID, r) {
     var tally = [0, 0, 0];
     // base cases
-    if (board.hasWinnerP()) {
+    var winningPlayerId = board.hasWinnerP(true);
+    if (winningPlayerId) {
       // win
-      tally[board.winner] ++;
+      tally[winningPlayerId] ++;
       //console.log('winner', tally);
       return tally;
     } else if (board.isBoardFullP()) {
@@ -1125,7 +1134,12 @@ module.exports = PlayerModel.extend((function() {
         console.table(columnStats);
         console.log(columnStats);
         var thisStats = R.map(function(item) {
-          var result = item !== undefined ? item[playerId]/item[playerId^3] : 0;
+          if (item !== undefined) {
+            var result = item[playerId]/item[playerId^3];
+            result = result === Number.POSITIVE_INFINITY ? item[playerId]:result;
+          } else {
+            var result = 0;
+          }
           return result;
         }, columnStats);
         console.log(thisStats);
@@ -1147,7 +1161,40 @@ module.exports = PlayerModel.extend((function() {
   };
 })());
 
-},{"./PlayerModel.js":12}],10:[function(require,module,exports){
+},{"./PlayerModel.js":13}],10:[function(require,module,exports){
+"use strict";
+
+var Backbone = require('backbone');
+
+module.exports = Backbone.Model.extend((function() {
+
+  return {
+
+    defaults : {
+      hasOutcome : false,
+      hasWinner : false,
+      winner : null,
+      winDir : null,
+      winPos : null
+    },
+
+    initialize: function() {
+      console.log("new game result model");
+      console.log(this.attributes);
+    },
+
+    reset: function(){
+      this.set('hasOutcome', false);
+      this.set('hasWinner', false);
+      this.set('winner', null);
+      this.set('winDir', null);
+      this.set('winPos', null);
+    }
+
+  };
+})());
+
+},{"backbone":18}],11:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1161,14 +1208,15 @@ module.exports = Backbone.Model.extend((function() {
       tally: [0, 0, 0]
     },
 
-    initialize: function(foo) {
-      console.log(foo);
+    initialize: function() {
+      console.log('new LocalGameModel');
       this.get('p1').on('attemptMove', (function(colIdx) {
         this.attemptMove(colIdx);
       }).bind(this));
       this.get('p2').on('attemptMove', (function(colIdx) {
         this.attemptMove(colIdx);
       }).bind(this));
+      console.log(this.attributes);
     },
 
     terminate: function() {
@@ -1179,11 +1227,18 @@ module.exports = Backbone.Model.extend((function() {
       this.set('board', null);
     },
 
+    startGame: function(){
+      this.startGameLoop();
+      this.trigger('gameStart');
+    },
+
     startGameLoop: function() {
       if (this.get('currPlayerId') === 1) {
         this.get('p1').prompt();
+        this.trigger('promptPlayer', 1);
       } else {
         this.get('p2').prompt();
+        this.trigger('promptPlayer', 2);
       }
     },
 
@@ -1203,16 +1258,16 @@ module.exports = Backbone.Model.extend((function() {
       // // // restart gameloop
       var board = this.get('board');
       var currPlayerId = this.get('currPlayerId');
-      console.log('p' + currPlayerId + ' attemptMove:', colIdx);
       if (!board.isColFullP(colIdx)) {
         board.move(colIdx, currPlayerId);
+        var tempTally;
         if (board.hasWinnerP()) {
-          var tempTally = this.get('tally');
-          tempTally[board.winner]++;
+          tempTally = this.get('tally');
+          tempTally[this.get('gameResultModel').get('winner')]++;
           this.set('tally', tempTally);
           this.trigger('gameComplete');
         } else if (board.isBoardFullP()) {
-          var tempTally = this.get('tally');
+          tempTally = this.get('tally');
           tempTally[0]++;
           this.set('tally', tempTally);
           this.trigger('gameComplete');
@@ -1226,22 +1281,16 @@ module.exports = Backbone.Model.extend((function() {
     },
 
     reset: function() {
-      console.log('reset the model!!', this.get('startPlayerId'));
-      //x this.set('tally', [0,0,0]);
       var tempStartPlayerId = this.get('startPlayerId');
-      console.log(tempStartPlayerId);
       tempStartPlayerId = tempStartPlayerId ^ 3;
-      console.log(tempStartPlayerId);
-
       this.set('startPlayerId', tempStartPlayerId);
       this.set('currPlayerId', tempStartPlayerId);
-      console.log(this.get('currPlayerId'));
-
     }
+    
   };
 })());
 
-},{"backbone":17}],11:[function(require,module,exports){
+},{"backbone":18}],12:[function(require,module,exports){
 "use strict";
 
 var PlayerModel = require('./PlayerModel.js');
@@ -1258,7 +1307,7 @@ module.exports = PlayerModel.extend((function() {
   };
 })());
 
-},{"./PlayerModel.js":12}],12:[function(require,module,exports){
+},{"./PlayerModel.js":13}],13:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1278,7 +1327,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":17}],13:[function(require,module,exports){
+},{"backbone":18}],14:[function(require,module,exports){
 (function() {
 
   "use strict";
@@ -1288,6 +1337,7 @@ module.exports = Backbone.Model.extend((function() {
   var colors = require('../Colors.js');
 
   var MenuView = require('./MenuView.js');
+  var GameResultModel = require('../models/GameResultModel.js');
   var BoardModel = require('../models/BoardModel.js');
   var BoardView = require('./BoardView.js');
   var OutcomePanelView = require('./OutcomePanelView.js');
@@ -1296,6 +1346,7 @@ module.exports = Backbone.Model.extend((function() {
   var LocalGameModel = require('../models/LocalGameModel.js');
 
   module.exports = Backbone.View.extend((function() {
+    
     return {
 
       initialize: function() {
@@ -1306,10 +1357,6 @@ module.exports = Backbone.Model.extend((function() {
         menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
         menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
         menu.on('select:backToMain', this.backToMain.bind(this));
-
-        this.outcomePanelView = new OutcomePanelView();
-        this.$('#outcomeHolder').append(this.outcomePanelView.$el);
-        this.hideOutcomePanelView();
       },
 
       events: {},
@@ -1332,7 +1379,8 @@ module.exports = Backbone.Model.extend((function() {
       },
 
       createLocalGame: function(playerTypes) {
-        this.boardModel = new BoardModel();
+        this.gameResultModel = new GameResultModel();
+        this.boardModel = new BoardModel({gameResultModel: this.gameResultModel});
         this.boardView = new BoardView({
           model: this.boardModel
         });
@@ -1355,41 +1403,32 @@ module.exports = Backbone.Model.extend((function() {
           }
           return p;
         }, this);
-        console.log('PLAYERS',players);
         this.gameModel = new LocalGameModel({
           p1: players[0],
           p2: players[1],
-          board: this.boardModel
+          board: this.boardModel,
+          gameResultModel: this.gameResultModel
         });
-        this.gameModel.on('gameComplete', this.showOutcomePanelView.bind(this));
+        this.outcomePanelView = new OutcomePanelView({
+          model: this.gameModel
+        });
+        this.$('#outcomeHolder').append(this.outcomePanelView.$el);
         this.outcomePanelView.on('click:reset', (function() {
-          console.log('resetGame');
+          this.gameResultModel.reset();
           this.gameModel.reset();
           this.boardModel.reset();
-          this.gameModel.startGameLoop();
-          this.hideOutcomePanelView();
+          this.gameModel.startGame();
         }).bind(this));
-        this.gameModel.startGameLoop();
-      },
-
-      hideOutcomePanelView: function() {
-        this.outcomePanelView.$el.hide();
-      },
-
-      showOutcomePanelView: function() {
-        this.outcomePanelView.$el.show();
-        console.log(this.boardModel.hasWinner,
-                    this.boardModel.winner,
-                    this.boardModel.winDir,
-                    this.boardModel.winPos);
-        console.log(this.gameModel.get('tally'));
+        this.gameModel.startGame();
       }
+
     };
+    
   })());
 
 }());
 
-},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/CPUPlayerModel.js":9,"../models/LocalGameModel.js":10,"../models/LocalPlayerModel.js":11,"./BoardView.js":14,"./MenuView.js":15,"./OutcomePanelView.js":16,"backbone":17,"underscore":31}],14:[function(require,module,exports){
+},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/CPUPlayerModel.js":9,"../models/GameResultModel.js":10,"../models/LocalGameModel.js":11,"../models/LocalPlayerModel.js":12,"./BoardView.js":15,"./MenuView.js":16,"./OutcomePanelView.js":17,"backbone":18,"underscore":32}],15:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1517,7 +1556,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":17,"snapsvg":29}],15:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":18,"snapsvg":30}],16:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1576,33 +1615,99 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":17,"underscore":31}],16:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":18,"underscore":32}],17:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
 var _ = require('underscore');
-var colors = require('../Colors.js');
+var Colors = require('../Colors.js');
 
 module.exports = Backbone.View.extend((function() {
   return {
+
     initialize: function() {
       console.log("new menu view");
+      this.listenTo(this.model, "gameStart", (function() {
+        this.showPlayerPrompt();
+        this.hideReset();
+        this.hideResult();
+      }).bind(this));
+      this.listenTo(this.model, "promptPlayer", (function(playerId) {
+        this.promptPlayer(playerId);
+      }).bind(this));
+      this.listenTo(this.model, "gameComplete", (function() {
+        this.hidePlayerPrompt();
+        this.showReset();
+        this.showResult();
+        this.updateGameTally(this.model.get('tally'));
+      }).bind(this));
       this.render();
     },
+
     render: function() {
-      var template=_.template($("#conclusion_panel_template").html());
+      var template = _.template($("#conclusion_panel_template").html());
       this.$el.html(template);
+      this.$gameWinTally = this.$el.find('#game-win-tally');
+      this.$result = this.$el.find('#result');
+      this.$reset = this.$el.find('#reset-local');
+      this.$whosTurn = this.$el.find('#whos-turn');
+      this.hideReset();
+      this.hideResult();
+      this.updateGameTally(this.model.get('tally'));
     },
+
     events: {
       "click #reset-local": function() {
-        console.log("reset game");
         this.trigger("click:reset");
       }
     },
+
+    updateGameTally: function(tally) {
+      this.$gameWinTally.find('#p1').html(tally[1]);
+      this.$gameWinTally.find('#p2').html(tally[2]);
+      this.$gameWinTally.find('#draws').html(tally[0]);
+    },
+
+    promptPlayer: function(playerId, msg) {
+      msg = msg || 'it\'s player ' + playerId + '\'s turn';
+      this.$whosTurn
+        .html(msg)
+        .css('color', Colors['p' + playerId + 'Color']);
+    },
+
+    hidePlayerPrompt: function() {
+      this.$whosTurn.hide();
+    },
+
+    showPlayerPrompt: function() {
+      this.$whosTurn.show();
+    },
+
+    hideResult: function() {
+      this.$result.hide();
+    },
+
+    showResult: function() {
+      if (this.model.get('gameResultModel').get('hasWinner')) {
+        this.$result.html(this.model.get('gameResultModel').get('winner')+' has won the game');
+      } else {
+        this.$result.html('game is draw');
+      }
+      this.$result.show();
+    },
+
+    hideReset: function() {
+      this.$reset.hide();
+    },
+
+    showReset: function() {
+      this.$reset.show();
+    }
+
   };
 })());
 
-},{"../Colors.js":2,"backbone":17,"underscore":31}],17:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":18,"underscore":32}],18:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -3500,7 +3605,7 @@ module.exports = Backbone.View.extend((function() {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":28,"underscore":18}],18:[function(require,module,exports){
+},{"jquery":29,"underscore":19}],19:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -5050,7 +5155,7 @@ module.exports = Backbone.View.extend((function() {
   }
 }.call(this));
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5283,7 +5388,7 @@ var ClipboardAction = (function () {
 
 exports['default'] = ClipboardAction;
 module.exports = exports['default'];
-},{"select":26}],20:[function(require,module,exports){
+},{"select":27}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5441,7 +5546,7 @@ function getAttributeValue(suffix, element) {
 
 exports['default'] = Clipboard;
 module.exports = exports['default'];
-},{"./clipboard-action":19,"good-listener":25,"tiny-emitter":27}],21:[function(require,module,exports){
+},{"./clipboard-action":20,"good-listener":26,"tiny-emitter":28}],22:[function(require,module,exports){
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf) {
@@ -5453,7 +5558,7 @@ module.exports = function (element, selector, checkYoSelf) {
   }
 }
 
-},{"matches-selector":22}],22:[function(require,module,exports){
+},{"matches-selector":23}],23:[function(require,module,exports){
 
 /**
  * Element prototype.
@@ -5494,7 +5599,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var closest = require('closest');
 
 /**
@@ -5539,7 +5644,7 @@ function listener(element, selector, type, callback) {
 
 module.exports = delegate;
 
-},{"closest":21}],24:[function(require,module,exports){
+},{"closest":22}],25:[function(require,module,exports){
 /**
  * Check if argument is a HTML element.
  *
@@ -5590,7 +5695,7 @@ exports.function = function(value) {
     return type === '[object Function]';
 };
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 var is = require('./is');
 var delegate = require('delegate');
 
@@ -5687,7 +5792,7 @@ function listenSelector(selector, type, callback) {
 
 module.exports = listen;
 
-},{"./is":24,"delegate":23}],26:[function(require,module,exports){
+},{"./is":25,"delegate":24}],27:[function(require,module,exports){
 function select(element) {
     var selectedText;
 
@@ -5717,7 +5822,7 @@ function select(element) {
 
 module.exports = select;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -5785,7 +5890,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -14997,7 +15102,7 @@ return jQuery;
 
 }));
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -23169,7 +23274,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":30}],30:[function(require,module,exports){
+},{"eve":31}],31:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23574,6 +23679,6 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}],31:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"dup":18}]},{},[4]);
+},{}],32:[function(require,module,exports){
+arguments[4][19][0].apply(exports,arguments)
+},{"dup":19}]},{},[4]);
