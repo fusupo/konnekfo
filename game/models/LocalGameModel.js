@@ -6,7 +6,8 @@ module.exports = Backbone.Model.extend((function() {
   return {
 
     defaults: {
-      currPlayerId: 1
+      currPlayerId: 1,
+      tally: [0, 0, 0]
     },
 
     initialize: function(foo) {
@@ -33,6 +34,9 @@ module.exports = Backbone.Model.extend((function() {
       } else {
         this.get('p2').prompt();
       }
+    },
+
+    attemptMove: function(colIdx) {
       // prompt current player
       // on player move
       // // if move is valid
@@ -46,18 +50,15 @@ module.exports = Backbone.Model.extend((function() {
       // // // // restart gameloop
       // // else
       // // // restart gameloop
-    },
-
-    attemptMove: function(colIdx) {
       var board = this.get('board');
       var currPlayerId = this.get('currPlayerId');
       console.log('p' + currPlayerId + ' attemptMove:', colIdx);
       if (!board.isColFullP(colIdx)) {
         board.move(colIdx, currPlayerId);
         if (board.hasWinnerP()) {
-          console.log('player', currPlayerId, 'has won the game');
+          this.trigger('gameComplete');
         } else if (board.isBoardFullP()) {
-          console.log('the game is draw');
+          this.trigger('gameComplete');
         } else {
           this.set("currPlayerId", currPlayerId ^ 3);
           this.startGameLoop();
@@ -65,7 +66,10 @@ module.exports = Backbone.Model.extend((function() {
       } else {
         this.startGameLoop();
       }
-    }
+    },
 
+    reset: function(){
+      console.log('reset the model!!'); 
+    }
   };
 })());

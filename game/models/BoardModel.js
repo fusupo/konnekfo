@@ -4,11 +4,10 @@ var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend((function() {
 
-  var cols= [2, 2, 2, 2, 2, 2, 2];
-  var rows= [0, 0, 0, 0, 0, 0];
-  var diag1= [0, 0, 0, 0, 0, 0]; // bottom right to top left
-  var diag2= [0, 0, 0, 0, 0, 0];
-  //var winner= null;
+  var cols = [2, 2, 2, 2, 2, 2, 2];
+  var rows = [0, 0, 0, 0, 0, 0];
+  var diag1 = [0, 0, 0, 0, 0, 0]; // bottom right to top left
+  var diag2 = [0, 0, 0, 0, 0, 0];
 
   ////////////////////////////////////////  HELPER FNs
 
@@ -30,22 +29,17 @@ module.exports = Backbone.Model.extend((function() {
 
   return {
 
-    // defaults: function() {
-    //   return {
-    //   };
-    // }
-    
     initialize: function() {
       console.log("new board model", this);
       console.log(this.attributes);
+      this.hasOutcome = false;
+      this.hasWinner = false;
       this.winner = null;
+      this.winDir = null;
+      this.winPos = null;
     },
 
     move: function(colIdx, playerId, surpressEvents) {
-      // var cols = this.get("cols");
-      // var rows = this.get("rows");
-      // var diag1 = this.get("diag1");
-      // var diag2 = this.get("diag2");
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
       var mv = playerId << (idx * 2);
@@ -53,12 +47,6 @@ module.exports = Backbone.Model.extend((function() {
       rows[idx - 2] += playerId << (colIdx * 2);
       diag1[idx - 2] += playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] += playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
-      // this.set({
-      //   "cols": cols,
-      //   "rows": rows,
-      //   "diag1": diag1,
-      //   "diag2": diag2
-      // });
       if (!surpressEvents) {
         this.trigger('moveCommitted', {
           colIdx: colIdx,
@@ -69,10 +57,6 @@ module.exports = Backbone.Model.extend((function() {
     },
 
     unmove: function(colIdx, playerId) {
-      // var cols = this.get("cols");
-      // var rows = this.get("rows");
-      // var diag1 = this.get("diag1");
-      // var diag2 = this.get("diag2");
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
       var shiftCount = 32 - ((idx - 1) * 2);
@@ -82,12 +66,6 @@ module.exports = Backbone.Model.extend((function() {
       rows[idx - 2] -= playerId << (colIdx * 2);
       diag1[idx - 2] -= playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] -= playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
-      // this.set({
-      //   "cols": cols,
-      //   "rows": rows,
-      //   "diag1": diag1,
-      //   "diag2": diag2
-      // });
     },
 
     isBoardFullP: function() {
@@ -103,15 +81,9 @@ module.exports = Backbone.Model.extend((function() {
 
     isColFullP: function(colIdx) {
       return getNextRowIdx(cols[colIdx]) >= 8;
-      //return getNextRowIdx(this.get("cols")[colIdx]) >= 8;
     },
 
     hasWinnerP: function() {
-      // var cols = this.get("cols");
-      // var rows = this.get("rows");
-      // var diag1 = this.get("diag1");
-      // var diag2 = this.get("diag2");
-      // var winner = this.get("winner");
       for (var i = 0; i <= 3; i++) {
         var c1 = cols[i] >> 4;
         var c2 = cols[i + 1] >> 4;
@@ -119,7 +91,7 @@ module.exports = Backbone.Model.extend((function() {
         var c4 = cols[i + 3] >> 4;
         var check = (c1 & c2 & c3 & c4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'h', i);
           return ('h');
         }
       }
@@ -130,7 +102,7 @@ module.exports = Backbone.Model.extend((function() {
         var r4 = rows[j + 3];
         var check = (r1 & r2 & r3 & r4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'v', j);
           return ('v');
         }
       }
@@ -141,7 +113,7 @@ module.exports = Backbone.Model.extend((function() {
         var d4 = diag1[k + 3];
         var check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'd1', k);
           return ('d1');
         }
       }
@@ -152,15 +124,22 @@ module.exports = Backbone.Model.extend((function() {
         var d4 = diag2[m + 3];
         var check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'd2', m);
           return ('d2');
         }
       }
       return false;
     },
 
+    registerWin: function(winner, dir, pos) {
+      this.hasOutcome = true;
+      this.hasWinner = true;
+      this.winner = winner;
+      this.winDir = dir;
+      this.winPos = pos;
+    },
+
     logTable: function() {
-      // var rows = this.get("rows");
       console.table(R.reverse(rows.map(function(i) {
         var binStr = i.toString(2);
         binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;

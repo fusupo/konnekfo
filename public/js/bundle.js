@@ -488,7 +488,7 @@ window.onload = function() {
   //
 };
 
-},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":13,"./views/BoardView.js":14,"backbone":16,"clipboard":19}],5:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":13,"./views/BoardView.js":14,"backbone":17,"clipboard":20}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -858,18 +858,17 @@ module.exports = function() {
   };
 };
 
-},{"./Colors.js":2,"snapsvg":28}],8:[function(require,module,exports){
+},{"./Colors.js":2,"snapsvg":29}],8:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend((function() {
 
-  var cols= [2, 2, 2, 2, 2, 2, 2];
-  var rows= [0, 0, 0, 0, 0, 0];
-  var diag1= [0, 0, 0, 0, 0, 0]; // bottom right to top left
-  var diag2= [0, 0, 0, 0, 0, 0];
-  //var winner= null;
+  var cols = [2, 2, 2, 2, 2, 2, 2];
+  var rows = [0, 0, 0, 0, 0, 0];
+  var diag1 = [0, 0, 0, 0, 0, 0]; // bottom right to top left
+  var diag2 = [0, 0, 0, 0, 0, 0];
 
   ////////////////////////////////////////  HELPER FNs
 
@@ -891,22 +890,17 @@ module.exports = Backbone.Model.extend((function() {
 
   return {
 
-    // defaults: function() {
-    //   return {
-    //   };
-    // }
-    
     initialize: function() {
       console.log("new board model", this);
       console.log(this.attributes);
+      this.hasOutcome = false;
+      this.hasWinner = false;
       this.winner = null;
+      this.winDir = null;
+      this.winPos = null;
     },
 
     move: function(colIdx, playerId, surpressEvents) {
-      // var cols = this.get("cols");
-      // var rows = this.get("rows");
-      // var diag1 = this.get("diag1");
-      // var diag2 = this.get("diag2");
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
       var mv = playerId << (idx * 2);
@@ -914,12 +908,6 @@ module.exports = Backbone.Model.extend((function() {
       rows[idx - 2] += playerId << (colIdx * 2);
       diag1[idx - 2] += playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] += playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
-      // this.set({
-      //   "cols": cols,
-      //   "rows": rows,
-      //   "diag1": diag1,
-      //   "diag2": diag2
-      // });
       if (!surpressEvents) {
         this.trigger('moveCommitted', {
           colIdx: colIdx,
@@ -930,10 +918,6 @@ module.exports = Backbone.Model.extend((function() {
     },
 
     unmove: function(colIdx, playerId) {
-      // var cols = this.get("cols");
-      // var rows = this.get("rows");
-      // var diag1 = this.get("diag1");
-      // var diag2 = this.get("diag2");
       var idx = getNextRowIdx(cols[colIdx]);
       var currCols = removeIdxFromCol(cols[colIdx]);
       var shiftCount = 32 - ((idx - 1) * 2);
@@ -943,12 +927,6 @@ module.exports = Backbone.Model.extend((function() {
       rows[idx - 2] -= playerId << (colIdx * 2);
       diag1[idx - 2] -= playerId << ((colIdx * 2) + ((idx - 2) * 2));
       diag2[idx - 2] -= playerId << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
-      // this.set({
-      //   "cols": cols,
-      //   "rows": rows,
-      //   "diag1": diag1,
-      //   "diag2": diag2
-      // });
     },
 
     isBoardFullP: function() {
@@ -964,15 +942,9 @@ module.exports = Backbone.Model.extend((function() {
 
     isColFullP: function(colIdx) {
       return getNextRowIdx(cols[colIdx]) >= 8;
-      //return getNextRowIdx(this.get("cols")[colIdx]) >= 8;
     },
 
     hasWinnerP: function() {
-      // var cols = this.get("cols");
-      // var rows = this.get("rows");
-      // var diag1 = this.get("diag1");
-      // var diag2 = this.get("diag2");
-      // var winner = this.get("winner");
       for (var i = 0; i <= 3; i++) {
         var c1 = cols[i] >> 4;
         var c2 = cols[i + 1] >> 4;
@@ -980,7 +952,7 @@ module.exports = Backbone.Model.extend((function() {
         var c4 = cols[i + 3] >> 4;
         var check = (c1 & c2 & c3 & c4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'h', i);
           return ('h');
         }
       }
@@ -991,7 +963,7 @@ module.exports = Backbone.Model.extend((function() {
         var r4 = rows[j + 3];
         var check = (r1 & r2 & r3 & r4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'v', j);
           return ('v');
         }
       }
@@ -1002,7 +974,7 @@ module.exports = Backbone.Model.extend((function() {
         var d4 = diag1[k + 3];
         var check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'd1', k);
           return ('d1');
         }
       }
@@ -1013,15 +985,22 @@ module.exports = Backbone.Model.extend((function() {
         var d4 = diag2[m + 3];
         var check = (d1 & d2 & d3 & d4);
         if (check > 0) {
-          this.winner = checkToPlayer(check);
+          this.registerWin(checkToPlayer(check), 'd2', m);
           return ('d2');
         }
       }
       return false;
     },
 
+    registerWin: function(winner, dir, pos) {
+      this.hasOutcome = true;
+      this.hasWinner = true;
+      this.winner = winner;
+      this.winDir = dir;
+      this.winPos = pos;
+    },
+
     logTable: function() {
-      // var rows = this.get("rows");
       console.table(R.reverse(rows.map(function(i) {
         var binStr = i.toString(2);
         binStr = binStr.length % 2 === 0 ? binStr : "0" + binStr;
@@ -1032,7 +1011,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":16}],9:[function(require,module,exports){
+},{"backbone":17}],9:[function(require,module,exports){
 "use strict";
 
 var PlayerModel = require('./PlayerModel.js');
@@ -1166,7 +1145,8 @@ module.exports = Backbone.Model.extend((function() {
   return {
 
     defaults: {
-      currPlayerId: 1
+      currPlayerId: 1,
+      tally: [0, 0, 0]
     },
 
     initialize: function(foo) {
@@ -1193,6 +1173,9 @@ module.exports = Backbone.Model.extend((function() {
       } else {
         this.get('p2').prompt();
       }
+    },
+
+    attemptMove: function(colIdx) {
       // prompt current player
       // on player move
       // // if move is valid
@@ -1206,18 +1189,15 @@ module.exports = Backbone.Model.extend((function() {
       // // // // restart gameloop
       // // else
       // // // restart gameloop
-    },
-
-    attemptMove: function(colIdx) {
       var board = this.get('board');
       var currPlayerId = this.get('currPlayerId');
       console.log('p' + currPlayerId + ' attemptMove:', colIdx);
       if (!board.isColFullP(colIdx)) {
         board.move(colIdx, currPlayerId);
         if (board.hasWinnerP()) {
-          console.log('player', currPlayerId, 'has won the game');
+          this.trigger('gameComplete');
         } else if (board.isBoardFullP()) {
-          console.log('the game is draw');
+          this.trigger('gameComplete');
         } else {
           this.set("currPlayerId", currPlayerId ^ 3);
           this.startGameLoop();
@@ -1225,12 +1205,15 @@ module.exports = Backbone.Model.extend((function() {
       } else {
         this.startGameLoop();
       }
-    }
+    },
 
+    reset: function(){
+      console.log('reset the model!!'); 
+    }
   };
 })());
 
-},{"backbone":16}],11:[function(require,module,exports){
+},{"backbone":17}],11:[function(require,module,exports){
 "use strict";
 
 var PlayerModel = require('./PlayerModel.js');
@@ -1267,89 +1250,110 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":16}],13:[function(require,module,exports){
-"use strict";
+},{"backbone":17}],13:[function(require,module,exports){
+(function() {
 
-var Backbone = require('backbone');
-var _ = require('underscore');
-var colors = require('../Colors.js');
+  "use strict";
 
-var MenuView = require('./MenuView.js');
-var BoardModel = require('../models/BoardModel.js');
-var BoardView = require('./BoardView.js');
-var LocalPlayerModel = require('../models/LocalPlayerModel.js');
-var CPUPlayerModel = require('../models/CPUPlayerModel.js');
-var LocalGameModel = require('../models/LocalGameModel.js');
+  var Backbone = require('backbone');
+  var _ = require('underscore');
+  var colors = require('../Colors.js');
 
-module.exports = Backbone.View.extend((function() {
-  return {
+  var MenuView = require('./MenuView.js');
+  var BoardModel = require('../models/BoardModel.js');
+  var BoardView = require('./BoardView.js');
+  var OutcomePanelView = require('./OutcomePanelView.js');
+  var LocalPlayerModel = require('../models/LocalPlayerModel.js');
+  var CPUPlayerModel = require('../models/CPUPlayerModel.js');
+  var LocalGameModel = require('../models/LocalGameModel.js');
 
-    initialize: function() {
-      console.log("new app view");
-      var menu = new MenuView({
-        el: this.$("#menuHolder")
-      });
-      menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
-      menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
-      menu.on('select:backToMain', this.backToMain.bind(this));
-    },
+  module.exports = Backbone.View.extend((function() {
+    return {
 
-    events: {},
+      initialize: function() {
+        console.log("new app view");
+        var menu = new MenuView({
+          el: this.$("#menuHolder")
+        });
+        menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
+        menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
+        menu.on('select:backToMain', this.backToMain.bind(this));
+        this.boardView = new BoardView();
+        this.$('#boardHolder').append(this.boardView.$el);
+        this.outcomePanelView = new OutcomePanelView();
+        this.$('#outcomeHolder').append(this.outcomePanelView.$el);
+        this.hideOutcomePanelView();
+      },
 
-    startVsHumanLocalGame: function() {
-      console.log('///////////////////////// NEW HUMAN VS HUMAN GAME ////////////////////');
-      this.boardModel = new BoardModel();
-      this.boardView = new BoardView();
-      this.createLocalGame(new LocalPlayerModel({
-        playerId: 1,
-        boardView: this.boardView
-      }), new LocalPlayerModel({
-        playerId: 2,
-        boardView: this.boardView
-      }));
-    },
+      events: {},
 
-    startVsComputerGame: function() {
-      console.log('///////////////////////// NEW HUMAN VS CPU GAME ////////////////////');
-      this.boardModel = new BoardModel();
-      this.boardView = new BoardView();
-      this.createLocalGame(new LocalPlayerModel({
-        playerId: 1,
-        boardView: this.boardView
-      }), new CPUPlayerModel({
-        playerId: 2,
-        boardModel: this.boardModel
-      }));
-    },
+      startVsHumanLocalGame: function() {
+        console.log('///////////////////////// NEW HUMAN VS HUMAN GAME ////////////////////');
+        this.boardModel = new BoardModel();
+        this.createLocalGame(new LocalPlayerModel({
+          playerId: 1,
+          boardView: this.boardView
+        }), new LocalPlayerModel({
+          playerId: 2,
+          boardView: this.boardView
+        }));
+      },
 
-    backToMain: function() {
-      this.boardModel.off('moveCommitted');
-      this.boardModel = null;
-      this.gameModel.terminate();
-      this.gameModel = null;
-      this.boardView.remove();
-      this.boardView = null;
-    },
+      startVsComputerGame: function() {
+        console.log('///////////////////////// NEW HUMAN VS CPU GAME ////////////////////');
+        this.boardModel = new BoardModel();
+        this.createLocalGame(new LocalPlayerModel({
+          playerId: 1,
+          boardView: this.boardView
+        }), new CPUPlayerModel({
+          playerId: 2,
+          boardModel: this.boardModel
+        }));
+      },
 
-    createLocalGame: function(p1, p2) {
-      this.boardModel.on('moveCommitted', (function(x) {
-        console.log('boardView addPiece', x);
-        this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
-      }).bind(this));
-      this.$('#boardHolder').append(this.boardView.$el);
-      this.boardView.render();
-      this.gameModel = new LocalGameModel({
-        p1: p1,
-        p2: p2,
-        board: this.boardModel
-      });
-      this.gameModel.startGameLoop();
-    }
+      backToMain: function() {
+        this.boardModel.off('moveCommitted');
+        this.boardModel = null;
+        this.gameModel.terminate();
+        this.gameModel = null;
+      },
 
-  };
-})());
+      createLocalGame: function(p1, p2) {
+        this.boardModel.on('moveCommitted', (function(x) {
+          console.log('boardView addPiece', x);
+          this.boardView.addPiece(x.colIdx, x.rowIdx, x.playerId);
+        }).bind(this));
+        this.boardView.render();
+        this.gameModel = new LocalGameModel({
+          p1: p1,
+          p2: p2,
+          board: this.boardModel
+        });
+        this.gameModel.on('gameComplete', this.showOutcomePanelView.bind(this));
+        this.gameModel.startGameLoop();
+        this.outcomePanelView.on('click:reset', (function() {
+          console.log('resetGame');
+          this.gameModel.reset();
+        }).bind(this));
+      },
 
-},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/CPUPlayerModel.js":9,"../models/LocalGameModel.js":10,"../models/LocalPlayerModel.js":11,"./BoardView.js":14,"./MenuView.js":15,"backbone":16,"underscore":30}],14:[function(require,module,exports){
+      hideOutcomePanelView: function() {
+        this.outcomePanelView.$el.hide();
+      },
+
+      showOutcomePanelView: function() {
+        this.outcomePanelView.$el.show();
+        console.log(this.boardModel.hasWinner,
+                    this.boardModel.winner,
+                    this.boardModel.winDir,
+                    this.boardModel.winPos);
+      }
+    };
+  })());
+
+}());
+
+},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/CPUPlayerModel.js":9,"../models/LocalGameModel.js":10,"../models/LocalPlayerModel.js":11,"./BoardView.js":14,"./MenuView.js":15,"./OutcomePanelView.js":16,"backbone":17,"underscore":31}],14:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1469,7 +1473,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":16,"snapsvg":28}],15:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":17,"snapsvg":29}],15:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1528,7 +1532,33 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":16,"underscore":30}],16:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":17,"underscore":31}],16:[function(require,module,exports){
+"use strict";
+
+var Backbone = require('backbone');
+var _ = require('underscore');
+var colors = require('../Colors.js');
+
+module.exports = Backbone.View.extend((function() {
+  return {
+    initialize: function() {
+      console.log("new menu view");
+      this.render();
+    },
+    render: function() {
+      var template=_.template($("#conclusion_panel_template").html());
+      this.$el.html(template);
+    },
+    events: {
+      "click #reset-local": function() {
+        console.log("reset game");
+        this.trigger("click:reset");
+      }
+    },
+  };
+})());
+
+},{"../Colors.js":2,"backbone":17,"underscore":31}],17:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -3426,7 +3456,7 @@ module.exports = Backbone.View.extend((function() {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":27,"underscore":17}],17:[function(require,module,exports){
+},{"jquery":28,"underscore":18}],18:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4976,7 +5006,7 @@ module.exports = Backbone.View.extend((function() {
   }
 }.call(this));
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5209,7 +5239,7 @@ var ClipboardAction = (function () {
 
 exports['default'] = ClipboardAction;
 module.exports = exports['default'];
-},{"select":25}],19:[function(require,module,exports){
+},{"select":26}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5367,7 +5397,7 @@ function getAttributeValue(suffix, element) {
 
 exports['default'] = Clipboard;
 module.exports = exports['default'];
-},{"./clipboard-action":18,"good-listener":24,"tiny-emitter":26}],20:[function(require,module,exports){
+},{"./clipboard-action":19,"good-listener":25,"tiny-emitter":27}],21:[function(require,module,exports){
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf) {
@@ -5379,7 +5409,7 @@ module.exports = function (element, selector, checkYoSelf) {
   }
 }
 
-},{"matches-selector":21}],21:[function(require,module,exports){
+},{"matches-selector":22}],22:[function(require,module,exports){
 
 /**
  * Element prototype.
@@ -5420,7 +5450,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var closest = require('closest');
 
 /**
@@ -5465,7 +5495,7 @@ function listener(element, selector, type, callback) {
 
 module.exports = delegate;
 
-},{"closest":20}],23:[function(require,module,exports){
+},{"closest":21}],24:[function(require,module,exports){
 /**
  * Check if argument is a HTML element.
  *
@@ -5516,7 +5546,7 @@ exports.function = function(value) {
     return type === '[object Function]';
 };
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var is = require('./is');
 var delegate = require('delegate');
 
@@ -5613,7 +5643,7 @@ function listenSelector(selector, type, callback) {
 
 module.exports = listen;
 
-},{"./is":23,"delegate":22}],25:[function(require,module,exports){
+},{"./is":24,"delegate":23}],26:[function(require,module,exports){
 function select(element) {
     var selectedText;
 
@@ -5643,7 +5673,7 @@ function select(element) {
 
 module.exports = select;
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -5711,7 +5741,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -14923,7 +14953,7 @@ return jQuery;
 
 }));
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -23095,7 +23125,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":29}],29:[function(require,module,exports){
+},{"eve":30}],30:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23500,6 +23530,6 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}],30:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"dup":17}]},{},[4]);
+},{}],31:[function(require,module,exports){
+arguments[4][18][0].apply(exports,arguments)
+},{"dup":18}]},{},[4]);
