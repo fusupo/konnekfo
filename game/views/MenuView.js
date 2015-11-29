@@ -20,6 +20,7 @@ module.exports = Backbone.View.extend((function() {
         this.renderReturn();
       },
       "click #vs-human-network": function() {
+        this.trigger("select:vsHumanNetwork");
         this.renderConnect();
       },
       "click #vs-computer": function() {
@@ -29,10 +30,12 @@ module.exports = Backbone.View.extend((function() {
       },
       "click #network-new": function(){
         console.log("network new");
+        this.trigger("select:vsHumanNetwork:new");
         this.renderReturn();
       },
       "click #network-connect": function(){
         console.log("network connect");
+        this.trigger("select:vsHumanNetwork:connect");
         this.renderReturn();
       },
       "click #back-to-main": function(){

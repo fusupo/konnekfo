@@ -15,29 +15,21 @@ app.use('/', express.static(__dirname + '/../public'));
 app.use('/game', express.static(__dirname + '/../game'));
 
 io.on('connection', function(socket) {
-
   console.log('a user connected ' + socket.id);
-
 });
 
 var sessions = {};
 
 app.get('/session/new', function(req, res) {
-
   var sessionId = uid(5);
   var nsp = io.of(sessionId);
   var resetCount = 0;
-
   sessions[sessionId] = new Game();
-
   nsp.on('connection', function(socket) {
-
     var playerId = sessions[sessionId].provisionPlayer(socket);
-
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
       sessions[sessionId].attemptMove(d.playerId, d.colIdx);
     });
-
     socket.on('opt-in-reset', function(d) {
       resetCount++;
       if (resetCount === 2) {
@@ -49,24 +41,17 @@ app.get('/session/new', function(req, res) {
         console.log('player ' + d.playerId + ' opts in to reset the game!!');
       }
     });
-
     socket.on('disconnect', function() {
       sessions[sessionId].removePlayer(playerId);
     });
-
     socket.on('manual-disconnect', function() {
       console.log('FUCKING MANUAL DISCONNECT');
       sessions[sessionId].removePlayer(playerId);
     });
-
     console.log(socket.id + 'connected to ' + sessionId);
-
     socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
-
   });
-
   res.send(sessionId);
-
 });
 
 http.listen(port, function() {

@@ -470,25 +470,10 @@ window.onload = function() {
   window.av = new AppView({
     el: $('#tempAppView')
   });
-
-  //   window.bm = new BoardModel();
-  // window.bv = new BoardView({
-  //   el: $("#tempBoardView")
-  // });
-
-  // var pID = 1;
-  // window.bv.on("suck", function(x){
-  //   window.bm.move(x, pID);
-  //   //window.bm.logTable();
-  //   pID = pID ^ 3;
-  // });
-  // window.bm.on("moveCommitted", function(x){
-  //   window.bv.addPiece(x.colIdx, x.rowIdx, x.playerId);
-  // });
-  //
+  
 };
 
-},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":14,"./views/BoardView.js":15,"backbone":18,"clipboard":21}],5:[function(require,module,exports){
+},{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"./models/BoardModel.js":8,"./views/AppView.js":15,"./views/BoardView.js":16,"backbone":19,"clipboard":22}],5:[function(require,module,exports){
 "use strict";
 
 module.exports.Player = function(id, view) {
@@ -858,7 +843,7 @@ module.exports = function() {
   };
 };
 
-},{"./Colors.js":2,"snapsvg":30}],8:[function(require,module,exports){
+},{"./Colors.js":2,"snapsvg":31}],8:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1029,7 +1014,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":18}],9:[function(require,module,exports){
+},{"backbone":19}],9:[function(require,module,exports){
 "use strict";
 
 var PlayerModel = require('./PlayerModel.js');
@@ -1161,7 +1146,7 @@ module.exports = PlayerModel.extend((function() {
   };
 })());
 
-},{"./PlayerModel.js":13}],10:[function(require,module,exports){
+},{"./PlayerModel.js":14}],10:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1194,7 +1179,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":18}],11:[function(require,module,exports){
+},{"backbone":19}],11:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1296,7 +1281,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":18}],12:[function(require,module,exports){
+},{"backbone":19}],12:[function(require,module,exports){
 "use strict";
 
 var PlayerModel = require('./PlayerModel.js');
@@ -1313,7 +1298,215 @@ module.exports = PlayerModel.extend((function() {
   };
 })());
 
-},{"./PlayerModel.js":13}],13:[function(require,module,exports){
+},{"./PlayerModel.js":14}],13:[function(require,module,exports){
+"use strict";
+
+var Backbone = require('backbone');
+var sockConst = require('../SocketConstants.js');
+
+module.exports = Backbone.Model.extend((function() {
+  return {
+
+    // defaults: {
+    //   startPlayerId: 1,
+    //   currPlayerId: 1,
+    //   tally: [0, 0, 0]
+    // },
+
+    initialize: function() {
+      console.log('new NetworkGameModel');
+      //   this.get('p1').on('attemptMove', (function(colIdx) {
+      //     this.attemptMove(colIdx);
+      //   }).bind(this));
+      //   this.get('p2').on('attemptMove', (function(colIdx) {
+      //     this.attemptMove(colIdx);
+      //   }).bind(this));
+      //   console.log(this.attributes);
+    },
+    initNewSession:function(){
+      var sessionId;
+      $.get("/session/new", (function (data, status) {
+        sessionId = data;
+        console.log(sessionId);
+        // $('#game').show();
+        // $('#connect').hide();
+        // var view = new View();
+        // view.drawBoard();
+        // $('#session-id').html(sessionId);
+        this.initSocket(sessionId);//, view);
+      }).bind(this));
+    },
+    connectToSession:function(){
+      var sessionId = prompt('session id');
+      //if sessionId is valid
+      if (sessionId) {
+        //$('#game').show();
+        //$('#connect').hide();
+        //var view = new View();
+        //view.drawBoard();
+        //$('#session-id').html(sessionId);
+        this.initSocket(sessionId);//, view);
+      }
+
+    },
+    initSocket: function(sessionId){//}, view){
+
+      var socket = io(window.location.href + sessionId);
+      var playerId;
+      socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
+        playerId = d;
+        console.log(d);
+        //   $('#this-player').html(d);
+      });
+      socket.on('your turn', function() {
+        //   showWhosTurn(playerId, "It's Your Turn!");
+      });
+      socket.on('their turn', function() {
+        //   showWhosTurn(playerId ^ 3, "It's Their Turn.");
+      });
+      socket.on('board update', function(d) {
+        //   console.log(d);
+        //   view.addPiece(d.colIdx, d.rowIdx, d.playerId, function() {
+        //     if (d.hasWin) {
+        //       $('#conclusion').show();
+        //       $('#reset-local').hide();
+        //       $('#conclusion #result').html(d.playerId + ' won! ' + d.hasWin);
+        //       updateGameTally(d.winTally);
+        //     } else if (d.isDraw) {
+        //       $('#conclusion').show();
+        //       $('#reset-local').hide();
+        //       $('#conclusion #result').html('game is draw');
+        //       updateGameTally(d.winTally);
+        //     }
+        //   });
+      });
+      // socket.on('opt-in-reset', function(d) {
+      //   console.log(d.playerId, " OPT IN RESET");
+      //   if (d.playerId !== playerId) {
+      //     console.log($('#check-reset-them'));
+      //     $('#check-reset-them').prop('checked', true);
+      //   }
+      // });
+      // socket.on('reset', function(d) {
+      //   console.log('reset fool!');
+      //   view.drawBoard();
+      //   $('#check-reset-you').attr({
+      //     'checked': false,
+      //     'disabled': false
+      //   });
+      //   $('#check-reset-them').prop('checked', false);
+      //   $('#conclusion').hide();
+      // });
+      socket.on('opponent-connect', function() {
+        //   $('#opponent-connection #indicator').css('background-color', '#00ff00');
+        //   $('#opponent-connection #text').html('Opponent Connected');
+      });
+      socket.on('opponent-disconnect', function() {
+        //   $('#opponent-connection #indicator').css('background-color', '#ff0000');
+        //   $('#opponent-connection #text').html('Opponent Disconnected');
+      });
+      // view.onColSelect = function(colIdx) {
+      //   console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
+      //   socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
+      //     playerId: playerId,
+      //     colIdx: colIdx
+      //   });
+      // };
+      // $('#check-reset-you').change(function(e) {
+      //   $('#check-reset-you').attr('disabled', true);
+      //   socket.emit('opt-in-reset', {
+      //     playerId: playerId
+      //   });
+      // });
+      // $('#return').click(function() {
+      //   $('#menu').show();
+      //   $('#connect').hide();
+      //   $('#game').hide();
+      //   $('#conclusion').hide();
+      //   socket.emit('manual-disconnect');
+      //   $('#return').click(function() {});
+      // });
+     
+
+    }
+    // terminate: function() {
+    //   this.get('p1').off('attemptMove');
+    //   this.get('p2').off('attemptMove');
+    //   this.set('p1', null);
+    //   this.set('p2', null);
+    //   this.set('board', null);
+    // },
+
+    // startGame: function() {
+    //   this.startGameLoop();
+    //   this.trigger('gameStart');
+    // },
+
+    // startGameLoop: function() {
+    //   if (this.get('currPlayerId') === 1) {
+    //     this.get('p1').prompt();
+    //     this.trigger('promptPlayer', 1);
+    //   } else {
+    //     this.get('p2').prompt();
+    //     this.trigger('promptPlayer', 2);
+    //   }
+    // },
+
+    // attemptMove: function(colIdx) {
+    //   // prompt current player
+    //   // on player move
+    //   // // if move is valid
+    //   // // // commit move to board
+    //   // // // if board has win
+    //   // // // // end game on player win
+    //   // // // else if board is full
+    //   // // // // end game on draw
+    //   // // // else
+    //   // // // // swap current player
+    //   // // // // restart gameloop
+    //   // // else
+    //   // // // restart gameloop
+    //   var board = this.get('board');
+    //   var currPlayerId = this.get('currPlayerId');
+    //   if (!board.isColFullP(colIdx)) {
+    //     board.move(colIdx, currPlayerId);
+    //     var tempTally;
+    //     if (board.hasWinnerP()) {
+    //       tempTally = this.get('tally');
+    //       tempTally[this.get('gameResultModel').get('winner')]++;
+    //       this.set('tally', tempTally);
+    //       this.listenToOnce(this.get('view'), "animComplete", function() {
+    //         this.trigger('gameComplete');
+    //       });
+    //     } else if (board.isBoardFullP()) {
+    //       tempTally = this.get('tally');
+    //       tempTally[0]++;
+    //       this.set('tally', tempTally);
+    //       this.listenToOnce(this.get('view'), "animComplete", function() {
+    //         this.trigger('gameComplete');
+    //       });
+    //     } else {
+    //       this.set("currPlayerId", currPlayerId ^ 3);
+    //       this.listenToOnce(this.get('view'), "animComplete", function() {
+    //         this.startGameLoop();
+    //       });
+    //     }
+    //   } else {
+    //     this.startGameLoop();
+    //   }
+    // },
+
+    // reset: function() {
+    //   var tempStartPlayerId = this.get('startPlayerId');
+    //   tempStartPlayerId = tempStartPlayerId ^ 3;
+    //   this.set('startPlayerId', tempStartPlayerId);
+    //   this.set('currPlayerId', tempStartPlayerId);
+    // }
+
+  };
+})());
+
+},{"../SocketConstants.js":6,"backbone":19}],14:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1333,7 +1526,7 @@ module.exports = Backbone.Model.extend((function() {
   };
 })());
 
-},{"backbone":18}],14:[function(require,module,exports){
+},{"backbone":19}],15:[function(require,module,exports){
 (function() {
 
   "use strict";
@@ -1350,6 +1543,7 @@ module.exports = Backbone.Model.extend((function() {
   var LocalPlayerModel = require('../models/LocalPlayerModel.js');
   var CPUPlayerModel = require('../models/CPUPlayerModel.js');
   var LocalGameModel = require('../models/LocalGameModel.js');
+  var NetworkGameModel = require('../models/NetworkGameModel.js');
 
   module.exports = Backbone.View.extend((function() {
     
@@ -1362,6 +1556,13 @@ module.exports = Backbone.Model.extend((function() {
         });
         menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
         menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
+        menu.on('select:vsHumanNetwork', this.createNetworkGame.bind(this));
+        menu.on('select:vsHumanNetwork:new', (function(){
+          this.gameModel.initNewSession(); 
+        }).bind(this));
+        menu.on('select:vsHumanNetwork:connect', (function(){
+          this.gameModel.connectToSession(); 
+        }).bind(this));
         menu.on('select:backToMain', this.backToMain.bind(this));
       },
 
@@ -1378,10 +1579,10 @@ module.exports = Backbone.Model.extend((function() {
       },
 
       backToMain: function() {
-        this.boardModel.off('moveCommitted');
-        this.boardModel = null;
-        this.gameModel.terminate();
-        this.gameModel = null;
+        // this.boardModel.off('moveCommitted');
+        // this.boardModel = null;
+        // this.gameModel.terminate();
+        // this.gameModel = null;
       },
 
       createLocalGame: function(playerTypes) {
@@ -1427,15 +1628,18 @@ module.exports = Backbone.Model.extend((function() {
           this.gameModel.startGame();
         }).bind(this));
         this.gameModel.startGame();
-      }
+      },
 
+      createNetworkGame: function(){
+        this.gameModel = new NetworkGameModel();        
+      }
     };
     
   })());
 
 }());
 
-},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/CPUPlayerModel.js":9,"../models/GameResultModel.js":10,"../models/LocalGameModel.js":11,"../models/LocalPlayerModel.js":12,"./BoardView.js":15,"./MenuView.js":16,"./OutcomePanelView.js":17,"backbone":18,"underscore":32}],15:[function(require,module,exports){
+},{"../Colors.js":2,"../models/BoardModel.js":8,"../models/CPUPlayerModel.js":9,"../models/GameResultModel.js":10,"../models/LocalGameModel.js":11,"../models/LocalPlayerModel.js":12,"../models/NetworkGameModel.js":13,"./BoardView.js":16,"./MenuView.js":17,"./OutcomePanelView.js":18,"backbone":19,"underscore":33}],16:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1565,7 +1769,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":18,"snapsvg":30}],16:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":19,"snapsvg":31}],17:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1588,6 +1792,7 @@ module.exports = Backbone.View.extend((function() {
         this.renderReturn();
       },
       "click #vs-human-network": function() {
+        this.trigger("select:vsHumanNetwork");
         this.renderConnect();
       },
       "click #vs-computer": function() {
@@ -1597,10 +1802,12 @@ module.exports = Backbone.View.extend((function() {
       },
       "click #network-new": function(){
         console.log("network new");
+        this.trigger("select:vsHumanNetwork:new");
         this.renderReturn();
       },
       "click #network-connect": function(){
         console.log("network connect");
+        this.trigger("select:vsHumanNetwork:connect");
         this.renderReturn();
       },
       "click #back-to-main": function(){
@@ -1624,7 +1831,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":18,"underscore":32}],17:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":19,"underscore":33}],18:[function(require,module,exports){
 "use strict";
 
 var Backbone = require('backbone');
@@ -1717,7 +1924,7 @@ module.exports = Backbone.View.extend((function() {
   };
 })());
 
-},{"../Colors.js":2,"backbone":18,"underscore":32}],18:[function(require,module,exports){
+},{"../Colors.js":2,"backbone":19,"underscore":33}],19:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -3615,7 +3822,7 @@ module.exports = Backbone.View.extend((function() {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":29,"underscore":19}],19:[function(require,module,exports){
+},{"jquery":30,"underscore":20}],20:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -5165,7 +5372,7 @@ module.exports = Backbone.View.extend((function() {
   }
 }.call(this));
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5398,7 +5605,7 @@ var ClipboardAction = (function () {
 
 exports['default'] = ClipboardAction;
 module.exports = exports['default'];
-},{"select":27}],21:[function(require,module,exports){
+},{"select":28}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5556,7 +5763,7 @@ function getAttributeValue(suffix, element) {
 
 exports['default'] = Clipboard;
 module.exports = exports['default'];
-},{"./clipboard-action":20,"good-listener":26,"tiny-emitter":28}],22:[function(require,module,exports){
+},{"./clipboard-action":21,"good-listener":27,"tiny-emitter":29}],23:[function(require,module,exports){
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf) {
@@ -5568,7 +5775,7 @@ module.exports = function (element, selector, checkYoSelf) {
   }
 }
 
-},{"matches-selector":23}],23:[function(require,module,exports){
+},{"matches-selector":24}],24:[function(require,module,exports){
 
 /**
  * Element prototype.
@@ -5609,7 +5816,7 @@ function match(el, selector) {
   }
   return false;
 }
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var closest = require('closest');
 
 /**
@@ -5654,7 +5861,7 @@ function listener(element, selector, type, callback) {
 
 module.exports = delegate;
 
-},{"closest":22}],25:[function(require,module,exports){
+},{"closest":23}],26:[function(require,module,exports){
 /**
  * Check if argument is a HTML element.
  *
@@ -5705,7 +5912,7 @@ exports.function = function(value) {
     return type === '[object Function]';
 };
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var is = require('./is');
 var delegate = require('delegate');
 
@@ -5802,7 +6009,7 @@ function listenSelector(selector, type, callback) {
 
 module.exports = listen;
 
-},{"./is":25,"delegate":24}],27:[function(require,module,exports){
+},{"./is":26,"delegate":25}],28:[function(require,module,exports){
 function select(element) {
     var selectedText;
 
@@ -5832,7 +6039,7 @@ function select(element) {
 
 module.exports = select;
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -5900,7 +6107,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -15112,7 +15319,7 @@ return jQuery;
 
 }));
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -23284,7 +23491,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":31}],31:[function(require,module,exports){
+},{"eve":32}],32:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23689,6 +23896,6 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}],32:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"dup":19}]},{},[4]);
+},{}],33:[function(require,module,exports){
+arguments[4][20][0].apply(exports,arguments)
+},{"dup":20}]},{},[4]);

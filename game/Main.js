@@ -245,20 +245,5 @@ window.onload = function() {
   window.av = new AppView({
     el: $('#tempAppView')
   });
-
-  //   window.bm = new BoardModel();
-  // window.bv = new BoardView({
-  //   el: $("#tempBoardView")
-  // });
-
-  // var pID = 1;
-  // window.bv.on("suck", function(x){
-  //   window.bm.move(x, pID);
-  //   //window.bm.logTable();
-  //   pID = pID ^ 3;
-  // });
-  // window.bm.on("moveCommitted", function(x){
-  //   window.bv.addPiece(x.colIdx, x.rowIdx, x.playerId);
-  // });
-  //
+  
 };

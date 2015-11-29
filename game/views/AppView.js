@@ -14,6 +14,7 @@
   var LocalPlayerModel = require('../models/LocalPlayerModel.js');
   var CPUPlayerModel = require('../models/CPUPlayerModel.js');
   var LocalGameModel = require('../models/LocalGameModel.js');
+  var NetworkGameModel = require('../models/NetworkGameModel.js');
 
   module.exports = Backbone.View.extend((function() {
     
@@ -26,6 +27,13 @@
         });
         menu.on('select:vsHumanLocal', this.startVsHumanLocalGame.bind(this));
         menu.on('select:vsComputer', this.startVsComputerGame.bind(this));
+        menu.on('select:vsHumanNetwork', this.createNetworkGame.bind(this));
+        menu.on('select:vsHumanNetwork:new', (function(){
+          this.gameModel.initNewSession(); 
+        }).bind(this));
+        menu.on('select:vsHumanNetwork:connect', (function(){
+          this.gameModel.connectToSession(); 
+        }).bind(this));
         menu.on('select:backToMain', this.backToMain.bind(this));
       },
 
@@ -42,10 +50,10 @@
       },
 
       backToMain: function() {
-        this.boardModel.off('moveCommitted');
-        this.boardModel = null;
-        this.gameModel.terminate();
-        this.gameModel = null;
+        // this.boardModel.off('moveCommitted');
+        // this.boardModel = null;
+        // this.gameModel.terminate();
+        // this.gameModel = null;
       },
 
       createLocalGame: function(playerTypes) {
@@ -91,8 +99,11 @@
           this.gameModel.startGame();
         }).bind(this));
         this.gameModel.startGame();
-      }
+      },
 
+      createNetworkGame: function(){
+        this.gameModel = new NetworkGameModel();        
+      }
     };
     
   })());
