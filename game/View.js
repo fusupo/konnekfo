@@ -14,8 +14,10 @@ module.exports = function() {
   var cellWidth = boardWidth / 7;
   var cellHeight = boardHeight / 6;
   var topMargin = cellHeight;
+  var s;
 
   this.onColSelect = null;
+  
   this.drawCircles = function(s, color) {
     for (var y = 0; y < 6; y++) {
       var row = [];
@@ -27,7 +29,6 @@ module.exports = function() {
         });
         row.push(c);
       }
-
       this.circles.push(row);
     }
   };
@@ -39,7 +40,6 @@ module.exports = function() {
         fill: color,
         opacity: 0
       });
-
       var click = (function(foo) {
         return function() {
           if (this.onColSelect !== null) {
@@ -47,7 +47,6 @@ module.exports = function() {
           }
         };
       })(x);
-
       var over = (function(foo) {
         return function() {
           foo.attr({
@@ -56,7 +55,6 @@ module.exports = function() {
           });
         };
       })(b);
-
       var out = (function(foo) {
         return function() {
           foo.attr({
@@ -65,14 +63,12 @@ module.exports = function() {
           });
         };
       })(b);
-
       b.mouseover(over.bind(this));
       b.mouseout(out.bind(this));
       b.click(click.bind(this));
     };
   };
 
-  var s;
 
   this.drawBoard = function() {
     s = Snap(gameboardSVG);
@@ -80,30 +76,21 @@ module.exports = function() {
     bg.attr({
       fill: bgColor
     });
-
     this.circles = s.g();
-
     var pathDef = "M0," + topMargin + "H" + boardWidth + "V" + (topMargin + boardHeight) + "H0V" + topMargin;
-
     for (var y = 0; y < 6; y++) {
       for (var x = 0; x < 7; x++) {
-
         var cx = (cellWidth / 2) + (x * cellWidth);
         var cy = (cellHeight / 2 + topMargin) + (y * cellHeight);
         var r = .35 * cellWidth;
-
         pathDef += "M" + (cx - r) + "," + cy;
         pathDef += "a" + r + "," + r + " 0 1,0 " + (r * 2) + ",0";
         pathDef += "a" + r + "," + r + " 0 1,0 " + (r * -2) + ",0";
-
       }
     }
-
     var bg2 = s.path(pathDef).attr({
       fill: boardColor
     });
-
-    //this.drawCircles(s, bgColor);
     this.drawButtons(s, bgColor);
   };
 
