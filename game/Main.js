@@ -529,9 +529,9 @@ window.onload = function() {
   setTimeout(function(){
     console.log('suck my dick');
     window.data = {
-      menuState: 'MENU_STATE MUTHER FUCK',
+      menuState: 'MENU_STATE MUTHER',
       gameState: {
-        boardState: 'GAME_STATE MUTHER FUCK'
+        boardState: 'GAME_STATE MUTHER'
       }
     };
     ReactDOM.render(
