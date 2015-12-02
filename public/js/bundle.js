@@ -670,7 +670,6 @@ window.onload = function () {
       var cellWidth = boardWidth / 7;
       var cellHeight = boardHeight / 6;
       var topMargin = cellHeight;
-
       var pathDef = "M0," + topMargin + "H" + boardWidth + "V" + (topMargin + boardHeight) + "H0V" + topMargin;
       for (var y = 0; y < 6; y++) {
         for (var x = 0; x < 7; x++) {
@@ -701,19 +700,89 @@ window.onload = function () {
   var GameView = React.createClass({
     displayName: 'GameView',
 
+    getInitialState: function () {
+      return { game: null };
+    },
+    componentWillReceiveProps: function (nextProps) {
+      console.log("gameView", nextProps);
+      this.setState({
+        game: nextProps.game
+      });
+    },
     render: function () {
+      var style = {
+        display: this.state.game ? "block" : "none"
+      };
+      var tablePaddingStyle = {
+        padding: "0px 10px 0px 10px"
+      };
+      var tableBorderStyle = {
+        borderCollapse: "collapse"
+      };
+      var indicatorStyle = {
+        display: "inline-block",
+        borderRadius: "50%",
+        width: "20px",
+        height: "20px",
+        backgroundColor: "#ff0000"
+      };
       return React.createElement(
         'div',
-        { id: 'game' },
-        React.createElement(
-          'div',
-          { id: 'return' },
-          'main menu'
-        ),
+        { id: 'game', style: style },
         React.createElement(
           'h2',
           null,
           'game'
+        ),
+        React.createElement(
+          'table',
+          { id: 'game-win-tally', style: tableBorderStyle },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                { style: tablePaddingStyle },
+                'p1'
+              ),
+              React.createElement(
+                'th',
+                { style: tablePaddingStyle },
+                'p2'
+              ),
+              React.createElement(
+                'th',
+                { style: tablePaddingStyle },
+                'draws'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'td',
+                { style: tablePaddingStyle },
+                React.createElement('div', { id: 'p1' })
+              ),
+              React.createElement(
+                'td',
+                { style: tablePaddingStyle },
+                React.createElement('div', { id: 'p2' })
+              ),
+              React.createElement(
+                'td',
+                { style: tablePaddingStyle },
+                React.createElement('div', { id: 'draws' })
+              )
+            )
+          )
         ),
         React.createElement('div', { id: 'session-id' }),
         React.createElement(
@@ -722,6 +791,12 @@ window.onload = function () {
           'Copy to Clipboard'
         ),
         React.createElement('div', { id: 'opponent-connection' }),
+        React.createElement('div', { id: 'indicator', style: indicatorStyle }),
+        React.createElement(
+          'span',
+          { id: 'text' },
+          'Opponent Not Connected'
+        ),
         React.createElement('div', { id: 'this-player' }),
         React.createElement('div', { id: 'whos-turn' }),
         React.createElement(GameBoardView, null),
@@ -732,35 +807,18 @@ window.onload = function () {
         )
       );
     }
-
-    // <table id="game-win-tally" style="border-collapse: collapse;">
-    //   <tr>
-    // <th style="padding: 0px 10px 0px 10px">p1</th>
-    // <th style="padding: 0px 10px 0px 10px">p2</th>
-    // <th style="padding: 0px 10px 0px 10px">draws</th>
-    // </tr>
-    // <tr>
-    // <td style="padding: 0px 10px 0px 10px">
-    //   <div id="p1"></div>
-    // </td>
-    // <td style="padding: 0px 10px 0px 10px">
-    //   <div id="p2"></div>
-    // </td>
-    // <td style="padding: 0px 10px 0px 10px">
-    //   <div id="draws"></div>
-    // </td>
-    //   </tr>
-    // </table>
-
-    // <div id="indicator" style="display:inline-block; border-radius:50%; width:20px; height:20px; background-color:#ff0000"></div>
-    // <span id="text">Opponent Not Connected</span>
-
   });
 
   var ConclusionView = React.createClass({
     displayName: 'ConclusionView',
 
     render: function () {
+      var tablePaddingStyle = {
+        padding: "0px 10px 0px 10px"
+      };
+      var tableBorderStyle = {
+        borderCollapse: "collapse"
+      };
       return React.createElement(
         'div',
         { id: 'conclusion' },
@@ -774,55 +832,102 @@ window.onload = function () {
           'div',
           { id: 'reset-local' },
           'RESET!'
+        ),
+        React.createElement(
+          'table',
+          { id: 'reset-network', style: tableBorderStyle },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                { style: tablePaddingStyle },
+                'you'
+              ),
+              React.createElement(
+                'th',
+                { style: tablePaddingStyle },
+                'them'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'td',
+                { style: tablePaddingStyle },
+                React.createElement('input', { id: 'check-reset-you', type: 'checkbox' })
+              ),
+              React.createElement(
+                'td',
+                { style: tablePaddingStyle },
+                React.createElement('input', { id: 'check-reset-them', type: 'checkbox', disabled: 'true' })
+              )
+            )
+          )
         )
       );
     }
-
-    //   <table id="reset-network" style="border-collapse: collapse;">
-    //     <tr>
-    //       <th style="padding: 0px 10px 0px 10px">you</th>
-    //       <th style="padding: 0px 10px 0px 10px">them</th>
-    //     </tr>
-    //     <tr>
-    //       <td style="padding: 0px 10px 0px 10px">
-    //         <input id="check-reset-you" type="checkbox">
-    //       </td>
-    //       <td style="padding: 0px 10px 0px 10px">
-    //         <input id="check-reset-them" type="checkbox" disabled="true">
-    //       </td>
-    //     </tr>
-    //   </table>
-
   });
 
   var AppView = React.createClass({
     displayName: 'AppView',
 
+    getInitialState: function () {
+      return {
+        menuState: "FOO",
+        gameState: "BAR",
+        foobar: "STUPIDITY",
+        game: null
+      };
+    },
     // shouldComponentUpdate: function(x,y){
     //   console.log('ghjkghjkhgj',x,y);
     //   return true;
     // },
     handleChange: function (s) {
       console.log('HANDLING CHANGE FROM SUBCOMPONENT: ', s);
+      switch (s) {
+        case 'vsHumanLocal':
+          var p1 = new Players.Player(1 /*, view*/);
+          var p2 = new Players.Player(2 /*, view*/);
+          this.setState({ game: new Game(p1, p2) });
+          break;
+        case 'vsCPULocal':
+          break;
+        case 'return':
+          if (this.state.game) {
+            // kill any existant game
+            this.setState({ game: null });
+          }
+          break;
+      }
     },
     render: function () {
-      console.log('appview render');
+      console.log('appview render', this.state);
       return React.createElement(
         'div',
         { className: 'app' },
-        React.createElement(MenuView, { data: this.props.data.menuState, handleChange: this.handleChange }),
-        React.createElement(GameView, { data: this.props.data.gameState }),
+        React.createElement(MenuView, { data: this.state.menuState, handleChange: this.handleChange }),
+        React.createElement(GameView, { data: this.state.gameState, game: this.state.game }),
         React.createElement(ConclusionView, null),
         React.createElement(
           'div',
           null,
-          this.props.data.menuState,
+          this.state.menuState,
           ' suckkah'
         ),
         React.createElement(
           'div',
           null,
-          this.props.foobar,
+          this.state.foobar,
           ' suckkah'
         )
       );
@@ -836,20 +941,52 @@ window.onload = function () {
     }
   };
 
-  window.foo = ReactDOM.render(React.createElement(AppView, { data: window.data, foobar: '57' }), document.getElementById('example'));
-
-  setTimeout(function () {
-    console.log('suck my dick');
-    window.data = {
-      menuState: 'MENU_STATE MUTHER',
-      gameState: {
-        boardState: 'GAME_STATE MUTHER'
-      }
-    };
-    ReactDOM.render(React.createElement(AppView, { data: window.data, foobar: '999999' }), document.getElementById('example'));
-  }, 2500);
-  console.log(window.foo);
+  window.foo = ReactDOM.render(React.createElement(AppView, null), document.getElementById('example'));
 };
+
+/*
+ $('#return').click(function() {
+ $('#menu').show();
+ $('#connect').hide();
+ $('#game').hide();
+ $('#conclusion').hide();
+ $('#return').click(function() {});
+ });
+
+ $('#game').show();
+ $('#menu').hide();
+ var view = new View();
+
+ view.drawBoard();
+ var game = new Game(p1, p2);
+ showWhosTurn(game.currPlayer.id);
+ $('#conclusion #reset-local').click(function(e) {
+ console.log('reset click');
+ game.reset();
+ view.drawBoard();
+ $('#conclusion').hide();
+ $('#conclusion #reset-local').click(function() {});
+ showWhosTurn(game.currPlayer.id);
+ });
+ game.moveCommitted = function(colIdx) {
+ view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
+ game.currPlayer.id ^ 3, //0 b11,
+ function() {
+ var winningDirection = game.board.hasWinner();
+ if (winningDirection) {
+ $('#conclusion').show();
+ $('#reset-network').hide();
+ $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+ updateGameTally(game.winTally);
+ } else if (game.board.isBoardFull()) {
+ $('#conclusion').show();
+ $('#reset-network').hide();
+ $('#conclusion #result').html('game is draw');
+ updateGameTally(game.winTally);
+ }
+ });
+ showWhosTurn(game.currPlayer.id);
+ };*/
 
 },{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"clipboard":9,"react":173,"react-dom":17}],5:[function(require,module,exports){
 "use strict";
@@ -858,11 +995,11 @@ module.exports.Player = function (id, view) {
   this.id = id;
   this.promptMove = function (game) {
     console.log('its player #' + id + '\'s turn!!');
-    view.onColSelect = function (idx) {
-      console.log('woot!');
-      view.onColSelect = null;
-      game.commitMove(idx);
-    };
+    // view.onColSelect = function(idx) {
+    //   console.log('woot!');
+    //   view.onColSelect = null;
+    //   game.commitMove(idx);
+    // };
   };
 };
 
@@ -884,9 +1021,7 @@ module.exports.RemotePlayer = function (id, socket) {
 };
 
 module.exports.CPUPlayerClI = function (id) {
-
   this.id = id;
-
   this.promptMove = function (game) {
     var startDate = new Date();
     var move = figureOutThePlan.bind(this)(game.board);
@@ -914,7 +1049,6 @@ module.exports.CPUPlayerClI = function (id) {
 
   var offense = function (board, thisID, r) {
     var tally = [0, 0, 0];
-
     // base cases
     if (board.hasWinner()) {
       // win
@@ -925,21 +1059,16 @@ module.exports.CPUPlayerClI = function (id) {
       tally[0]++;
       return tally;
     }
-
     if (r >= 6) {
       return tally;
     }
-
     // plan for best offensive move //////////////////////////////////
     // start with current board
-
     // figure out which move (ie which column) will give us the highest possiblity of winning by calculating all games states with a recursive fxn
     // recursive fxn (input includes: current player)
     // initialize our tally ([w,l,d]) note: tally is stats for computer
     // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
-
     for (var k = 0; k < 7; k++) {
-
       if (!board.isColFull(k)) {
         board.move(k, thisID);
         var tempTally = offense(board, thisID ^ 3, r + 1);
@@ -958,13 +1087,10 @@ module.exports.CPUPlayerClI = function (id) {
   };
 
   var figureOutThePlan = function (board) {
-
     var returnMove = Math.floor(Math.random() * 7);
-
     while (board.isColFull(returnMove) && returnMove < 7) {
       returnMove++;
     }
-
     // if I can wan win in the next move, win
     // if my opp win in the next move (ie does my opp have 3 in a row/col/diag, etc),
     // if yes, can I stop opp from winning on their next move?
@@ -984,17 +1110,13 @@ module.exports.CPUPlayerClI = function (id) {
             board.unmove(i, id);
           }
         }
-
         console.table(columnStats);
         console.log(columnStats);
-
         var thisStats = R.map(function (item) {
           var result = item !== undefined ? item[id] : 0;
           return result;
         }, columnStats);
-
         console.log(thisStats);
-
         var max = 0;
         for (var i = 0; i < thisStats.length; i++) {
           if (thisStats[i] > max) {
@@ -1003,90 +1125,10 @@ module.exports.CPUPlayerClI = function (id) {
           }
         }
       }
-
     console.log('returnMove', returnMove);
     return returnMove;
   };
 };
-
-// module.exports.CPUPlayerMkI = function(id) {
-//   this.id = id;
-
-//   var figureOutThePlan = function(board) {
-
-//     var result;
-//     var recur = function(node) {
-//       var xo = arguments[1] || id;
-//       var i = 0;
-//       while (i < 7 && result === undefined) {
-
-//         var b = new Board(node.value.cloneCells());
-//         var n = new Tree(b);
-//         var moveResult = b.move(i, id);
-//         var hasWin = b.hasWinner();
-
-//         if (!hasWin && moveResult) {
-//           //console.log(arguments);
-//           //node.addChild(recur.bind(this)(n, xo)); //xo === "x" ? "o" : "x"));
-//           var j = 0;
-//           while (j < 7 && result === undefined) {
-
-//             var b2 = new Board(n.value.cloneCells());
-//             var n2 = new Tree(b2);
-//             var moveResult2 = b2.move(i, xo === "x" ? "o" : "x");
-//             var hasWin2 = b2.hasWinner();
-
-//             if (!hasWin2 && moveResult2) {
-//               n.addChild(recur.bind(this)(n2, xo)); //xo === "x" ? "o" : "x"));
-//             } else {
-//               if (hasWin2) {
-//                 result = b2;
-//               }
-
-//               n.addChild(n2);
-//             }
-
-//             j++;
-//           }
-
-//           node.addChild(n);
-//         } else {
-//           if (hasWin) {
-//             result = b;
-//           }
-
-//           node.addChild(n);
-//         }
-
-//         i++;
-//       }
-
-//       return node;
-//     };
-
-//     var n = new Tree(board);
-//     var tree = recur.bind(this)(n);
-
-//     //console.log(tree);
-//     // console.log(tree.DFTraverse(function(value) {
-//     //   return value === result;
-//     // }));
-//     tree.DFTraverse(function(value) {
-//       return value === result;
-//     });
-
-//     return tree.DFTraverse(function(value) {
-//       return value === result;
-//     })[0];
-
-//   };
-
-//   this.promptMove = function(game) {
-//     var move = figureOutThePlan.bind(this)(game.board);
-//     game.commitMove(move);
-//   };
-
-// };
 
 },{}],6:[function(require,module,exports){
 "use strict";

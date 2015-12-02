@@ -13,7 +13,7 @@ var ReactDOM = require('react-dom');
 window.onload = function() {
 
   ReactDOM.render(
-      <h1>Hello, world!</h1>,
+    <h1>Hello, world!</h1>,
     document.getElementById('example')
   );
 
@@ -393,7 +393,6 @@ window.onload = function() {
       var cellWidth = boardWidth / 7;
       var cellHeight = boardHeight / 6;
       var topMargin = cellHeight;
-
       var pathDef = "M0," + topMargin + "H" + boardWidth + "V" + (topMargin + boardHeight) + "H0V" + topMargin;
       for (var y = 0; y < 6; y++) {
         for (var x = 0; x < 7; x++) {
@@ -420,17 +419,63 @@ window.onload = function() {
   });
 
   var GameView = React.createClass({
+    getInitialState: function(){
+      return {game:null};
+    },
+    componentWillReceiveProps: function(nextProps) {
+      console.log("gameView", nextProps);
+      this.setState({
+        game: nextProps.game
+      });
+    },
     render: function(){
+      var style = {
+        display: this.state.game ? "block" : "none"
+      };
+      var tablePaddingStyle={
+        padding: "0px 10px 0px 10px"
+      };
+      var tableBorderStyle={
+        borderCollapse: "collapse"
+      };
+      var indicatorStyle={
+        display: "inline-block",
+        borderRadius: "50%",
+        width: "20px",
+        height: "20px",
+        backgroundColor: "#ff0000"
+      };
       return (
-        <div id="game" >
-          <div id="return">main menu</div>
+        <div id="game" style={style}>
           <h2>game</h2>
-          
+          <table id="game-win-tally" style={tableBorderStyle}>
+            <thead>
+              <tr>
+                <th style={tablePaddingStyle}>p1</th>
+                <th style={tablePaddingStyle}>p2</th>
+                <th style={tablePaddingStyle}>draws</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={tablePaddingStyle}>
+                  <div id="p1"></div>
+                </td>
+                <td style={tablePaddingStyle}>
+                  <div id="p2"></div>
+                </td>
+                <td style={tablePaddingStyle}>
+                  <div id="draws"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>    
           <div id="session-id"></div>
           <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
           <div id="opponent-connection">
           </div>
-          
+          <div id="indicator" style={indicatorStyle}></div>
+          <span id="text">Opponent Not Connected</span>
           <div id="this-player"></div>
           <div id="whos-turn"></div>
           <GameBoardView />
@@ -438,77 +483,84 @@ window.onload = function() {
         </div>
       );
     }
-
-    // <table id="game-win-tally" style="border-collapse: collapse;">
-    //   <tr>
-    // <th style="padding: 0px 10px 0px 10px">p1</th>
-    // <th style="padding: 0px 10px 0px 10px">p2</th>
-    // <th style="padding: 0px 10px 0px 10px">draws</th>
-    // </tr>
-    // <tr>
-    // <td style="padding: 0px 10px 0px 10px">
-    //   <div id="p1"></div>
-    // </td>
-    // <td style="padding: 0px 10px 0px 10px">
-    //   <div id="p2"></div>
-    // </td>
-    // <td style="padding: 0px 10px 0px 10px">
-    //   <div id="draws"></div>
-    // </td>
-    //   </tr>
-    // </table>
-    
-    // <div id="indicator" style="display:inline-block; border-radius:50%; width:20px; height:20px; background-color:#ff0000"></div>
-    // <span id="text">Opponent Not Connected</span>
-
   });
 
   var ConclusionView = React.createClass({
     render: function(){
+      var tablePaddingStyle={
+        padding: "0px 10px 0px 10px"
+      };
+      var tableBorderStyle={
+        borderCollapse: "collapse"
+      };
       return (
         <div id="conclusion" >
           <h2>conclusion</h2>
           <div id="result"></div>
           <div id="reset-local">RESET!</div>
-          
+          <table id="reset-network" style={tableBorderStyle}>
+            <thead>
+              <tr>
+                <th style={tablePaddingStyle}>you</th>
+                <th style={tablePaddingStyle}>them</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={tablePaddingStyle}>
+                  <input id="check-reset-you" type="checkbox"></input>
+                </td>
+                <td style={tablePaddingStyle}>
+                  <input id="check-reset-them" type="checkbox" disabled="true"></input>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       );
     }
-    
-    //   <table id="reset-network" style="border-collapse: collapse;">
-    //     <tr>
-    //       <th style="padding: 0px 10px 0px 10px">you</th>
-    //       <th style="padding: 0px 10px 0px 10px">them</th>
-    //     </tr>
-    //     <tr>
-    //       <td style="padding: 0px 10px 0px 10px">
-    //         <input id="check-reset-you" type="checkbox">
-    //       </td>
-    //       <td style="padding: 0px 10px 0px 10px">
-    //         <input id="check-reset-them" type="checkbox" disabled="true">
-    //       </td>
-    //     </tr>
-    //   </table>
-
   });
 
   var AppView = React.createClass({
+    getInitialState: function(){
+      return {
+        menuState: "FOO",
+        gameState: "BAR",
+        foobar: "STUPIDITY",
+        game: null
+      };
+    },
     // shouldComponentUpdate: function(x,y){
     //   console.log('ghjkghjkhgj',x,y);
     //   return true;
     // },
     handleChange: function(s){
-      console.log('HANDLING CHANGE FROM SUBCOMPONENT: ', s); 
+      console.log('HANDLING CHANGE FROM SUBCOMPONENT: ', s);
+      switch(s){
+      case 'vsHumanLocal':
+        var p1 = new Players.Player(1/*, view*/);
+        var p2 = new Players.Player(2/*, view*/);
+        this.setState({game: new Game(p1, p2)});
+        break;
+      case 'vsCPULocal':
+        break;
+      case 'return':
+        if(this.state.game){
+          // kill any existant game
+          this.setState({game: null}); 
+        }
+        break;
+      }
     },
     render: function() {
-      console.log('appview render');
+      console.log('appview render', this.state);
       return (
         <div className="app">
-          <MenuView data={this.props.data.menuState} handleChange={this.handleChange}/>
-          <GameView data={this.props.data.gameState}/>
+          <MenuView data={this.state.menuState} handleChange={this.handleChange}/>
+          <GameView data={this.state.gameState} game={this.state.game}/>
           <ConclusionView />
-          <div>{this.props.data.menuState} suckkah</div>
-          <div>{this.props.foobar} suckkah</div>
+          <div>{this.state.menuState} suckkah</div>
+          <div>{this.state.foobar} suckkah</div>
         </div>        
       );
     }
@@ -522,23 +574,52 @@ window.onload = function() {
   };
 
   window.foo = ReactDOM.render(
-    <AppView data={window.data} foobar="57"/>,
+    <AppView />,
     document.getElementById('example')
   );
 
-  setTimeout(function(){
-    console.log('suck my dick');
-    window.data = {
-      menuState: 'MENU_STATE MUTHER',
-      gameState: {
-        boardState: 'GAME_STATE MUTHER'
-      }
-    };
-    ReactDOM.render(
-      <AppView data={window.data} foobar="999999"/>,
-      document.getElementById('example')
-    );
-  }, 2500);
-  console.log(window.foo);
-
 };
+
+/*
+ $('#return').click(function() {
+ $('#menu').show();
+ $('#connect').hide();
+ $('#game').hide();
+ $('#conclusion').hide();
+ $('#return').click(function() {});
+ });
+
+ $('#game').show();
+ $('#menu').hide();
+ var view = new View();
+
+ view.drawBoard();
+ var game = new Game(p1, p2);
+ showWhosTurn(game.currPlayer.id);
+ $('#conclusion #reset-local').click(function(e) {
+ console.log('reset click');
+ game.reset();
+ view.drawBoard();
+ $('#conclusion').hide();
+ $('#conclusion #reset-local').click(function() {});
+ showWhosTurn(game.currPlayer.id);
+ });
+ game.moveCommitted = function(colIdx) {
+ view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
+ game.currPlayer.id ^ 3, //0 b11,
+ function() {
+ var winningDirection = game.board.hasWinner();
+ if (winningDirection) {
+ $('#conclusion').show();
+ $('#reset-network').hide();
+ $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+ updateGameTally(game.winTally);
+ } else if (game.board.isBoardFull()) {
+ $('#conclusion').show();
+ $('#reset-network').hide();
+ $('#conclusion #result').html('game is draw');
+ updateGameTally(game.winTally);
+ }
+ });
+ showWhosTurn(game.currPlayer.id);
+ };*/
