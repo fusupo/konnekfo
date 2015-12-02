@@ -3,12 +3,9 @@
 var Board = require("./Board.js");
 
 module.exports = function(p1, p2) {
-
   console.log('GAME INIT');
-
   this.winTally = [0, 0, 0];
   var firstToPlay; // = this.currPlayer = p1;
-
   this.commitMove = function(colIdx) {
     if (!this.board.isColFull(colIdx)) {
       if (this.currPlayer === p1) {
@@ -29,9 +26,9 @@ module.exports = function(p1, p2) {
       }
 
       if (winningDirection) {
-        this.winTally[(this.currPlayer.id ^ 3) - 1] ++;
+        this.winTally[(this.currPlayer.id ^ 3) - 1]++;
       } else if (this.board.isBoardFull()) {
-        this.winTally[2] ++;
+        this.winTally[2]++;
       }
 
       return true;
@@ -42,7 +39,6 @@ module.exports = function(p1, p2) {
   };
 
   this.reset = function() {
-
     this.board = new Board();
 
     // switch who starts every other game...
@@ -53,7 +49,6 @@ module.exports = function(p1, p2) {
     }
 
     this.currPlayer.promptMove(this);
-
   };
 
   this.reset();

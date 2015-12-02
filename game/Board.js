@@ -3,6 +3,7 @@
 module.exports = function(data) {
 
   console.log('New Board');
+
   //  1. Init the board
   this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
   this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
@@ -16,10 +17,6 @@ module.exports = function(data) {
     var str = c.toString(2);
     if (str.length % 2 !== 0) str = '0' + str;
     return parseInt(str.substr(0, 2), 2);
-    // while(c > 2){
-    //   c = c >> 1;
-    // }
-    //return c;
   };
 
   this.getNextRowIdx = function(colIdx) {
@@ -48,6 +45,7 @@ module.exports = function(data) {
     this.diag1[idx - 2] += playerID << ((colIdx * 2) + ((idx - 2) * 2));
     this.diag2[idx - 2] += playerID << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
 
+    console.log(this.cols);
   };
 
   this.unmove = function(colIdx, playerID) {
@@ -79,7 +77,6 @@ module.exports = function(data) {
   };
 
   this.hasWinner = function() {
-
     for (var i = 0; i <= 3; i++) {
       var c1 = this.cols[i] >> 4;
       var c2 = this.cols[i + 1] >> 4;
