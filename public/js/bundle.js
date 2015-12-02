@@ -935,7 +935,7 @@ window.onload = function () {
   });
 
   window.data = {
-    menuState: 'MENU_STATE',
+    menuState: 'MENU_STATE SHITHEAD',
     gameState: {
       boardState: 'GAME_STATE'
     }
