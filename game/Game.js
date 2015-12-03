@@ -6,6 +6,9 @@ module.exports = function(p1, p2) {
 
   console.log('GAME INIT');
 
+  this.state = {
+    winTally : [0, 0, 0]
+  };
   this.winTally = [0, 0, 0];
   this.isComplete = true;
   var firstToPlay; // = this.currPlayer = p1;
@@ -25,12 +28,14 @@ module.exports = function(p1, p2) {
         }
         if (this.board.hasWinnerP()) {
           this.isComplete = true;
-          var winningDirection = this.board.winningDirection;
-          this.winTally[(this.currPlayer.id ^ 3) - 1]++;
-          console.log(this.board.winner, 'won the game!');
+          //var winningDirection = this.board.winningDirection;
+          this.winTally[this.board.winner]++;
+          this.state.winTally[this.board.winner]++;
+          console.log('//////////////////////////////////////// ',this.board.winner, 'won the game!');
         } else if (this.board.isBoardFullP()) {
-          this.isComplete = true;
-          this.winTally[2]++;
+          this.isComplete =  true;
+          this.winTally[0]++;
+          this.state.winTally[0]++; 
           console.log('game is draw');
         }
         return true;

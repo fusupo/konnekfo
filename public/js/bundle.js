@@ -145,6 +145,9 @@ module.exports = function (p1, p2) {
 
   console.log('GAME INIT');
 
+  this.state = {
+    winTally: [0, 0, 0]
+  };
   this.winTally = [0, 0, 0];
   this.isComplete = true;
   var firstToPlay; // = this.currPlayer = p1;
@@ -164,12 +167,14 @@ module.exports = function (p1, p2) {
         }
         if (this.board.hasWinnerP()) {
           this.isComplete = true;
-          var winningDirection = this.board.winningDirection;
-          this.winTally[(this.currPlayer.id ^ 3) - 1]++;
-          console.log(this.board.winner, 'won the game!');
+          //var winningDirection = this.board.winningDirection;
+          this.winTally[this.board.winner]++;
+          this.state.winTally[this.board.winner]++;
+          console.log('//////////////////////////////////////// ', this.board.winner, 'won the game!');
         } else if (this.board.isBoardFullP()) {
           this.isComplete = true;
-          this.winTally[2]++;
+          this.winTally[0]++;
+          this.state.winTally[0]++;
           console.log('game is draw');
         }
         return true;
@@ -666,11 +671,6 @@ window.onload = function () {
     componentWillUpdate(nextProps, nextState) {
       console.log('gameBoardView, will update', nextProps, nextState);
     },
-    handleMouseUp: function (colIdx) {
-      console.log(colIdx);
-      this.props.game.commitMove(colIdx);
-      this.forceUpdate();
-    },
     render: function () {
       console.log('render GameBoardView', this.props.board);
 
@@ -718,8 +718,88 @@ window.onload = function () {
           React.createElement('rect', { x: '0', y: '0', width: w, height: h, fill: '#ffffff' }),
           React.createElement('g', null),
           React.createElement('path', { d: pathDef, fill: '#33658a' }),
-          React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.handleMouseUp }),
+          React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.props.handleMouseUp }),
           React.createElement(GameBoardPieces, { w: w, h: h, cw: cellWidth, ch: cellHeight, r: r, data: pieces })
+        )
+      );
+    }
+  });
+
+  var GameScoreBoard = React.createClass({
+    displayName: 'GameScoreBoard',
+
+    shouldComponentUpdate: function () {
+      console.log('SCORTEBOAD SHOULD UPDATE?');
+      return true;
+    },
+    render: function () {
+      console.log('UPDASTE THE MUTHER FUCKIN TALLY');
+      var tablePaddingStyle = {
+        padding: "0px 10px 0px 10px"
+      };
+      var tableBorderStyle = {
+        borderCollapse: "collapse"
+      };
+      return React.createElement(
+        'table',
+        { id: 'game-win-tally', style: tableBorderStyle },
+        React.createElement(
+          'thead',
+          null,
+          React.createElement(
+            'tr',
+            null,
+            React.createElement(
+              'th',
+              { style: tablePaddingStyle },
+              'p1'
+            ),
+            React.createElement(
+              'th',
+              { style: tablePaddingStyle },
+              'p2'
+            ),
+            React.createElement(
+              'th',
+              { style: tablePaddingStyle },
+              'draws'
+            )
+          )
+        ),
+        React.createElement(
+          'tbody',
+          null,
+          React.createElement(
+            'tr',
+            null,
+            React.createElement(
+              'td',
+              { style: tablePaddingStyle },
+              React.createElement(
+                'div',
+                { id: 'p1' },
+                this.props.tally[1]
+              )
+            ),
+            React.createElement(
+              'td',
+              { style: tablePaddingStyle },
+              React.createElement(
+                'div',
+                { id: 'p2' },
+                this.props.tally[2]
+              )
+            ),
+            React.createElement(
+              'td',
+              { style: tablePaddingStyle },
+              React.createElement(
+                'div',
+                { id: 'draws' },
+                this.props.tally[0]
+              )
+            )
+          )
         )
       );
     }
@@ -728,26 +808,14 @@ window.onload = function () {
   var GameView = React.createClass({
     displayName: 'GameView',
 
-    getInitialState: function () {
-      return { game: null };
-    },
-    componentWillReceiveProps: function (nextProps) {
-      console.log("gameView", nextProps);
-      // this.setState({
-      //   game: nextProps.game,
-      //   board: nextProps.board
-      // });
+    handleMouseUp: function (colIdx) {
+      console.log(colIdx);
+      this.props.game.commitMove(colIdx);
+      this.forceUpdate();
     },
     render: function () {
-      console.log('render GameView');
       var style = {
         display: this.props.game ? "block" : "none"
-      };
-      var tablePaddingStyle = {
-        padding: "0px 10px 0px 10px"
-      };
-      var tableBorderStyle = {
-        borderCollapse: "collapse"
       };
       var indicatorStyle = {
         display: "inline-block",
@@ -764,56 +832,7 @@ window.onload = function () {
           null,
           'game'
         ),
-        React.createElement(
-          'table',
-          { id: 'game-win-tally', style: tableBorderStyle },
-          React.createElement(
-            'thead',
-            null,
-            React.createElement(
-              'tr',
-              null,
-              React.createElement(
-                'th',
-                { style: tablePaddingStyle },
-                'p1'
-              ),
-              React.createElement(
-                'th',
-                { style: tablePaddingStyle },
-                'p2'
-              ),
-              React.createElement(
-                'th',
-                { style: tablePaddingStyle },
-                'draws'
-              )
-            )
-          ),
-          React.createElement(
-            'tbody',
-            null,
-            React.createElement(
-              'tr',
-              null,
-              React.createElement(
-                'td',
-                { style: tablePaddingStyle },
-                React.createElement('div', { id: 'p1' })
-              ),
-              React.createElement(
-                'td',
-                { style: tablePaddingStyle },
-                React.createElement('div', { id: 'p2' })
-              ),
-              React.createElement(
-                'td',
-                { style: tablePaddingStyle },
-                React.createElement('div', { id: 'draws' })
-              )
-            )
-          )
-        ),
+        React.createElement(GameScoreBoard, { tally: this.props.gameState ? this.props.gameState.winTally : [0, 0, 10] }),
         React.createElement('div', { id: 'session-id' }),
         React.createElement(
           'button',
@@ -829,7 +848,7 @@ window.onload = function () {
         ),
         React.createElement('div', { id: 'this-player' }),
         React.createElement('div', { id: 'whos-turn' }),
-        React.createElement(GameBoardView, { game: this.props.game, board: this.props.board })
+        React.createElement(GameBoardView, { game: this.props.game, board: this.props.board, handleMouseUp: this.handleMouseUp })
       );
     }
   });
@@ -921,6 +940,7 @@ window.onload = function () {
           var board = game.board;
           this.setState({
             game: game,
+            gameState: game.state,
             board: board.cols
           });
           break;
@@ -940,7 +960,7 @@ window.onload = function () {
         'div',
         { className: 'app' },
         React.createElement(MenuView, { handleChange: this.handleChange }),
-        React.createElement(GameView, { game: this.state.game, board: this.state.board }),
+        React.createElement(GameView, { gameState: this.state.gameState, game: this.state.game, board: this.state.board }),
         React.createElement(ConclusionView, null)
       );
     }
