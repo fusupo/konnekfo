@@ -464,12 +464,12 @@ window.onload = function() {
   });
 
   var GameScoreBoard = React.createClass({
-    shouldComponentUpdate: function(){
-      console.log('SCORTEBOAD SHOULD UPDATE?');
+    shouldComponentUpdate: function(a,b){
+      console.log('SCORTEBOAD SHOULD UPDATE?',a,b);
       return true;
     },
     render: function(){
-      console.log('UPDASTE THE MUTHER FUCKIN TALLY');
+      console.log('UPDASTE THE MUTHER FUCKIN TALLY',this.props);
       var tablePaddingStyle={
         padding: "0px 10px 0px 10px"
       };
@@ -549,7 +549,7 @@ window.onload = function() {
         <div id="conclusion" >
           <h2>conclusion</h2>
           <div id="result"></div>
-          <div id="reset-local">RESET!</div>
+          <div id="reset-local" onMouseUp={this.props.resetGame}>RESET!</div>
           <table id="reset-network" style={tableBorderStyle}>
             <thead>
               <tr>
@@ -557,18 +557,18 @@ window.onload = function() {
                 <th style={tablePaddingStyle}>them</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td style={tablePaddingStyle}>
-                  <input id="check-reset-you" type="checkbox"></input>
-                </td>
-                <td style={tablePaddingStyle}>
-                  <input id="check-reset-them" type="checkbox" disabled="true"></input>
-                </td>
-              </tr>
-            </tbody>
+          <tbody>
+          <tr>
+          <td style={tablePaddingStyle}>
+          <input id="check-reset-you" type="checkbox"></input>
+          </td>
+          <td style={tablePaddingStyle}>
+          <input id="check-reset-them" type="checkbox" disabled="true"></input>
+          </td>
+          </tr>
+          </tbody>
           </table>
-        </div>
+          </div>
       );
     }
   });
@@ -587,11 +587,16 @@ window.onload = function() {
         var p2 = new Players.Player(2/*, view*/);
         var game = new Game(p1, p2);
         var board = game.board;
-        this.setState({
-          game: game,
-          gameState: game.state,
-          board: board.cols
-        });
+        var resetGame = function(){
+          game.reset();
+          this.setState({
+            game: game,
+            gameState: game.state,
+            board: board.cols,
+            resetGame: resetGame.bind(this)
+          });
+        };
+        (resetGame.bind(this))();
         break;
       case 'vsCPULocal':
         break;
@@ -606,11 +611,11 @@ window.onload = function() {
     render: function() {
       console.log('render AppView');
       return (
-        <div className="app">
+          <div className="app">
           <MenuView handleChange={this.handleChange}/>
           <GameView gameState={this.state.gameState} game={this.state.game} board={this.state.board}/>
-          <ConclusionView />
-        </div>
+          <ConclusionView resetGame={this.state.resetGame}/>
+          </div>
       );
     }
   });
@@ -663,5 +668,5 @@ window.onload = function() {
  updateGameTally(game.winTally);
  }
  });
- showWhosTurn(game.currPlayer.id);
- };*/
+      showWhosTurn(game.currPlayer.id);
+    };*/

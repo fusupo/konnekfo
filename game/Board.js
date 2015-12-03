@@ -4,12 +4,6 @@ module.exports = function(data) {
 
   console.log('New Board');
 
-  this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
-  this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
-  this.diag1 = data && data.diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
-  this.diag2 = data && data.diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
-  this.winner = null;
-
   ////////////////////////////////////////  HELPER FNs
 
   var checkToPlayer = function(c) {
@@ -124,4 +118,15 @@ module.exports = function(data) {
     })));
   };
 
+  this.reset = function(data){
+    this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
+    this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
+    this.diag1 = data && data.diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
+    this.diag2 = data && data.diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
+    this.winner = null;   
+    this.winningDirection = null;
+  };
+
+  this.reset(data);
+  
 };

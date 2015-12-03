@@ -15,7 +15,7 @@ module.exports = function(p1, p2) {
 
   this.commitMove = function(colIdx) {
     if (!this.isComplete) {
-      if (!this.board.isColFullP()) {
+      if (!this.board.isColFullP(colIdx)) {
         if (this.currPlayer === p1) {
           this.board.move(colIdx, p1.id);
           this.currPlayer = p2;
@@ -46,9 +46,10 @@ module.exports = function(p1, p2) {
     return false;
   };
 
+  this.board = new Board();
   this.reset = function() {
     this.isComplete = false;
-    this.board = new Board();
+    this.board.reset();
     // switch who starts  every other game...
     if (!firstToPlay) {
       firstToPlay = this.currPlayer = p1;

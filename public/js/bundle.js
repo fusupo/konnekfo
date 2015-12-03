@@ -5,12 +5,6 @@ module.exports = function (data) {
 
   console.log('New Board');
 
-  this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
-  this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
-  this.diag1 = data && data.diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
-  this.diag2 = data && data.diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
-  this.winner = null;
-
   ////////////////////////////////////////  HELPER FNs
 
   var checkToPlayer = function (c) {
@@ -124,6 +118,17 @@ module.exports = function (data) {
       return R.reverse(R.splitEvery(2, binStr));
     })));
   };
+
+  this.reset = function (data) {
+    this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
+    this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
+    this.diag1 = data && data.diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
+    this.diag2 = data && data.diag2 || [0, 0, 0, 0, 0, 0]; // top right to bottom left
+    this.winner = null;
+    this.winningDirection = null;
+  };
+
+  this.reset(data);
 };
 
 },{}],2:[function(require,module,exports){
@@ -154,7 +159,7 @@ module.exports = function (p1, p2) {
 
   this.commitMove = function (colIdx) {
     if (!this.isComplete) {
-      if (!this.board.isColFullP()) {
+      if (!this.board.isColFullP(colIdx)) {
         if (this.currPlayer === p1) {
           this.board.move(colIdx, p1.id);
           this.currPlayer = p2;
@@ -185,9 +190,10 @@ module.exports = function (p1, p2) {
     return false;
   };
 
+  this.board = new Board();
   this.reset = function () {
     this.isComplete = false;
-    this.board = new Board();
+    this.board.reset();
     // switch who starts  every other game...
     if (!firstToPlay) {
       firstToPlay = this.currPlayer = p1;
@@ -728,12 +734,12 @@ window.onload = function () {
   var GameScoreBoard = React.createClass({
     displayName: 'GameScoreBoard',
 
-    shouldComponentUpdate: function () {
-      console.log('SCORTEBOAD SHOULD UPDATE?');
+    shouldComponentUpdate: function (a, b) {
+      console.log('SCORTEBOAD SHOULD UPDATE?', a, b);
       return true;
     },
     render: function () {
-      console.log('UPDASTE THE MUTHER FUCKIN TALLY');
+      console.log('UPDASTE THE MUTHER FUCKIN TALLY', this.props);
       var tablePaddingStyle = {
         padding: "0px 10px 0px 10px"
       };
@@ -875,7 +881,7 @@ window.onload = function () {
         React.createElement('div', { id: 'result' }),
         React.createElement(
           'div',
-          { id: 'reset-local' },
+          { id: 'reset-local', onMouseUp: this.props.resetGame },
           'RESET!'
         ),
         React.createElement(
@@ -938,11 +944,16 @@ window.onload = function () {
           var p2 = new Players.Player(2 /*, view*/);
           var game = new Game(p1, p2);
           var board = game.board;
-          this.setState({
-            game: game,
-            gameState: game.state,
-            board: board.cols
-          });
+          var resetGame = function () {
+            game.reset();
+            this.setState({
+              game: game,
+              gameState: game.state,
+              board: board.cols,
+              resetGame: resetGame.bind(this)
+            });
+          };
+          resetGame.bind(this)();
           break;
         case 'vsCPULocal':
           break;
@@ -961,7 +972,7 @@ window.onload = function () {
         { className: 'app' },
         React.createElement(MenuView, { handleChange: this.handleChange }),
         React.createElement(GameView, { gameState: this.state.gameState, game: this.state.game, board: this.state.board }),
-        React.createElement(ConclusionView, null)
+        React.createElement(ConclusionView, { resetGame: this.state.resetGame })
       );
     }
   });
@@ -1010,8 +1021,8 @@ window.onload = function () {
  updateGameTally(game.winTally);
  }
  });
- showWhosTurn(game.currPlayer.id);
- };*/
+      showWhosTurn(game.currPlayer.id);
+    };*/
 
 },{"./Colors.js":2,"./Game.js":3,"./Player.js":5,"./SocketConstants.js":6,"./View.js":7,"clipboard":9,"react":173,"react-dom":17}],5:[function(require,module,exports){
 "use strict";
