@@ -4,7 +4,6 @@ module.exports = function(data) {
 
   console.log('New Board');
 
-  //  1. Init the board
   this.cols = data && data.cols || [2, 2, 2, 2, 2, 2, 2];
   this.rows = data && data.rows || [0, 0, 0, 0, 0, 0];
   this.diag1 = data && data.diag1 || [0, 0, 0, 0, 0, 0]; // bottom right to top left
@@ -30,27 +29,18 @@ module.exports = function(data) {
   //////////////////////////////////////// END HELPER FNs
 
   this.move = function(colIdx, playerID) {
-
-    var idx = this.getNextRowIdx(colIdx); //this operation removes all digits except those that represent the insertion index
-    var currCols = removeIdxFromCol(this.cols[colIdx]); //this operation removes all digits except those that represent rows on the gameboard
-
-    ////////// Notes on bitwise opperators
-    //  a >> b  Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off.
-    //  a >>> b Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
-    // for future reference on bitwise operators https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+    var idx = this.getNextRowIdx(colIdx); 
+    var currCols = removeIdxFromCol(this.cols[colIdx]); 
     var mv = playerID << (idx * 2);
     this.cols[colIdx] = (idx + 1) + currCols + mv;
-
     this.rows[idx - 2] += playerID << (colIdx * 2);
     this.diag1[idx - 2] += playerID << ((colIdx * 2) + ((idx - 2) * 2));
     this.diag2[idx - 2] += playerID << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
-
-    console.log(this.cols);
   };
 
   this.unmove = function(colIdx, playerID) {
-    var idx = this.getNextRowIdx(colIdx); //this operation removes all digits except those that represent the insertion index
-    var currCols = removeIdxFromCol(this.cols[colIdx]); //this operation removes all digits except those that represent rows on the gameboard
+    var idx = this.getNextRowIdx(colIdx); 
+    var currCols = removeIdxFromCol(this.cols[colIdx]);
     var shiftCount = 32 - ((idx - 1) * 2);
     currCols = (currCols << shiftCount) >>> shiftCount;
     idx--;
@@ -60,23 +50,21 @@ module.exports = function(data) {
     this.diag2[idx - 2] -= playerID << ((colIdx * 2) + ((5 - (idx - 2)) * 2));
   };
 
-  this.isBoardFull = function() {
-    var result = true;
+  this.isBoardFullP = function() {
     for (var i = 0; i < 7; i++) {
-      if (!this.isColFull(i)) {
-        result = false;
+      if (!this.isColFullP(i)) {
+        return false;
         break;
       }
     }
-
-    return result;
+    return true;
   };
 
-  this.isColFull = function(colIdx) {
+  this.isColFullP = function(colIdx) {
     return this.getNextRowIdx(colIdx) >= 8;
   };
 
-  this.hasWinner = function() {
+  this.hasWinnerP = function() {
     for (var i = 0; i <= 3; i++) {
       var c1 = this.cols[i] >> 4;
       var c2 = this.cols[i + 1] >> 4;
@@ -85,12 +73,11 @@ module.exports = function(data) {
       var check = (c1 & c2 & c3 & c4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('h');
+        this.winningDirection = 'h';
+        return true;
       }
     }
-
     for (var j = 0; j <= 2; j++) {
-      // console.log(this.cols[0] >> 4)
       var r1 = this.rows[j];
       var r2 = this.rows[j + 1];
       var r3 = this.rows[j + 2];
@@ -98,10 +85,10 @@ module.exports = function(data) {
       var check = (r1 & r2 & r3 & r4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('v');
+        this.winningDirection = 'v';
+        return true;
       }
     }
-
     for (var k = 0; k <= 2; k++) {
       var d1 = this.diag1[k];
       var d2 = this.diag1[k + 1];
@@ -110,10 +97,10 @@ module.exports = function(data) {
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('d1');
+        this.winningDirection = 'd1';
+        return true;
       }
     }
-
     for (var m = 0; m <= 2; m++) {
       var d1 = this.diag2[m];
       var d2 = this.diag2[m + 1];
@@ -122,20 +109,11 @@ module.exports = function(data) {
       var check = (d1 & d2 & d3 & d4);
       if (check > 0) {
         this.winner = checkToPlayer(check);
-        return ('d2');
+        this.winningDirection = 'd2';
+        return true;
       }
     }
-
     return false;
-  };
-
-  this.cloneCells = function() {
-    return {
-      cols: R.clone(this.cols),
-      rows: R.clone(this.rows),
-      diag1: R.clone(this.diag1),
-      diag2: R.clone(this.diag2)
-    };
   };
 
   this.logTable = function() {
