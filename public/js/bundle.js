@@ -842,10 +842,16 @@ window.onload = function () {
     displayName: 'GameView',
 
     handleMouseUp: function (colIdx) {
-      console.log(colIdx);
       this.props.game.commitMove(colIdx);
     },
     render: function () {
+      var UIenabled = false;
+      if (this.props.game !== null) {
+        UIenabled = this.props.game.currPlayer.UIenabled;
+        this.handleMouseUp = this.props.game.currPlayer.UIenabled ? (function (colIdx) {
+          this.props.game.commitMove(colIdx);
+        }).bind(this) : function () {};
+      };
       var style = {
         display: this.props.game ? "block" : "none"
       };
@@ -867,7 +873,7 @@ window.onload = function () {
         ),
         React.createElement(GameScoreBoard, { tally: this.props.gameState ? this.props.gameState.winTally : [0, 0, 0], status: status }),
         React.createElement(ConclusionView, { isLocal: this.props.isLocal, resetGame: this.props.resetGame, status: status }),
-        React.createElement(GameBoardView, { game: this.props.game, board: this.props.board, handleMouseUp: this.handleMouseUp })
+        React.createElement(GameBoardView, { board: this.props.board, handleMouseUp: this.handleMouseUp, UIenabled: UIenabled })
       );
     }
   });
@@ -1097,6 +1103,7 @@ window.onload = function () {
 
 module.exports.Player = function (id, view) {
   this.id = id;
+  this.UIenabled = true;
   this.promptMove = function (game) {
     console.log('its player #' + id + '\'s turn!!');
     // view.onColSelect = function(idx) {
@@ -1126,6 +1133,7 @@ module.exports.RemotePlayer = function (id, socket) {
 
 module.exports.CPUPlayerClI = function (id) {
   this.id = id;
+  this.UIenabled = false;
   this.promptMove = function (game) {
     console.log('BEGINNING THINKING');
     var startDate = new Date();

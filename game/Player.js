@@ -2,6 +2,7 @@
 
 module.exports.Player = function(id, view) {
   this.id = id;
+  this.UIenabled = true;
   this.promptMove = function(game) {
     console.log('its player #' + id + '\'s turn!!');
     // view.onColSelect = function(idx) {
@@ -31,6 +32,7 @@ module.exports.RemotePlayer = function(id, socket) {
 
 module.exports.CPUPlayerClI = function(id) {
   this.id = id;
+  this.UIenabled = false;
   this.promptMove = function(game) {
     console.log('BEGINNING THINKING');
     var startDate = new Date();

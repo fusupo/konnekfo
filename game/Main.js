@@ -519,10 +519,14 @@ window.onload = function() {
 
   var GameView = React.createClass({
     handleMouseUp: function(colIdx){
-      console.log(colIdx);
       this.props.game.commitMove(colIdx);
     },
     render: function(){
+      var UIenabled = false;
+      if(this.props.game!==null) {
+        UIenabled = this.props.game.currPlayer.UIenabled;
+        this.handleMouseUp = this.props.game.currPlayer.UIenabled ? (function(colIdx){this.props.game.commitMove(colIdx);}).bind(this) : function(){};
+      };
       var style = {
         display: this.props.game ? "block" : "none"
       };
@@ -539,160 +543,160 @@ window.onload = function() {
           <h2>game</h2>
           <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={status} />
           <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
-          <GameBoardView game={this.props.game} board={this.props.board} handleMouseUp={this.handleMouseUp}/>
+          <GameBoardView board={this.props.board} handleMouseUp={this.handleMouseUp} UIenabled={UIenabled}/>
           </div>
       );
     }
   });
 
   // <div id="session-id"></div>
-  // <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
-  // <div id="opponent-connection">
-  // </div>
-  // <div id="indicator" style={indicatorStyle}></div>
-  // <span id="text">Opponent Not Connected</span>
+// <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
+// <div id="opponent-connection">
+// </div>
+// <div id="indicator" style={indicatorStyle}></div>
+// <span id="text">Opponent Not Connected</span>
   
-  var ConclusionView = React.createClass({
-    render: function(){
-      console.log('render ConclusionView');
-      var tablePaddingStyle={
-        padding: "0px 10px 0px 10px"
-      };
-      var resetNetworkStyle={
-        borderCollapse: "collapse"
-      };
-      var resetLocalStyle={
-      };
-      if(this.props.isLocal!=undefined){
-        if(this.props.isLocal){
-          resetLocalStyle.display="block";
-          resetNetworkStyle.display="none";
-        }else{
-          resetLocalStyle.display="none";
-          resetNetworkStyle.display="block";
-        }
+var ConclusionView = React.createClass({
+  render: function(){
+    console.log('render ConclusionView');
+    var tablePaddingStyle={
+      padding: "0px 10px 0px 10px"
+    };
+    var resetNetworkStyle={
+      borderCollapse: "collapse"
+    };
+    var resetLocalStyle={
+    };
+    if(this.props.isLocal!=undefined){
+      if(this.props.isLocal){
+        resetLocalStyle.display="block";
+        resetNetworkStyle.display="none";
       }else{
         resetLocalStyle.display="none";
-        resetNetworkStyle.display="none";
+        resetNetworkStyle.display="block";
       }
-      var visibilityStyle = {
-        visibility: "hidden"
-      };
-      switch(this.props.status[1]){
-      case "!":
-      case "x":
-        visibilityStyle.visibility = "visible";
-        break;
-      case "p":
-      default:
-        visibilityStyle.visibility = "hidden";
-        break;
-      }
-      return (
-          <div id="conclusion" style={visibilityStyle}>
-          <div id="reset-local" style={resetLocalStyle} onMouseUp={this.props.resetGame}>[reset]</div>
-          <table id="reset-network" style={resetNetworkStyle}>
-          <thead>
-          <tr>
-          <th style={tablePaddingStyle}>you</th>
-          <th style={tablePaddingStyle}>them</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-you" type="checkbox"></input>
-          </td>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-them" type="checkbox" disabled="true"></input>
-          </td>
-          </tr>
-          </tbody>
-          </table>
-          </div>
-      );
+    }else{
+      resetLocalStyle.display="none";
+      resetNetworkStyle.display="none";
     }
-  });
-
-  var AppView = React.createClass({
-    getInitialState: function(){
-      return {
-        game: null,
-        board: null,
-        isLocal: undefined
-      };
-    },
-    handleChange: function(s){
-      switch(s){
-      case 'vsHumanLocal':
-        var p1 = new Players.Player(1/*, view*/);
-        var p2 = new Players.Player(2/*, view*/);
-        var game = new Game(p1, p2);
-        game.moveCommitted = ( function(){
-          this.forceUpdate();
-        } ).bind(this);
-        var board = game.board;
-        var resetGame = function(){
-          game.reset();
-          this.setState({
-            isLocal: true,
-            game: game,
-            gameState: game.state,
-            board: board.cols,
-            resetGame: resetGame.bind(this)
-          });
-        };
-        (resetGame.bind(this))();
-        break;
-      case 'vsCPULocal':
-        var p1 = new Players.Player(1/*, view*/);
-        var p2 = new Players.CPUPlayerClI(2/*, view*/);
-        var game = new Game(p1, p2);
-        game.moveCommitted = ( function(){
-          this.forceUpdate();
-        } ).bind(this);
-        var board = game.board;
-        var resetGame = function(){
-          game.reset();
-          this.setState({
-            isLocal: true,
-            game: game,
-            gameState: game.state,
-            board: board.cols,
-            resetGame: resetGame.bind(this)
-          });
-        };
-        (resetGame.bind(this))();
-        break;
-      case 'return':
-        if(this.state.game){
-          // kill any existant game
-          this.setState({game: null}); 
-        }
-        break;
-      }
-    },
-    render: function() {
-      console.log('render AppView');
-      return (
-          <div className="app">
-          <MenuView handleChange={this.handleChange}/>
-          <GameView
-        isLocal = {this.state.isLocal}
-        gameState={this.state.gameState}
-        game={this.state.game}
-        board={this.state.board}
-        resetGame={this.state.resetGame}
-          />
-          </div>
-      );
+    var visibilityStyle = {
+      visibility: "hidden"
+    };
+    switch(this.props.status[1]){
+    case "!":
+    case "x":
+      visibilityStyle.visibility = "visible";
+      break;
+    case "p":
+    default:
+      visibilityStyle.visibility = "hidden";
+      break;
     }
-  });
+    return (
+        <div id="conclusion" style={visibilityStyle}>
+        <div id="reset-local" style={resetLocalStyle} onMouseUp={this.props.resetGame}>[reset]</div>
+        <table id="reset-network" style={resetNetworkStyle}>
+        <thead>
+        <tr>
+        <th style={tablePaddingStyle}>you</th>
+        <th style={tablePaddingStyle}>them</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td style={tablePaddingStyle}>
+        <input id="check-reset-you" type="checkbox"></input>
+        </td>
+        <td style={tablePaddingStyle}>
+        <input id="check-reset-them" type="checkbox" disabled="true"></input>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+    );
+  }
+});
 
-  window.foo = ReactDOM.render(
-      <AppView />,
-    document.getElementById('example')
-  );
+var AppView = React.createClass({
+  getInitialState: function(){
+    return {
+      game: null,
+      board: null,
+      isLocal: undefined
+    };
+  },
+  handleChange: function(s){
+    switch(s){
+    case 'vsHumanLocal':
+      var p1 = new Players.Player(1/*, view*/);
+      var p2 = new Players.Player(2/*, view*/);
+      var game = new Game(p1, p2);
+      game.moveCommitted = ( function(){
+        this.forceUpdate();
+      } ).bind(this);
+      var board = game.board;
+      var resetGame = function(){
+        game.reset();
+        this.setState({
+          isLocal: true,
+          game: game,
+          gameState: game.state,
+          board: board.cols,
+          resetGame: resetGame.bind(this)
+        });
+      };
+      (resetGame.bind(this))();
+      break;
+    case 'vsCPULocal':
+      var p1 = new Players.Player(1/*, view*/);
+      var p2 = new Players.CPUPlayerClI(2/*, view*/);
+      var game = new Game(p1, p2);
+      game.moveCommitted = ( function(){
+        this.forceUpdate();
+      } ).bind(this);
+      var board = game.board;
+      var resetGame = function(){
+        game.reset();
+        this.setState({
+          isLocal: true,
+          game: game,
+          gameState: game.state,
+          board: board.cols,
+          resetGame: resetGame.bind(this)
+        });
+      };
+      (resetGame.bind(this))();
+      break;
+    case 'return':
+      if(this.state.game){
+        // kill any existant game
+        this.setState({game: null}); 
+      }
+      break;
+    }
+  },
+  render: function() {
+    console.log('render AppView');
+    return (
+        <div className="app">
+        <MenuView handleChange={this.handleChange}/>
+        <GameView
+      isLocal = {this.state.isLocal}
+      gameState={this.state.gameState}
+      game={this.state.game}
+      board={this.state.board}
+      resetGame={this.state.resetGame}
+        />
+        </div>
+    );
+  }
+});
+
+window.foo = ReactDOM.render(
+    <AppView />,
+  document.getElementById('example')
+);
 
 };
 
