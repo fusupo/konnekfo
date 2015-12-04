@@ -178,7 +178,7 @@ module.exports = function (p1, p2) {
           //var winningDirection = this.board.winningDirection;
           this.state.winTally[this.board.winner]++;
           console.log('//////////////////////////////////////// ', this.board.winner, 'won the game!');
-          this.state.status = ["Player " + this.currPlayer.id + " Has Won The Game!", "!", this.currPlayer.id];
+          this.state.status = ["Player " + this.board.winner + " Has Won The Game!", "!", this.board.winner];
         } else if (this.board.isBoardFullP()) {
           this.isComplete = true;
           this.state.winTally[0]++;
@@ -747,12 +747,27 @@ window.onload = function () {
         borderCollapse: "collapse"
       };
       var gameStatusStr = this.props.status[0];
+      var gameStatusStyle;
+      switch (this.props.status[1]) {
+        case "p":
+          gameStatusStyle = {
+            color: this.props.status[2] === 1 ? Colors.p1Color : Colors.p2Color
+          };
+          break;
+        case "!":
+          gameStatusStyle = {
+            color: this.props.status[2] === 1 ? Colors.p1Color : Colors.p2Color
+          };
+          break;
+        case "x":
+          break;
+      }
       return React.createElement(
         'div',
         null,
         React.createElement(
           'div',
-          { id: 'gameStatus' },
+          { id: 'gameStatus', style: gameStatusStyle },
           gameStatusStr
         ),
         React.createElement(
