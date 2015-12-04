@@ -156,7 +156,7 @@ module.exports = function (p1, p2) {
     status: [undefined, undefined, undefined]
   };
   this.isComplete = true;
-  var firstToPlay; // = this.currPlayer = p1;
+  var firstToPlay = undefined; // = this.currPlayer = p1;
 
   this.commitMove = function (colIdx) {
     if (!this.isComplete) {
@@ -170,9 +170,6 @@ module.exports = function (p1, p2) {
         }
         this.state.currPlayer = this.currPlayer.id;
         this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
-        if (this.moveCommitted !== undefined) {
-          this.moveCommitted(colIdx);
-        }
         if (this.board.hasWinnerP()) {
           this.isComplete = true;
           //var winningDirection = this.board.winningDirection;
@@ -184,6 +181,11 @@ module.exports = function (p1, p2) {
           this.state.winTally[0]++;
           console.log('game is draw');
           this.state.status = ["The Game Is Draw.", "x", undefined];
+        } else {
+          this.currPlayer.promptMove(this);
+        }
+        if (this.moveCommitted !== undefined) {
+          this.moveCommitted(colIdx);
         }
         return true;
       } else {
@@ -208,7 +210,7 @@ module.exports = function (p1, p2) {
     this.currPlayer.promptMove(this);
   };
 
-  this.reset();
+  //this.reset();
 };
 
 },{"./Board.js":1}],4:[function(require,module,exports){
@@ -842,7 +844,6 @@ window.onload = function () {
     handleMouseUp: function (colIdx) {
       console.log(colIdx);
       this.props.game.commitMove(colIdx);
-      this.forceUpdate();
     },
     render: function () {
       var style = {
@@ -983,6 +984,9 @@ window.onload = function () {
           var p1 = new Players.Player(1 /*, view*/);
           var p2 = new Players.Player(2 /*, view*/);
           var game = new Game(p1, p2);
+          game.moveCommitted = (function () {
+            this.forceUpdate();
+          }).bind(this);
           var board = game.board;
           var resetGame = function () {
             game.reset();
@@ -997,6 +1001,24 @@ window.onload = function () {
           resetGame.bind(this)();
           break;
         case 'vsCPULocal':
+          var p1 = new Players.Player(1 /*, view*/);
+          var p2 = new Players.CPUPlayerClI(2 /*, view*/);
+          var game = new Game(p1, p2);
+          game.moveCommitted = (function () {
+            this.forceUpdate();
+          }).bind(this);
+          var board = game.board;
+          var resetGame = function () {
+            game.reset();
+            this.setState({
+              isLocal: true,
+              game: game,
+              gameState: game.state,
+              board: board.cols,
+              resetGame: resetGame.bind(this)
+            });
+          };
+          resetGame.bind(this)();
           break;
         case 'return':
           if (this.state.game) {
@@ -1105,6 +1127,7 @@ module.exports.RemotePlayer = function (id, socket) {
 module.exports.CPUPlayerClI = function (id) {
   this.id = id;
   this.promptMove = function (game) {
+    console.log('BEGINNING THINKING');
     var startDate = new Date();
     var move = figureOutThePlan.bind(this)(game.board);
     var endDate = new Date();
@@ -1118,9 +1141,9 @@ module.exports.CPUPlayerClI = function (id) {
   var winBlock = function (board, id) {
     var returnMove = false;
     for (var i = 0; i < 7; i++) {
-      if (!board.isColFull(i)) {
+      if (!board.isColFullP(i)) {
         board.move(i, id);
-        if (board.hasWinner()) {
+        if (board.hasWinnerP()) {
           returnMove = i;
         }
         board.unmove(i, id);
@@ -1132,11 +1155,11 @@ module.exports.CPUPlayerClI = function (id) {
   var offense = function (board, thisID, r) {
     var tally = [0, 0, 0];
     // base cases
-    if (board.hasWinner()) {
+    if (board.hasWinnerP()) {
       // win
       tally[board.winner]++;
       return tally;
-    } else if (board.isBoardFull()) {
+    } else if (board.isBoardFullP()) {
       // draw - all cells are filled and
       tally[0]++;
       return tally;
@@ -1151,7 +1174,7 @@ module.exports.CPUPlayerClI = function (id) {
     // initialize our tally ([w,l,d]) note: tally is stats for computer
     // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
     for (var k = 0; k < 7; k++) {
-      if (!board.isColFull(k)) {
+      if (!board.isColFullP(k)) {
         board.move(k, thisID);
         var tempTally = offense(board, thisID ^ 3, r + 1);
         tally[0] += tempTally[0];
@@ -1170,7 +1193,7 @@ module.exports.CPUPlayerClI = function (id) {
 
   var figureOutThePlan = function (board) {
     var returnMove = Math.floor(Math.random() * 7);
-    while (board.isColFull(returnMove) && returnMove < 7) {
+    while (board.isColFullP(returnMove) && returnMove < 7) {
       returnMove++;
     }
     // if I can wan win in the next move, win
@@ -1186,7 +1209,7 @@ module.exports.CPUPlayerClI = function (id) {
         // else play best offensive move
         var columnStats = [];
         for (var i = 0; i < 7; i++) {
-          if (!board.isColFull(i)) {
+          if (!board.isColFullP(i)) {
             board.move(i, id);
             columnStats[i] = offense(board, id ^ 3, 0); // 0b11, 0);
             board.unmove(i, id);

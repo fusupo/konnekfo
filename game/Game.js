@@ -12,7 +12,7 @@ module.exports = function(p1, p2) {
     status:[undefined, undefined, undefined]
   };
   this.isComplete = true;
-  var firstToPlay; // = this.currPlayer = p1;
+  var firstToPlay = undefined; // = this.currPlayer = p1;
 
   this.commitMove = function(colIdx) {
     if (!this.isComplete) {
@@ -26,9 +26,6 @@ module.exports = function(p1, p2) {
         }
         this.state.currPlayer = this.currPlayer.id;
         this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
-        if (this.moveCommitted !== undefined) {
-          this.moveCommitted(colIdx);
-        }
         if (this.board.hasWinnerP()) {
           this.isComplete = true;
           //var winningDirection = this.board.winningDirection;
@@ -40,6 +37,11 @@ module.exports = function(p1, p2) {
           this.state.winTally[0]++;
           console.log('game is draw');
           this.state.status = ["The Game Is Draw.", "x", undefined];
+        }else{
+          this. currPlayer.promptMove(this);
+        }
+        if (this.moveCommitted !== undefined) {
+          this.moveCommitted(colIdx);
         }
         return true;
       } else {
@@ -64,6 +66,6 @@ module.exports = function(p1, p2) {
     this.currPlayer.promptMove(this);
   };
 
-  this.reset();
+  //this.reset();
 
 };

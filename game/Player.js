@@ -32,6 +32,7 @@ module.exports.RemotePlayer = function(id, socket) {
 module.exports.CPUPlayerClI = function(id) {
   this.id = id;
   this.promptMove = function(game) {
+    console.log('BEGINNING THINKING');
     var startDate = new Date();
     var move = figureOutThePlan.bind(this)(game.board);
     var endDate = new Date();
@@ -45,9 +46,9 @@ module.exports.CPUPlayerClI = function(id) {
   var winBlock = function(board, id) {
     var returnMove = false;
     for (var i = 0; i < 7; i++) {
-      if (!board.isColFull(i)) {
+      if (!board.isColFullP(i)) {
         board.move(i, id);
-        if (board.hasWinner()) {
+        if (board.hasWinnerP()) {
           returnMove = i;
         }
         board.unmove(i, id);
@@ -59,11 +60,11 @@ module.exports.CPUPlayerClI = function(id) {
   var offense = function(board, thisID, r) {
     var tally = [0, 0, 0];
     // base cases
-    if (board.hasWinner()) {
+    if (board.hasWinnerP()) {
       // win
       tally[board.winner] ++;
       return tally;
-    } else if (board.isBoardFull()) {
+    } else if (board.isBoardFullP()) {
       // draw - all cells are filled and
       tally[0] ++;
       return tally;
@@ -78,7 +79,7 @@ module.exports.CPUPlayerClI = function(id) {
     // initialize our tally ([w,l,d]) note: tally is stats for computer
     // make each of the hypothetical moves for the current player (ie chose a column, go from left to right)
     for (var k = 0; k < 7; k++) {
-      if (!board.isColFull(k)) {
+      if (!board.isColFullP(k)) {
         board.move(k, thisID);
         var tempTally = offense(board, thisID ^ 3, r + 1);
         tally[0] += tempTally[0];
@@ -97,7 +98,7 @@ module.exports.CPUPlayerClI = function(id) {
 
   var figureOutThePlan = function(board) {
     var returnMove = Math.floor(Math.random() * 7);
-    while (board.isColFull(returnMove) && returnMove < 7) {
+    while (board.isColFullP(returnMove) && returnMove < 7) {
       returnMove++;
     }
     // if I can wan win in the next move, win
@@ -113,7 +114,7 @@ module.exports.CPUPlayerClI = function(id) {
       // else play best offensive move
       var columnStats = [];
       for (var i = 0; i < 7; i++) {
-        if (!board.isColFull(i)) {
+        if (!board.isColFullP(i)) {
           board.move(i, id);
           columnStats[i] = offense(board, id ^ 3, 0); // 0b11, 0);
           board.unmove(i, id);
