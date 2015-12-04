@@ -7,7 +7,8 @@ module.exports = function(p1, p2) {
   console.log('GAME INIT');
 
   this.state = {
-    winTally : [0, 0, 0]
+    winTally : [0, 0, 0],
+    currPlayer: "noone"
   };
   this.winTally = [0, 0, 0];
   this.isComplete = true;
@@ -23,6 +24,7 @@ module.exports = function(p1, p2) {
           this.board.move(colIdx, p2.id);
           this.currPlayer = p1;
         }
+        this.state.currPlayer = this.currPlayer.id;
         if (this.moveCommitted !== undefined) {
           this.moveCommitted(colIdx);
         }
@@ -35,7 +37,7 @@ module.exports = function(p1, p2) {
         } else if (this.board.isBoardFullP()) {
           this.isComplete =  true;
           this.winTally[0]++;
-          this.state.winTally[0]++; 
+          this.state.winTally[0]++;
           console.log('game is draw');
         }
         return true;
@@ -56,6 +58,7 @@ module.exports = function(p1, p2) {
     } else {
       firstToPlay = this.currPlayer = firstToPlay === p1 ? p2 : p1;
     }
+    this.state.currPlayer = this.currPlayer.id;
     this.currPlayer.promptMove(this);
   };
 

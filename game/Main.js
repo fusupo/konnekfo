@@ -302,38 +302,38 @@ window.onload = function() {
           <div>
             <h2>menu **</h2>
             <ul>
-              <li>
-                <span onClick={this.handleVsHumanLocalClick}>versus human local</span>
-              </li>
-              <li>
-                <span onClick={this.handleVsHumanNetworkClick}>versus human network</span>
-              </li>
-              <li>
-                <span onClick={this.handleVsCPULocalClick}>versus computer</span>
-              </li>
+            <li>
+            <span onClick={this.handleVsHumanLocalClick}>versus human local</span>
+            </li>
+            <li>
+            <span onClick={this.handleVsHumanNetworkClick}>versus human network</span>
+            </li>
+            <li>
+            <span onClick={this.handleVsCPULocalClick}>versus computer</span>
+            </li>
             </ul>
-          </div>
+            </div>
         );
       }else if(this.state.menuState === "network"){
         r = (
-          <div>
+            <div>
             <h2>connect**</h2>
             <span onClick={this.handleBackToMainClick}>return</span>
             <ul>
-              <li>
-                <span onClick={this.handleNewNetworkGameClick}>start new game as player 1</span>
-              </li>
-              <li>
-                <span onClick={this.handleConnectNetworkGameClick}>connect to a game </span>
-              </li>
+            <li>
+            <span onClick={this.handleNewNetworkGameClick}>start new game as player 1</span>
+            </li>
+            <li>
+            <span onClick={this.handleConnectNetworkGameClick}>connect to a game </span>
+            </li>
             </ul>
-          </div>
+            </div>
         );
       }else if(this.state.menuState === "return"){
         r = (
-          <div>
+            <div>
             <span onClick={this.handleBackToMainClick}>return</span>
-          </div>
+            </div>
         );
       }
       return r;
@@ -476,28 +476,33 @@ window.onload = function() {
       var tableBorderStyle={
         borderCollapse: "collapse"
       };
-      return (<table id="game-win-tally" style={tableBorderStyle}>
-              <thead>
-              <tr>
-              <th style={tablePaddingStyle}>p1</th>
-              <th style={tablePaddingStyle}>p2</th>
-              <th style={tablePaddingStyle}>draws</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr>
-              <td style={tablePaddingStyle}>
-              <div id="p1">{this.props.tally[1]}</div>
-              </td>
-              <td style={tablePaddingStyle}>
-              <div id="p2">{this.props.tally[2]}</div>
-              </td>
-              <td style={tablePaddingStyle}>
-              <div id="draws">{this.props.tally[0]}</div>
-              </td>
-              </tr>
-              </tbody>
-              </table>   );
+      return (
+          <div>
+          <div id="whos-turn">{this.props.currPlayer}</div>
+          <table id="game-win-tally" style={tableBorderStyle}>
+          <thead>
+          <tr>
+          <th style={tablePaddingStyle}>p1</th>
+          <th style={tablePaddingStyle}>p2</th>
+          <th style={tablePaddingStyle}>draws</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+          <td style={tablePaddingStyle}>
+          <div id="p1">{this.props.tally[1]}</div>
+          </td>
+          <td style={tablePaddingStyle}>
+          <div id="p2">{this.props.tally[2]}</div>
+          </td>
+          <td style={tablePaddingStyle}>
+          <div id="draws">{this.props.tally[0]}</div>
+          </td>
+          </tr>
+          </tbody>
+          </table>
+          </div>
+      );
     }
   });
 
@@ -519,9 +524,9 @@ window.onload = function() {
         backgroundColor: "#ff0000"
       };
       return (
-        <div id="game" style={style}>
+          <div id="game" style={style}>
           <h2>game</h2>
-          <GameScoreBoard tally = { this.props.gameState ? this.props.gameState.winTally : [0,0,10] }/> 
+          <GameScoreBoard currPlayer={this.props.gameState ? this.props.gameState.currPlayer : "nonone"} tally={this.props.gameState ? this.props.gameState.winTally : [0,0,10]} />
           <div id="session-id"></div>
           <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
           <div id="opponent-connection">
@@ -529,9 +534,8 @@ window.onload = function() {
           <div id="indicator" style={indicatorStyle}></div>
           <span id="text">Opponent Not Connected</span>
           <div id="this-player"></div>
-          <div id="whos-turn"></div>
           <GameBoardView game={this.props.game} board={this.props.board} handleMouseUp={this.handleMouseUp}/>
-        </div>
+          </div>
       );
     }
   });
@@ -546,17 +550,17 @@ window.onload = function() {
         borderCollapse: "collapse"
       };
       return (
-        <div id="conclusion" >
+          <div id="conclusion" >
           <h2>conclusion</h2>
           <div id="result"></div>
           <div id="reset-local" onMouseUp={this.props.resetGame}>RESET!</div>
           <table id="reset-network" style={tableBorderStyle}>
-            <thead>
-              <tr>
-                <th style={tablePaddingStyle}>you</th>
-                <th style={tablePaddingStyle}>them</th>
-              </tr>
-            </thead>
+          <thead>
+          <tr>
+          <th style={tablePaddingStyle}>you</th>
+          <th style={tablePaddingStyle}>them</th>
+          </tr>
+          </thead>
           <tbody>
           <tr>
           <td style={tablePaddingStyle}>
@@ -621,7 +625,7 @@ window.onload = function() {
   });
 
   window.foo = ReactDOM.render(
-    <AppView />,
+      <AppView />,
     document.getElementById('example')
   );
 
@@ -668,5 +672,5 @@ window.onload = function() {
  updateGameTally(game.winTally);
  }
  });
-      showWhosTurn(game.currPlayer.id);
-    };*/
+ showWhosTurn(game.currPlayer.id);
+ };*/
