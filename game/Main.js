@@ -13,7 +13,7 @@ var ReactDOM = require('react-dom');
 window.onload = function() {
 
   ReactDOM.render(
-    <h1>Hello, world!</h1>,
+      <h1>Hello, world!</h1>,
     document.getElementById('example')
   );
 
@@ -299,7 +299,7 @@ window.onload = function() {
       var r;
       if(this.state.menuState === "main"){
         r = (
-          <div>
+            <div>
             <h2>menu **</h2>
             <ul>
             <li>
@@ -449,36 +449,32 @@ window.onload = function() {
         }
       }
       return(
-        <div className="gameboardHolder">
+          <div className="gameboardHolder">
           <svg width={w} height={h}>
-            <defs></defs>
-            <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
-            <g></g>
-            <path d={pathDef} fill="#33658a"></path>
-            <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
-            <GameBoardPieces w={w} h={h} cw={cellWidth} ch={cellHeight} r={r} data={pieces}/>
+          <defs></defs>
+          <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
+          <g></g>
+          <path d={pathDef} fill="#33658a"></path>
+          <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
+          <GameBoardPieces w={w} h={h} cw={cellWidth} ch={cellHeight} r={r} data={pieces}/>
           </svg>
-        </div>
+          </div>
       );
     } 
   });
 
   var GameScoreBoard = React.createClass({
-    shouldComponentUpdate: function(a,b){
-      console.log('SCORTEBOAD SHOULD UPDATE?',a,b);
-      return true;
-    },
     render: function(){
-      console.log('UPDASTE THE MUTHER FUCKIN TALLY',this.props);
       var tablePaddingStyle={
         padding: "0px 10px 0px 10px"
       };
       var tableBorderStyle={
         borderCollapse: "collapse"
       };
+      var gameStatusStr = this.props.status[0];
       return (
           <div>
-          <div id="whos-turn">{this.props.currPlayer}</div>
+          <div id="gameStatus">{gameStatusStr}</div>
           <table id="game-win-tally" style={tableBorderStyle}>
           <thead>
           <tr>
@@ -509,125 +505,125 @@ window.onload = function() {
   var GameView = React.createClass({
     handleMouseUp: function(colIdx){
       console.log(colIdx);
-      this.props.game.commitMove(colIdx);
-      this.forceUpdate();
-    },
-    render: function(){
-      var style = {
-        display: this.props.game ? "block" : "none"
-      };
-      var indicatorStyle={
-        display: "inline-block",
-        borderRadius: "50%",
-        width: "20px",
-        height: "20px",
-        backgroundColor: "#ff0000"
-      };
-      return (
-          <div id="game" style={style}>
-          <h2>game</h2>
-          <GameScoreBoard currPlayer={this.props.gameState ? this.props.gameState.currPlayer : "nonone"} tally={this.props.gameState ? this.props.gameState.winTally : [0,0,10]} />
-          <div id="session-id"></div>
-          <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
-          <div id="opponent-connection">
-          </div>
-          <div id="indicator" style={indicatorStyle}></div>
-          <span id="text">Opponent Not Connected</span>
-          <div id="this-player"></div>
-          <GameBoardView game={this.props.game} board={this.props.board} handleMouseUp={this.handleMouseUp}/>
-          </div>
-      );
-    }
+    this.props.game.commitMove(colIdx);
+    this.forceUpdate();
+  },
+  render: function(){
+    var style = {
+      display: this.props.game ? "block" : "none"
+    };
+    var indicatorStyle={
+      display: "inline-block",
+      borderRadius: "50%",
+      width: "20px",
+      height: "20px",
+      backgroundColor: "#ff0000"
+    };
+    return (
+        <div id="game" style={style}>
+        <h2>game</h2>
+        <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined]} />
+        <div id="session-id"></div>
+        <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
+        <div id="opponent-connection">
+        </div>
+        <div id="indicator" style={indicatorStyle}></div>
+        <span id="text">Opponent Not Connected</span>
+        <div id="this-player"></div>
+        <GameBoardView game={this.props.game} board={this.props.board} handleMouseUp={this.handleMouseUp}/>
+        </div>
+    );
+  }
   });
 
   var ConclusionView = React.createClass({
     render: function(){
-      console.log('render ConclusionView');
-      var tablePaddingStyle={
-        padding: "0px 10px 0px 10px"
-      };
-      var tableBorderStyle={
-        borderCollapse: "collapse"
-      };
-      return (
-          <div id="conclusion" >
-          <h2>conclusion</h2>
-          <div id="result"></div>
-          <div id="reset-local" onMouseUp={this.props.resetGame}>RESET!</div>
-          <table id="reset-network" style={tableBorderStyle}>
-          <thead>
-          <tr>
-          <th style={tablePaddingStyle}>you</th>
-          <th style={tablePaddingStyle}>them</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-you" type="checkbox"></input>
-          </td>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-them" type="checkbox" disabled="true"></input>
-          </td>
-          </tr>
-          </tbody>
-          </table>
-          </div>
-      );
-    }
-  });
+    console.log('render ConclusionView');
+    var tablePaddingStyle={
+      padding: "0px 10px 0px 10px"
+    };
+    var tableBorderStyle={
+      borderCollapse: "collapse"
+    };
+    return (
+        <div id="conclusion" >
+        <h2>conclusion</h2>
+        <div id="result"></div>
+        <div id="reset-local" onMouseUp={this.props.resetGame}>RESET!</div>
+        <table id="reset-network" style={tableBorderStyle}>
+        <thead>
+        <tr>
+        <th style={tablePaddingStyle}>you</th>
+        <th style={tablePaddingStyle}>them</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td style={tablePaddingStyle}>
+        <input id="check-reset-you" type="checkbox"></input>
+        </td>
+        <td style={tablePaddingStyle}>
+        <input id="check-reset-them" type="checkbox" disabled="true"></input>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+    );
+  }
+});
 
-  var AppView = React.createClass({
-    getInitialState: function(){
-      return {
-        game: null,
-        board: null
+var AppView = React.createClass({
+  getInitialState: function(){
+    return {
+      game: null,
+      board: null
+    };
+  },
+  handleChange: function(s){
+    switch(s){
+    case 'vsHumanLocal':
+      var p1 = new Players.Player(1/*, view*/);
+      var p2 = new Players.Player(2/*, view*/);
+      var game = new Game(p1, p2);
+      var board = game.board;
+      var resetGame = function(){
+        game.reset();
+        this.setState({
+          game: game,
+          gameState: game.state,
+          board: board.cols,
+          resetGame: resetGame.bind(this)
+        });
       };
-    },
-    handleChange: function(s){
-      switch(s){
-      case 'vsHumanLocal':
-        var p1 = new Players.Player(1/*, view*/);
-        var p2 = new Players.Player(2/*, view*/);
-        var game = new Game(p1, p2);
-        var board = game.board;
-        var resetGame = function(){
-          game.reset();
-          this.setState({
-            game: game,
-            gameState: game.state,
-            board: board.cols,
-            resetGame: resetGame.bind(this)
-          });
-        };
-        (resetGame.bind(this))();
-        break;
-      case 'vsCPULocal':
-        break;
-      case 'return':
-        if(this.state.game){
-          // kill any existant game
-          this.setState({game: null}); 
-        }
-        break;
+      (resetGame.bind(this))();
+      break;
+    case 'vsCPULocal':
+      break;
+    case 'return':
+      if(this.state.game){
+        // kill any existant game
+        this.setState({game: null}); 
       }
-    },
-    render: function() {
-      console.log('render AppView');
-      return (
-          <div className="app">
-          <MenuView handleChange={this.handleChange}/>
-          <GameView gameState={this.state.gameState} game={this.state.game} board={this.state.board}/>
-          <ConclusionView resetGame={this.state.resetGame}/>
-          </div>
-      );
+      break;
     }
-  });
+  },
+  render: function() {
+    console.log('render AppView');
+    return (
+        <div className="app">
+        <MenuView handleChange={this.handleChange}/>
+        <GameView gameState={this.state.gameState} game={this.state.game} board={this.state.board}/>
+        <ConclusionView resetGame={this.state.resetGame}/>
+        </div>
+    );
+  }
+});
 
-  window.foo = ReactDOM.render(
-      <AppView />,
-    document.getElementById('example')
-  );
+window.foo = ReactDOM.render(
+    <AppView />,
+  document.getElementById('example')
+);
 
 };
 
