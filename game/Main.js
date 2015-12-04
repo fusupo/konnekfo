@@ -468,7 +468,7 @@ window.onload = function() {
       var tablePaddingStyle={
         padding: "0px 10px 0px 10px"
       };
-      var tableBorderStyle={
+      var resetNetworkStyle={
         borderCollapse: "collapse"
       };
       var gameStatusStr = this.props.status[0];
@@ -490,7 +490,7 @@ window.onload = function() {
       return (
           <div>
           <div id="gameStatus" style={gameStatusStyle}>{gameStatusStr}</div>
-          <table id="game-win-tally" style={tableBorderStyle}>
+          <table id="game-win-tally" style={resetNetworkStyle}>
           <thead>
           <tr>
           <th style={tablePaddingStyle}>p1</th>
@@ -534,65 +534,93 @@ window.onload = function() {
         height: "20px",
         backgroundColor: "#ff0000"
       };
+      var status=this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined]; 
       return (
           <div id="game" style={style}>
           <h2>game</h2>
-          <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined]} />
-          <div id="session-id"></div>
-          <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
-          <div id="opponent-connection">
-          </div>
-          <div id="indicator" style={indicatorStyle}></div>
-          <span id="text">Opponent Not Connected</span>
-          <div id="this-player"></div>
+          <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={status} />
+          <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
           <GameBoardView game={this.props.game} board={this.props.board} handleMouseUp={this.handleMouseUp}/>
           </div>
       );
     }
   });
 
-  var ConclusionView = React.createClass({
-    render: function(){
-      console.log('render ConclusionView');
-      var tablePaddingStyle={
-        padding: "0px 10px 0px 10px"
-      };
-      var tableBorderStyle={
-        borderCollapse: "collapse"
-      };
-      return (
-          <div id="conclusion" >
-          <h2>conclusion</h2>
-          <div id="result"></div>
-          <div id="reset-local" onMouseUp={this.props.resetGame}>RESET!</div>
-          <table id="reset-network" style={tableBorderStyle}>
-          <thead>
-          <tr>
-          <th style={tablePaddingStyle}>you</th>
-          <th style={tablePaddingStyle}>them</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-you" type="checkbox"></input>
-          </td>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-them" type="checkbox" disabled="true"></input>
-          </td>
-          </tr>
-          </tbody>
-          </table>
-          </div>
-      );
+  // <div id="session-id"></div>
+// <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
+// <div id="opponent-connection">
+// </div>
+// <div id="indicator" style={indicatorStyle}></div>
+// <span id="text">Opponent Not Connected</span>
+  
+var ConclusionView = React.createClass({
+  render: function(){
+    console.log('render ConclusionView');
+    var tablePaddingStyle={
+      padding: "0px 10px 0px 10px"
+    };
+    var resetNetworkStyle={
+      borderCollapse: "collapse"
+    };
+    var resetLocalStyle={
+    };
+    if(this.props.isLocal!=undefined){
+      if(this.props.isLocal){
+        resetLocalStyle.display="block";
+        resetNetworkStyle.display="none";
+      }else{
+        resetLocalStyle.display="none";
+        resetNetworkStyle.display="block";
+      }
+    }else{
+      resetLocalStyle.display="none";
+      resetNetworkStyle.display="none";
     }
-  });
+    var visibilityStyle = {
+      visibility: "hidden"
+    };
+    switch(this.props.status[1]){
+    case "!":
+    case "x":
+      visibilityStyle.visibility = "visible";
+      break;
+    case "p":
+    default:
+      visibilityStyle.visibility = "hidden";
+      break;
+    }
+    return (
+        <div id="conclusion" style={visibilityStyle}>
+        <div id="reset-local" style={resetLocalStyle} onMouseUp={this.props.resetGame}>[reset]</div>
+        <table id="reset-network" style={resetNetworkStyle}>
+        <thead>
+        <tr>
+        <th style={tablePaddingStyle}>you</th>
+        <th style={tablePaddingStyle}>them</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td style={tablePaddingStyle}>
+        <input id="check-reset-you" type="checkbox"></input>
+        </td>
+        <td style={tablePaddingStyle}>
+        <input id="check-reset-them" type="checkbox" disabled="true"></input>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+    );
+  }
+});
 
   var AppView = React.createClass({
     getInitialState: function(){
       return {
         game: null,
-        board: null
+        board: null,
+        isLocal: undefined
       };
     },
     handleChange: function(s){
@@ -605,6 +633,7 @@ window.onload = function() {
         var resetGame = function(){
           game.reset();
           this.setState({
+            isLocal: true,
             game: game,
             gameState: game.state,
             board: board.cols,
@@ -628,8 +657,13 @@ window.onload = function() {
       return (
           <div className="app">
           <MenuView handleChange={this.handleChange}/>
-          <GameView gameState={this.state.gameState} game={this.state.game} board={this.state.board}/>
-          <ConclusionView resetGame={this.state.resetGame}/>
+          <GameView
+        isLocal = {this.state.isLocal}
+        gameState={this.state.gameState}
+        game={this.state.game}
+        board={this.state.board}
+        resetGame={this.state.resetGame}
+          />
           </div>
       );
     }

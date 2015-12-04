@@ -743,7 +743,7 @@ window.onload = function () {
       var tablePaddingStyle = {
         padding: "0px 10px 0px 10px"
       };
-      var tableBorderStyle = {
+      var resetNetworkStyle = {
         borderCollapse: "collapse"
       };
       var gameStatusStr = this.props.status[0];
@@ -772,7 +772,7 @@ window.onload = function () {
         ),
         React.createElement(
           'table',
-          { id: 'game-win-tally', style: tableBorderStyle },
+          { id: 'game-win-tally', style: resetNetworkStyle },
           React.createElement(
             'thead',
             null,
@@ -855,6 +855,7 @@ window.onload = function () {
         height: "20px",
         backgroundColor: "#ff0000"
       };
+      var status = this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined];
       return React.createElement(
         'div',
         { id: 'game', style: style },
@@ -863,25 +864,19 @@ window.onload = function () {
           null,
           'game'
         ),
-        React.createElement(GameScoreBoard, { tally: this.props.gameState ? this.props.gameState.winTally : [0, 0, 0], status: this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined] }),
-        React.createElement('div', { id: 'session-id' }),
-        React.createElement(
-          'button',
-          { id: 'copy-button', 'data-clipboard-target': '#session-id', title: 'Click to copy me.' },
-          'Copy to Clipboard'
-        ),
-        React.createElement('div', { id: 'opponent-connection' }),
-        React.createElement('div', { id: 'indicator', style: indicatorStyle }),
-        React.createElement(
-          'span',
-          { id: 'text' },
-          'Opponent Not Connected'
-        ),
-        React.createElement('div', { id: 'this-player' }),
+        React.createElement(GameScoreBoard, { tally: this.props.gameState ? this.props.gameState.winTally : [0, 0, 0], status: status }),
+        React.createElement(ConclusionView, { isLocal: this.props.isLocal, resetGame: this.props.resetGame, status: status }),
         React.createElement(GameBoardView, { game: this.props.game, board: this.props.board, handleMouseUp: this.handleMouseUp })
       );
     }
   });
+
+  // <div id="session-id"></div>
+  // <button id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">Copy to Clipboard</button>
+  // <div id="opponent-connection">
+  // </div>
+  // <div id="indicator" style={indicatorStyle}></div>
+  // <span id="text">Opponent Not Connected</span>
 
   var ConclusionView = React.createClass({
     displayName: 'ConclusionView',
@@ -891,26 +886,46 @@ window.onload = function () {
       var tablePaddingStyle = {
         padding: "0px 10px 0px 10px"
       };
-      var tableBorderStyle = {
+      var resetNetworkStyle = {
         borderCollapse: "collapse"
       };
+      var resetLocalStyle = {};
+      if (this.props.isLocal != undefined) {
+        if (this.props.isLocal) {
+          resetLocalStyle.display = "block";
+          resetNetworkStyle.display = "none";
+        } else {
+          resetLocalStyle.display = "none";
+          resetNetworkStyle.display = "block";
+        }
+      } else {
+        resetLocalStyle.display = "none";
+        resetNetworkStyle.display = "none";
+      }
+      var visibilityStyle = {
+        visibility: "hidden"
+      };
+      switch (this.props.status[1]) {
+        case "!":
+        case "x":
+          visibilityStyle.visibility = "visible";
+          break;
+        case "p":
+        default:
+          visibilityStyle.visibility = "hidden";
+          break;
+      }
       return React.createElement(
         'div',
-        { id: 'conclusion' },
-        React.createElement(
-          'h2',
-          null,
-          'conclusion'
-        ),
-        React.createElement('div', { id: 'result' }),
+        { id: 'conclusion', style: visibilityStyle },
         React.createElement(
           'div',
-          { id: 'reset-local', onMouseUp: this.props.resetGame },
-          'RESET!'
+          { id: 'reset-local', style: resetLocalStyle, onMouseUp: this.props.resetGame },
+          '[reset]'
         ),
         React.createElement(
           'table',
-          { id: 'reset-network', style: tableBorderStyle },
+          { id: 'reset-network', style: resetNetworkStyle },
           React.createElement(
             'thead',
             null,
@@ -958,7 +973,8 @@ window.onload = function () {
     getInitialState: function () {
       return {
         game: null,
-        board: null
+        board: null,
+        isLocal: undefined
       };
     },
     handleChange: function (s) {
@@ -971,6 +987,7 @@ window.onload = function () {
           var resetGame = function () {
             game.reset();
             this.setState({
+              isLocal: true,
               game: game,
               gameState: game.state,
               board: board.cols,
@@ -995,8 +1012,13 @@ window.onload = function () {
         'div',
         { className: 'app' },
         React.createElement(MenuView, { handleChange: this.handleChange }),
-        React.createElement(GameView, { gameState: this.state.gameState, game: this.state.game, board: this.state.board }),
-        React.createElement(ConclusionView, { resetGame: this.state.resetGame })
+        React.createElement(GameView, {
+          isLocal: this.state.isLocal,
+          gameState: this.state.gameState,
+          game: this.state.game,
+          board: this.state.board,
+          resetGame: this.state.resetGame
+        })
       );
     }
   });
