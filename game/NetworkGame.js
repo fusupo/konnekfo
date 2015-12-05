@@ -4,9 +4,8 @@ var Players = require('../game/Player.js');
 var Game = require('../game/Game.js');
 
 module.exports = function() {
-
+  
   console.log('NEW NETWORK GAME');
-
   var p1, p2;
   var currPlayer;
   var game;
@@ -23,7 +22,6 @@ module.exports = function() {
       p2.socket.emit('their turn');
       return 2;
     }
-
     return 0;
   };
 
