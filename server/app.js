@@ -32,8 +32,17 @@ app.get('/session/new', function(req, res) {
 
   nsp.on('connection', function(socket) {
 
-    var playerId = sessions[sessionId].provisionPlayer(socket);
+    var game = sessions[sessionId]; 
+    var playerId = game.provisionPlayer(socket);
 
+    socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
+
+    if(playerId === 2){
+      game.p1.socket.emit('opponent-connect');
+      game.p2.socket.emit('opponent-connect');
+      game.p2.socket.emit('their turn');
+      game.p1.socket.emit('your turn');
+    }
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
       sessions[sessionId].attemptMove(d.playerId, d.colIdx);
     });
@@ -55,13 +64,10 @@ app.get('/session/new', function(req, res) {
     });
 
     socket.on('manual-disconnect', function() {
-      console.log('FUCKING MANUAL DISCONNECT');
       sessions[sessionId].removePlayer(playerId);
     });
 
     console.log(socket.id + 'connected to ' + sessionId);
-
-    socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
 
   });
 

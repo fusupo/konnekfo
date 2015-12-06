@@ -4,7 +4,7 @@ module.exports.Player = function(id, view) {
   this.id = id;
   this.UIenabled = true;
   this.promptMove = function(game) {
-    console.log('its player #' + id + '\'s turn!!');
+    // console.log('its player #' + id + '\'s turn!!');
     // view.onColSelect = function(idx) {
     //   console.log('woot!');
     //   view.onColSelect = null;

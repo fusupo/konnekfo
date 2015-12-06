@@ -10,6 +10,8 @@ var Clipboard = require('clipboard');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var Board = require("./Board.js");
+var GameState = require('./GameState.js');
 var MenuView = require('../components/MenuView.js');
 var GameView = require('../components/GameView.js');
 var NetworkPanel = require('../components/NetworkPanelView.js');
@@ -147,7 +149,7 @@ window.onload = function() {
   var AppView = React.createClass({
     getInitialState: function(){
       return {
-        game: null,
+        gameState: new GameState(),
         board: null,
         isLocal: undefined,
         sessionId: undefined,
@@ -158,75 +160,86 @@ window.onload = function() {
     handleChange: function(s){
       switch(s){
       case 'vsHumanLocal':
-        var p1 = new Players.Player(1/*, view*/);
-        var p2 = new Players.Player(2/*, view*/);
-        var game = new Game(p1, p2);
-        game.moveCommitted = ( function(){
+        var p1 = new Players.Player(1, this);
+        var p2 = new Players.Player(2, this);
+        var game = new Game(p1, p2, this.state.gameState);
+        game.moveCommitted = (function(){
           this.forceUpdate();
-        } ).bind(this);
-        var board = game.board;
-        var resetGame = function(){
-          game.reset();
-          this.setState({
-            isLocal: true,
-            game: game,
-            gameState: game.state,
-            board: board.cols,
-            resetGame: resetGame.bind(this)
-          });
-        };
-        (resetGame.bind(this))();
-        break;
-      case 'vsCPULocal':
-        var p1 = new Players.Player(1/*, view*/);
-        var p2 = new Players.CPUPlayerClI(2/*, view*/);
-        var game = new Game(p1, p2);
-        game.moveCommitted = ( function(){
-           this.forceUpdate();
         }).bind(this);
         var board = game.board;
-        var resetGame = function(){
+        var resetGame = (function(){
           game.reset();
           this.setState({
             isLocal: true,
-            game: game,
-            gameState: game.state,
+            gameState: this.state.gameState,
             board: board.cols,
             resetGame: resetGame.bind(this)
           });
+        }).bind(this);
+        this.handleMouseUp = function(colIdx){
+          game.commitMove(colIdx);
         };
-        (resetGame.bind(this))();
+        resetGame();
+        break;
+      case 'vsCPULocal':
+        var p1 = new Players.Player(1, this);
+        var p2 = new Players.CPUPlayerClI(2/*, view*/);
+        var game = new Game(p1, p2, this.state.gameState);
+        game.moveCommitted = ( function(){
+          this.forceUpdate();
+        }).bind(this);
+        var board = game.board;
+        var resetGame = (function(){
+          game.reset();
+          this.setState({
+            isLocal: true,
+            gameState: this.state.gameState,
+            board: board.cols,
+            resetGame: resetGame.bind(this)
+          });
+        }).bind(this);
+        this.handleMouseUp = function(colIdx){
+          game.commitMove(colIdx);
+        };
+        resetGame();
         break;
       case 'return':
-        if(this.state.game){
-          // kill any existant game
-          this.setState({game: null}); 
-        }
+        this.state.gameState.reset();
+        this.forceUpdate();
         break;
       case 'newNetwork':
-        var sessionId;
-        $.get("/session/new", ( function(data, status) {
-          sessionId = data;
-          this.setState({sessionId: sessionId}); 
-          initSocket(sessionId, this);//, view);
+        var board = new Board();
+        $.get("/session/new", ( function(sessionId, status) {
+          this.setState({
+            isLocal: false,
+            sessionId: sessionId,
+            board: board.cols,
+            gameState: this.state.gameState
+          });
+          initSocket(sessionId, this, this.state.gameState, board);
         }).bind(this));
         break;
       case 'connectNetwork':
+        var board = new Board();
         var sessionId = prompt('session id');
         //if sessionId is valid
         if (sessionId) {
-          //$('#game').show();
-          //$('#connect').hide();
-          //var view = new View();
-          //view.drawBoard();
-          this.setState({sessionId: sessionId}); 
-          initSocket(sessionId, this);//, view);
+          this.setState({
+            isLocal: false,
+            sessionId: sessionId,
+            board: board.cols,
+            gameState: this.state.gameState
+          });
+          initSocket(sessionId, this, this.state.gameState, board);
         }
         break;
       default:
         // console.log(s,'FOOBARBAZQUX');
         break;
       }
+    },
+    handleMouseUp: function(colIdx){
+      console.log('MOUSE UP!');
     },
     render: function() {
       console.log('render AppView');
@@ -240,7 +253,7 @@ window.onload = function() {
           <GameView
         isLocal = {this.state.isLocal}
         gameState={this.state.gameState}
-        game={this.state.game}
+        handleMouseUp = {this.handleMouseUp}
         board={this.state.board}
         resetGame={this.state.resetGame}
           />
@@ -256,7 +269,7 @@ window.onload = function() {
 
 };
 
-function initSocket(sessionId, view) {
+function initSocket(sessionId, view, gameState, board) {
   var socket = io(window.location.href + sessionId);
   //var playerId;
 
@@ -265,17 +278,20 @@ function initSocket(sessionId, view) {
   });
 
   socket.on('your turn', function() {
-    //showWhosTurn(playerId, "It's Your Turn!");
-    // view.setState({gameState: {status: ['Player 1', 'p', 1] }});
+    gameState.status = ["It's Your Turn.", "p", view.state.networkPlayerId];
+    view.forceUpdate();
   });
 
   socket.on('their turn', function() {
-    //showWhosTurn(playerId ^ 3, "It's Their Turn.");
-    // view.setState({gameState: {status: ['Player 2', 'p', 2] }});
+    gameState.status = ["It's Their Turn.", "p", view.state.networkPlayerId^3];
+    view.forceUpdate();
   });
 
   socket.on('board update', function(d) {
-    console.log(d);
+    var prevMove = d.prevMove;
+    board.move(prevMove.colIdx, prevMove.playerId);
+    view.setState({gameState: d});
+    // view.forceUpdate();
     // view.addPiece(d.colIdx, d.rowIdx, d.playerId, function() {
     //   if (d.hasWin) {
     //     $('#conclusion').show();
@@ -322,13 +338,14 @@ function initSocket(sessionId, view) {
     });
   });
 
-  // view.onColSelect = function(colIdx) {
-  //   console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
-  //   socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
-  //     playerId: playerId,
-  //     colIdx: colIdx
-  //   });
-  // };
+  view.handleMouseUp = function(colIdx) {
+    var playerId = view.state.networkPlayerId;
+    //console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
+    socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
+      playerId: playerId,
+      colIdx: colIdx
+    });
+  };
 
   $('#check-reset-you').change(function(e) {
     $('#check-reset-you').attr('disabled', true);
@@ -346,12 +363,3 @@ function initSocket(sessionId, view) {
   //   $('#return').click(function() {});
   // });
 }
-/*
- $networkNew.click(function() {
- 
- });
-
- $networkConnect.click(function() {
- 
- });
- */

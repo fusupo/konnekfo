@@ -2,24 +2,26 @@
 
 var Players = require('../game/Player.js');
 var Game = require('../game/Game.js');
+var GameState = require('../game/GameState.js');
 
 module.exports = function() {
   
   console.log('NEW NETWORK GAME');
-  var p1, p2;
+  //var this.p1, this.p2;
   var currPlayer;
   var game;
+  var gameState;
 
   this.provisionPlayer = function(socket) {
-    if (p1 === undefined) {
-      p1 = new Players.RemotePlayer(1, socket);
+    if (this.p1 === undefined) {
+      console.log('NEW PLAYER 1');
+      this.p1 = new Players.RemotePlayer(1, socket);
       return 1;
-    } else if (p2 === undefined) {
-      p2 = new Players.RemotePlayer(2, socket);
-      game = new Game(p1, p2);
-      p1.socket.emit('opponent-connect');
-      p2.socket.emit('opponent-connect');
-      p2.socket.emit('their turn');
+    } else if (this.p2 === undefined) {
+      this.p2 = new Players.RemotePlayer(2, socket);
+      gameState = new GameState();
+      game = new Game(this.p1, this.p2, gameState);
+      game.reset();
       return 2;
     }
     return 0;
@@ -27,19 +29,12 @@ module.exports = function() {
 
   this.attemptMove = function(playerId, colIdx) {
     console.log('palyer ' + playerId + ' wants to make move at ' + colIdx + ', it is player ' + game.currPlayer.id + "'s turn");
-    if (playerId === game.currPlayer.id && !game.board.hasWinner()) {
+    if (playerId === game.currPlayer.id && !game.board.hasWinnerP()) {
       game.currPlayer.socket.emit('their turn');
       if (game.commitMove(colIdx)) {
-        var updateObj = {
-          colIdx: colIdx,
-          rowIdx: 6 - (game.board.getNextRowIdx(colIdx) - 2),
-          playerId: playerId,
-          hasWin: game.board.hasWinner(),
-          isDraw: game.board.isBoardFull(),
-          winTally: game.winTally
-        };
-        p1.socket.emit('board update', updateObj);
-        p2.socket.emit('board update', updateObj);
+        var updateObj = gameState;
+        this.p1.socket.emit('board update', updateObj);
+        this.p2.socket.emit('board update', updateObj);
       }
     }
   };
@@ -51,10 +46,10 @@ module.exports = function() {
   this.removePlayer = function(playerId) {
     if (playerId === 1) {
       console.log('RMEOV PLAYER ONE!!!');
-      p2.socket.emit('opponent-disconnect');
+      this.p2.socket.emit('opponent-disconnect');
     } else if (playerId === 2) {
       console.log('REMOVE PLAYER TWO!!!');
-      p1.socket.emit('opponent-disconnect');
+      this.p1.socket.emit('opponent-disconnect');
     }
   };
 };

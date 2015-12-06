@@ -40,7 +40,6 @@ var GameBoardPieces = React.createClass({
   render:function(){
     return(<g>
            {this.props.data.map(function(i,idxx){
-             console.log(i);
              return i.map(function(j, idxy){
                return (function (that) {
                  var color;
@@ -65,16 +64,6 @@ var GameBoardPieces = React.createClass({
 });
 
 var GameBoardView = React.createClass({
-  componentWillReceiveProps: function(nextProps) {
-    console.log("gameBoardView", nextProps);
-    // this.setState({
-    //   game: nextProps.game,
-    //   board: nextProps.board
-    // });
-  },
-  componentWillUpdate(nextProps, nextState){
-    console.log('gameBoardView, will update', nextProps, nextState);
-  },
   render: function(){
     console.log('render GameBoardView', this.props.board);
       
@@ -128,25 +117,25 @@ var GameBoardView = React.createClass({
 });
 
 module.exports = React.createClass({
-  handleMouseUp: function(colIdx){
-    this.props.game.commitMove(colIdx);
-  },
   render: function(){
     var UIenabled = false;
-    if(this.props.game!==null) {
-      UIenabled = this.props.game.currPlayer.UIenabled;
-      this.handleMouseUp = this.props.game.currPlayer.UIenabled ? (function(colIdx){this.props.game.commitMove(colIdx);}).bind(this) : function(){};
-    };
+    // if(this.props.game!==null) {
+    //   UIenabled = this.props.game.currPlayer.UIenabled;
+    //   this.handleMouseUp = this.props.game.currPlayer.UIenabled ? (function(colIdx){this.props.game.commitMove(colIdx);}).bind(this) : function(){};
+    // };
+    var status= this.props.gameState.status; 
     var style = {
-      display: this.props.game ? "block" : "none"
+      display: status[1] != undefined ? "block" : "none"
     };
-    var status=this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined]; 
     return (
         <div id="game" style={style}>
         <h2>game</h2>
         <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={status} />
         <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
-        <GameBoardView board={this.props.board} handleMouseUp={this.handleMouseUp} UIenabled={UIenabled}/>
+        <GameBoardView
+      board={this.props.board}
+      handleMouseUp={this.props.handleMouseUp}
+      UIenabled={UIenabled}/>
         </div>
     );
   }
