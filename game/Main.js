@@ -10,6 +10,10 @@ var Clipboard = require('clipboard');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var MenuView = require('../components/MenuView.js');
+var GameBoardView = require('../components/GameView.js');
+var GameScoreBoard = require('../components/GameScoreView.js');
+
 window.onload = function() {
 
   ReactDOM.render(
@@ -84,319 +88,61 @@ window.onload = function() {
   }
 
   function updateGameTally(tally) {
-  $('#game-win-tally #p1').html(tally[0]);
-  $('#game-win-tally #p2').html(tally[1]);
-  $('#game-win-tally #draws').html(tally[2]);
-}
+    $('#game-win-tally #p1').html(tally[0]);
+    $('#game-win-tally #p2').html(tally[1]);
+    $('#game-win-tally #draws').html(tally[2]);
+  }
 
-$vsComputer.click(function() {
+  $vsComputer.click(function() {
 
-  $('#return').click(function() {
-    $('#menu').show();
-    $('#connect').hide();
-    $('#game').hide();
-    $('#conclusion').hide();
-    $('#return').click(function() {});
-  });
+    $('#return').click(function() {
+      $('#menu').show();
+      $('#connect').hide();
+      $('#game').hide();
+      $('#conclusion').hide();
+      $('#return').click(function() {});
+    });
 
-  $('#game').show();
-  $('#menu').hide();
-  var view = new View();
-  var p1 = new Players.Player(1, view);
-  var p2 = new Players.CPUPlayerClI(2);
-  view.drawBoard();
-  var game = new Game(p1, p2);
-  showWhosTurn(game.currPlayer.id);
-  $('#conclusion #reset-local').click(function(e) {
-    console.log('reset click');
-    game.reset();
+    $('#game').show();
+    $('#menu').hide();
+    var view = new View();
+    var p1 = new Players.Player(1, view);
+    var p2 = new Players.CPUPlayerClI(2);
     view.drawBoard();
-    $('#conclusion').hide();
-    $('#conclusion #reset-local').click(function() {});
+    var game = new Game(p1, p2);
     showWhosTurn(game.currPlayer.id);
-  });
-  game.moveCommitted = function(colIdx) {
-    view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-                  game.currPlayer.id ^ 3, //0 b11,
-                  function() {
-                    var winningDirection = game.board.hasWinner();
-                    if (winningDirection) {
-                      $('#conclusion').show();
-                      $('#reset-network').hide();
-                      $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
-                      updateGameTally(game.winTally);
-                    } else if (game.board.isBoardFull()) {
-                      $('#conclusion').show();
-                      $('#reset-network').hide();
-                      $('#conclusion #result').html('game is draw');
-                      updateGameTally(game.winTally);
-                    }
-                  });
-    showWhosTurn(game.currPlayer.id);
-  };
-});
-
-new Clipboard('#copy-button');
-  
-//////////////////////////////////////////////////////////////////////////////// 
-  
-var MenuView = React.createClass({
-  getInitialState: function(){
-    return {menuState: "main"};   
-  },
-  handleVsHumanLocalClick: function(e){
-    var s = "return";
-    this.setState({menuState: s});
-    this.props.handleChange("vsHumanLocal");
-  },
-  handleVsHumanNetworkClick: function(e){
-    var s = "network";
-    this.setState({menuState: s});
-    this.props.handleChange("vsHumanNetwork");
-  },
-  handleVsCPULocalClick: function(e){
-    var s = "return";
-    this.setState({menuState: s});
-    this.props.handleChange("vsCPULocal");
-  },
-  handleNewNetworkGameClick: function(e){
-    var s = "return";
-    this.setState({menuState: s});
-    this.props.handleChange("newNetwork");
-  },
-  handleConnectNetworkGameClick: function(e){
-    var s = "return";
-    this.setState({menuState: s});
-    this.props.handleChange("connectNetwork");
-  },
-  handleBackToMainClick: function(e){
-    var s = "main";
-    this.setState({menuState: s});
-    this.props.handleChange(this.state.menuState);
-  },
-  render: function() {
-    console.log('render menu view');
-    var r;
-    if(this.state.menuState === "main"){
-      r = (
-          <div>
-          <h2>menu **</h2>
-          <ul>
-          <li>
-          <span onClick={this.handleVsHumanLocalClick}>versus human local</span>
-          </li>
-          <li>
-          <span onClick={this.handleVsHumanNetworkClick}>versus human network</span>
-          </li>
-          <li>
-          <span onClick={this.handleVsCPULocalClick}>versus computer</span>
-          </li>
-          </ul>
-          </div>
-      );
-    }else if(this.state.menuState === "network"){
-      r = (
-          <div>
-          <h2>connect**</h2>
-          <span onClick={this.handleBackToMainClick}>return</span>
-          <ul>
-          <li>
-          <span onClick={this.handleNewNetworkGameClick}>start new game as player 1</span>
-          </li>
-          <li>
-          <span onClick={this.handleConnectNetworkGameClick}>connect to a game </span>
-          </li>
-          </ul>
-          </div>
-      );
-    }else if(this.state.menuState === "return"){
-      r = (
-          <div>
-          <span onClick={this.handleBackToMainClick}>return</span>
-          </div>
-      );
-    }
-    return r;
-      
-  }
-});
-
-var GameBoardButtons = React.createClass({
-  handleMouseEnter:function(e){
-    e.currentTarget.style.opacity = 0.9;
-  },
-  handleMouseLeave:function(e){
-    e.currentTarget.style.opacity = 0;
-  },
-  render:function(){
-    console.log('render GameBoardButtons');
-    var hitStyle = {
-      opacity: 0
+    $('#conclusion #reset-local').click(function(e) {
+      console.log('reset click');
+      game.reset();
+      view.drawBoard();
+      $('#conclusion').hide();
+      $('#conclusion #reset-local').click(function() {});
+      showWhosTurn(game.currPlayer.id);
+    });
+    game.moveCommitted = function(colIdx) {
+      view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
+                    game.currPlayer.id ^ 3, //0 b11,
+                    function() {
+                      var winningDirection = game.board.hasWinner();
+                      if (winningDirection) {
+                        $('#conclusion').show();
+                        $('#reset-network').hide();
+                        $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
+                        updateGameTally(game.winTally);
+                      } else if (game.board.isBoardFull()) {
+                        $('#conclusion').show();
+                        $('#reset-network').hide();
+                        $('#conclusion #result').html('game is draw');
+                        updateGameTally(game.winTally);
+                      }
+                    });
+      showWhosTurn(game.currPlayer.id);
     };
-    return(<g>
-           {[0,1,2,3,4,5,6].map(function(i) {
-             return <rect
-             key={i}
-             data-key={i}
-             onMouseEnter={this.handleMouseEnter}
-             onMouseLeave={this.handleMouseLeave}
-             onMouseUp={this.props.handleMouseUp.bind(null, i)}
-             x={i * (this.props.w/7)}
-             y="0"
-             width={this.props.w/7}
-             height={this.props.h}
-             fill="#ffffff"
-             style={hitStyle}></rect>;
-           }, this)}
-           </g>);
-  }
-});
-
-var GameBoardPieces = React.createClass({
-  render:function(){
-    return(<g>
-           {this.props.data.map(function(i,idxx){
-             console.log(i);
-             return i.map(function(j, idxy){
-               return (function (that) {
-                 var color;
-                 if(j === "00"){
-                   return;
-                 }else if(j === "01"){
-                   color = Colors.p1Color;
-                 }else if(j === "10"){
-                   color = Colors.p2Color;
-                 }
-                 return <circle
-                 key = {idxx+idxy}
-                 cx = {(that.props.cw / 2) + (idxx * that.props.cw)} 
-                 cy = {(that.props.h) - (idxy * that.props.ch) - that.props.ch/2} 
-                 r = {that.props.r}
-                 fill = {color}></circle>;
-               })(this);
-             }, this);
-           }, this)}
-           </g>);
-  }
-});
-
-var GameBoardView = React.createClass({
-  componentWillReceiveProps: function(nextProps) {
-    console.log("gameBoardView", nextProps);
-    // this.setState({
-    //   game: nextProps.game,
-    //   board: nextProps.board
-    // });
-  },
-  componentWillUpdate(nextProps, nextState){
-    console.log('gameBoardView, will update', nextProps, nextState);
-  },
-  render: function(){
-    console.log('render GameBoardView', this.props.board);
-      
-    var bgColor = Colors.bgColor;
-    var boardColor = Colors.boardColor;
-    var p1Color = Colors.p1Color;
-    var p2Color = Colors.p2Color;
-    var w = 140;
-    var h = 120;
-    var boardWidth = w;
-    var boardHeight = h - h / 7;
-    var cellWidth = boardWidth / 7;
-    var cellHeight = boardHeight / 6;
-    var r = .35 * cellWidth;
-    var topMargin = cellHeight;
-    var pathDef = "M0," + topMargin + "H" + boardWidth + "V" + (topMargin + boardHeight) + "H0V" + topMargin;
-    for (var y = 0; y < 6; y++) {
-      for (var x = 0; x < 7; x++) {
-        var cx = (cellWidth / 2) + (x * cellWidth);
-        var cy = (cellHeight / 2 + topMargin) + (y * cellHeight);
-        pathDef += "M" + (cx - r) + "," + cy;
-        pathDef += "a" + r + "," + r + " 0 1,0 " + (r * 2) + ",0";
-        pathDef += "a" + r + "," + r + " 0 1,0 " + (r * -2) + ",0";
-      }
-    }
-    var pieces = [["00"],["00"],["00"],["00"],["00"],["00"],["00"]];
-    if(this.props.board){
-      for(var i = 0; i < this.props.board.length; i++) {
-        var col = this.props.board[i] >> 4;
-        col = col.toString(2);
-        if(col.length % 2){
-          col = 0 + col;
-        }
-        col = R.splitEvery(2, col).reverse();
-        pieces[i]=col;
-      }
-    }
-    return(
-        <div className="gameboardHolder">
-        <svg width={w} height={h}>
-        <defs></defs>
-        <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
-        <g></g>
-        <path d={pathDef} fill="#33658a"></path>
-        <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
-        <GameBoardPieces w={w} h={h} cw={cellWidth} ch={cellHeight} r={r} data={pieces}/>
-        </svg>
-        </div>
-    );
-  } 
-});
-
-
-  var GameScoreBoard = React.createClass({
-    render: function(){
-      var tablePaddingStyle={
-        padding: "0px 10px 0px 10px"
-      };
-      var resetNetworkStyle={
-        borderCollapse: "collapse"
-      };
-      var gameStatusStr = this.props.status[0];
-      var gameStatusStyle;
-      switch(this.props.status[1]){
-      case "p":
-        gameStatusStyle = {
-          color: this.props.status[2] === 1 ? Colors.p1Color : Colors.p2Color 
-        };
-        break;
-      case "!":
-        gameStatusStyle = {
-          color: this.props.status[2] === 1 ? Colors.p1Color : Colors.p2Color 
-        };
-        break;
-      case "x":
-        break;
-      }
-      return (
-          <div>
-          <div id="gameStatus" style={gameStatusStyle}>{gameStatusStr}</div>
-          <table id="game-win-tally" style={resetNetworkStyle}>
-          <thead>
-          <tr>
-          <th style={tablePaddingStyle}>p1</th>
-          <th style={tablePaddingStyle}>p2</th>
-          <th style={tablePaddingStyle}>draws</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-          <td style={tablePaddingStyle}>
-          <div id="p1">{this.props.tally[1]}</div>
-          </td>
-          <td style={tablePaddingStyle}>
-          <div id="p2">{this.props.tally[2]}</div>
-          </td>
-          <td style={tablePaddingStyle}>
-          <div id="draws">{this.props.tally[0]}</div>
-          </td>
-          </tr>
-          </tbody>
-          </table>
-          </div>
-      );
-    }
   });
+
+  new Clipboard('#copy-button');
+  
+  //////////////////////////////////////////////////////////////////////////////// 
 
 
   var GameView = React.createClass({
@@ -581,7 +327,6 @@ var GameBoardView = React.createClass({
         var sessionId;
         $.get("/session/new", ( function(data, status) {
           sessionId = data;
-          console.log(sessionId, 'SESSION ID');
           this.setState({sessionId: sessionId}); 
           initSocket(sessionId, this);//, view);
           //this.forceUpdate();
@@ -642,10 +387,12 @@ function initSocket(sessionId, view) {
 
   socket.on('your turn', function() {
     //showWhosTurn(playerId, "It's Your Turn!");
+    // view.setState({gameState: {status: ['Player 1', 'p', 1] }});
   });
 
   socket.on('their turn', function() {
     //showWhosTurn(playerId ^ 3, "It's Their Turn.");
+    // view.setState({gameState: {status: ['Player 2', 'p', 2] }});
   });
 
   socket.on('board update', function(d) {
