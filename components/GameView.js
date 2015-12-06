@@ -2,6 +2,8 @@
 
 var React = require('react');
 var Colors = require('../game/Colors.js');
+var GameScoreBoard = require('./GameScoreView.js');
+var ConclusionView = require('./ConclusionView.js');
 
 var GameBoardButtons = React.createClass({
   handleMouseEnter:function(e){
@@ -62,7 +64,7 @@ var GameBoardPieces = React.createClass({
   }
 });
 
-module.exports = React.createClass({
+var GameBoardView = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     console.log("gameBoardView", nextProps);
     // this.setState({
@@ -123,4 +125,29 @@ module.exports = React.createClass({
         </div>
     );
   } 
+});
+
+module.exports = React.createClass({
+  handleMouseUp: function(colIdx){
+    this.props.game.commitMove(colIdx);
+  },
+  render: function(){
+    var UIenabled = false;
+    if(this.props.game!==null) {
+      UIenabled = this.props.game.currPlayer.UIenabled;
+      this.handleMouseUp = this.props.game.currPlayer.UIenabled ? (function(colIdx){this.props.game.commitMove(colIdx);}).bind(this) : function(){};
+    };
+    var style = {
+      display: this.props.game ? "block" : "none"
+    };
+    var status=this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined]; 
+    return (
+        <div id="game" style={style}>
+        <h2>game</h2>
+        <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={status} />
+        <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
+        <GameBoardView board={this.props.board} handleMouseUp={this.handleMouseUp} UIenabled={UIenabled}/>
+        </div>
+    );
+  }
 });

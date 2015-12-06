@@ -1,5 +1,7 @@
 "use strict";
 
+var Colors = require('../game/Colors.js');
+
 var React = require('react');
 
 //var GameScoreBoard

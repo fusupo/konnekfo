@@ -11,8 +11,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 
 var MenuView = require('../components/MenuView.js');
-var GameBoardView = require('../components/GameView.js');
-var GameScoreBoard = require('../components/GameScoreView.js');
+var GameView = require('../components/GameView.js');
+var NetworkPanel = require('../components/NetworkPanelView.js');
 
 window.onload = function() {
 
@@ -144,126 +144,6 @@ window.onload = function() {
   
   //////////////////////////////////////////////////////////////////////////////// 
 
-
-  var GameView = React.createClass({
-    handleMouseUp: function(colIdx){
-      this.props.game.commitMove(colIdx);
-    },
-    render: function(){
-      var UIenabled = false;
-      if(this.props.game!==null) {
-        UIenabled = this.props.game.currPlayer.UIenabled;
-        this.handleMouseUp = this.props.game.currPlayer.UIenabled ? (function(colIdx){this.props.game.commitMove(colIdx);}).bind(this) : function(){};
-      };
-      var style = {
-        display: this.props.game ? "block" : "none"
-      };
-      var status=this.props.gameState ? this.props.gameState.status : [undefined, undefined, undefined]; 
-      return (
-          <div id="game" style={style}>
-          <h2>game</h2>
-          <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={status} />
-          <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
-          <GameBoardView board={this.props.board} handleMouseUp={this.handleMouseUp} UIenabled={UIenabled}/>
-          </div>
-      );
-    }
-  });
-
-  var NetworkPanel = React.createClass({
-    handleMouseUp: function(){
-    },
-    render: function(){
-      var style = {};
-      if(!this.props.sessionId){
-        style.display = "none";
-      }
-      var indicatorStyle={
-        display: "inline-block",
-        borderRadius: "50%",
-        width: "20px",
-        height: "20px",
-        backgroundColor: this.props.opponentConnected ? "#00ff00" : "#ff0000"
-      };
-      var copyBtnStyle={
-        display: this.props.networkPlayerId === 1 && !this.props.opponentConnected ? "block" : "none" 
-      };
-      var connectedStr = this.props.opponentConnected ? "opponent connected" : "opponent not connected";
-      return(
-          <div style={style}>
-          <div>You Are Player #{this.props.networkPlayerId}</div>
-          <div id="session-id">{this.props.sessionId}</div>
-          <button style={copyBtnStyle} id="copy-button" data-clipboard-target="#session-id" title="Click to copy me." onMouseUp={this.handleMouseUp}>Copy to Clipboard</button>
-          <br /><div id="indicator" style={indicatorStyle}></div>
-          <span id="text">{connectedStr}</span>
-          </div>
-      );
-    }
-  });
-
-  
-  var ConclusionView = React.createClass({
-    render: function(){
-      console.log('render ConclusionView');
-      var tablePaddingStyle={
-        padding: "0px 10px 0px 10px"
-      };
-      var resetNetworkStyle={
-        borderCollapse: "collapse"
-      };
-      var resetLocalStyle={
-      };
-      if(this.props.isLocal!=undefined){
-        if(this.props.isLocal){
-          resetLocalStyle.display="block";
-          resetNetworkStyle.display="none";
-        }else{
-          resetLocalStyle.display="none";
-          resetNetworkStyle.display="block";
-        }
-      }else{
-        resetLocalStyle.display="none";
-        resetNetworkStyle.display="none";
-      }
-      var visibilityStyle = {
-        visibility: "hidden"
-      };
-      switch(this.props.status[1]){
-      case "!":
-      case "x":
-        visibilityStyle.visibility = "visible";
-        break;
-      case "p":
-      default:
-        visibilityStyle.visibility = "hidden";
-        break;
-      }
-      return (
-          <div id="conclusion" style={visibilityStyle}>
-          <div id="reset-local" style={resetLocalStyle} onMouseUp={this.props.resetGame}>[reset]</div>
-          <table id="reset-network" style={resetNetworkStyle}>
-          <thead>
-          <tr>
-          <th style={tablePaddingStyle}>you</th>
-          <th style={tablePaddingStyle}>them</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-you" type="checkbox"></input>
-          </td>
-          <td style={tablePaddingStyle}>
-          <input id="check-reset-them" type="checkbox" disabled="true"></input>
-          </td>
-          </tr>
-          </tbody>
-          </table>
-          </div>
-      );
-    }
-  });
-
   var AppView = React.createClass({
     getInitialState: function(){
       return {
@@ -302,8 +182,8 @@ window.onload = function() {
         var p2 = new Players.CPUPlayerClI(2/*, view*/);
         var game = new Game(p1, p2);
         game.moveCommitted = ( function(){
-          this.forceUpdate();
-        } ).bind(this);
+           this.forceUpdate();
+        }).bind(this);
         var board = game.board;
         var resetGame = function(){
           game.reset();
@@ -329,8 +209,7 @@ window.onload = function() {
           sessionId = data;
           this.setState({sessionId: sessionId}); 
           initSocket(sessionId, this);//, view);
-          //this.forceUpdate();
-        } ).bind(this));
+        }).bind(this));
         break;
       case 'connectNetwork':
         var sessionId = prompt('session id');
