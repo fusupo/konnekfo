@@ -32,15 +32,16 @@ module.exports = function() {
     if (playerId === game.currPlayer.id && !game.board.hasWinnerP()) {
       game.currPlayer.socket.emit('their turn');
       if (game.commitMove(colIdx)) {
-        var updateObj = gameState;
-        this.p1.socket.emit('board update', updateObj);
-        this.p2.socket.emit('board update', updateObj);
+        this.p1.socket.emit('board update', gameState);
+        this.p2.socket.emit('board update', gameState);
       }
     }
   };
 
   this.reset = function() {
     game.reset();
+    //this.p1.socket.emit('board update', gameState);
+    //this.p2.socket.emit('board update', gameState);
   };
 
   this.removePlayer = function(playerId) {
@@ -51,5 +52,9 @@ module.exports = function() {
       console.log('REMOVE PLAYER TWO!!!');
       this.p1.socket.emit('opponent-disconnect');
     }
+  };
+
+  this.getGameState = function(){
+    return gameState;
   };
 };

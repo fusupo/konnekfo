@@ -35,7 +35,7 @@ module.exports = function(p1, p2, state) {
           console.log('//////////////////////////////////////// ',this.board.winner, 'won the game!');
           this.state.status = ["Player " + this.board.winner + " Has Won The Game!", "!", this.board.winner];
         } else if (this.board.isBoardFullP()) {
-          this.isComplete =  true;
+          this.isComplete = true;
           this.state.isDraw = true;
           this.state.winTally[0]++;
           console.log('game is draw');
@@ -68,7 +68,5 @@ module.exports = function(p1, p2, state) {
     this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
     this.currPlayer.promptMove(this);
   };
-
-  //this.reset();
 
 };

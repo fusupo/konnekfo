@@ -291,39 +291,30 @@ function initSocket(sessionId, view, gameState, board) {
     var prevMove = d.prevMove;
     board.move(prevMove.colIdx, prevMove.playerId);
     view.setState({gameState: d});
-    // view.forceUpdate();
-    // view.addPiece(d.colIdx, d.rowIdx, d.playerId, function() {
-    //   if (d.hasWin) {
-    //     $('#conclusion').show();
-    //     $('#reset-local').hide();
-    //     $('#conclusion #result').html(d.playerId + ' won! ' + d.hasWin);
-    //     updateGameTally(d.winTally);
-    //   } else if (d.isDraw) {
-    //     $('#conclusion').show();
-    //     $('#reset-local').hide();
-    //     $('#conclusion #result').html('game is draw');
-    //     updateGameTally(d.winTally);
-    //   }
-    // });
   });
 
   socket.on('opt-in-reset', function(d) {
-    // console.log(d.playerId, " OPT IN RESET");
-    // if (d.playerId !== playerId) {
-    //   console.log($('#check-reset-them'));
-    //   $('#check-reset-them').prop('checked', true);
-    // }
+    var playerId = view.state.networkPlayerId;
+    console.log(d.playerId, " OPT IN RESET");
+    if (d.playerId !== playerId) {
+      console.log($('#check-reset-them'));
+      $('#check-reset-them').prop('checked', true);
+    }
   });
 
   socket.on('reset', function(d) {
     console.log('reset fool!');
-    //view.drawBoard();
+    board.reset();
+    view.setState({
+      gameState: d,
+      board: board.cols
+    });
     $('#check-reset-you').attr({
       'checked': false,
       'disabled': false
     });
     $('#check-reset-them').prop('checked', false);
-    $('#conclusion').hide();
+    view.forceUpdate();
   });
 
   socket.on('opponent-connect', function() {
@@ -348,10 +339,11 @@ function initSocket(sessionId, view, gameState, board) {
   };
 
   $('#check-reset-you').change(function(e) {
+    var playerId = view.state.networkPlayerId;
     $('#check-reset-you').attr('disabled', true);
-    // socket.emit('opt-in-reset', {
-    //   playerId: playerId
-    // });
+    socket.emit('opt-in-reset', {
+      playerId: playerId
+    });
   });
 
   // $('#return').click(function() {

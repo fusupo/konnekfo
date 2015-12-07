@@ -128,5 +128,4 @@ module.exports = function(data) {
   };
 
   this.reset(data);
-  
 };

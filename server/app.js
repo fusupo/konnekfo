@@ -50,9 +50,11 @@ app.get('/session/new', function(req, res) {
     socket.on('opt-in-reset', function(d) {
       resetCount++;
       if (resetCount === 2) {
-        nsp.emit('reset');
         resetCount = 0;
         sessions[sessionId].reset();
+        var gameState = sessions[sessionId].getGameState();
+        console.log(gameState);
+        nsp.emit('reset', gameState);
       } else {
         nsp.emit('opt-in-reset', d);
         console.log('player ' + d.playerId + ' opts in to reset the game!!');
