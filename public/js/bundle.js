@@ -335,12 +335,6 @@ module.exports = React.createClass({
   displayName: 'exports',
 
   render: function () {
-    var UIenabled = false;
-    console.log(this.state.gameState.currPlayer, "<---- MUTHER FUCK");
-    // if(this.props.game!==null) {
-    //   UIenabled = this.props.game.currPlayer.UIenabled;
-    //   this.handleMouseUp = this.props.game.currPlayer.UIenabled ? (function(colIdx){this.props.game.commitMove(colIdx);}).bind(this) : function(){};
-    // };
     var status = this.props.gameState.status;
     var style = {
       display: status[1] != undefined ? "block" : "none"
