@@ -129,8 +129,7 @@ module.exports = React.createClass({
         <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
         <GameBoardView
       board={this.props.board}
-      handleMouseUp={this.props.handleMouseUp}
-      UIenabled={UIenabled}/>
+      handleMouseUp={this.props.handleMouseUp} />
         </div>
     );
   }
