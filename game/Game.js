@@ -5,7 +5,7 @@ var gameState = require("./GameState.js");
 module.exports = function(p1, p2, state) {
 
   console.log('GAME INIT');
-
+  
   this.state = state;
   this.isComplete = true;
   var firstToPlay = undefined; // = this.currPlayer = p1;
@@ -70,7 +70,7 @@ module.exports = function(p1, p2, state) {
     }
     this.state.currPlayer = this.currPlayer.id;
     this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
-    this.currPlayer.promptMove(this);
+    //this.currPlayer.promptMove(this);
   };
 
 };

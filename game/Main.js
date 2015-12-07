@@ -18,130 +18,6 @@ var NetworkPanel = require('../components/NetworkPanelView.js');
 
 window.onload = function() {
 
-  ReactDOM.render(
-      <h1>Hello, world!</h1>,
-    document.getElementById('example')
-  );
-
-  this.game = 'game';
-
-  $('#connect').hide();
-  $('#game').hide();
-  $('#conclusion').hide();
-
-  var $vsHumanLocal = $('#vs-human-local');
-  var $vsHumanNetwork = $('#vs-human-network');
-  var $vsComputer = $('#vs-computer');
-  var $networkNew = $('#network-new');
-  var $networkConnect = $('#network-connect');
-
-  $vsHumanLocal.click(function() {
-
-    $('#return').click(function() {
-      $('#menu').show();
-      $('#connect').hide();
-      $('#game').hide();
-      $('#conclusion').hide();
-      $('#return').click(function() {});
-    });
-
-    $('#game').show();
-    $('#menu').hide();
-    var view = new View();
-    var p1 = new Players.Player(1, view);
-    var p2 = new Players.Player(2, view);
-    view.drawBoard();
-    var game = new Game(p1, p2);
-    showWhosTurn(game.currPlayer.id);
-    $('#conclusion #reset-local').click(function(e) {
-      console.log('reset click');
-      game.reset();
-      view.drawBoard();
-      $('#conclusion').hide();
-      $('#conclusion #reset-local').click(function() {});
-      showWhosTurn(game.currPlayer.id);
-    });
-    game.moveCommitted = function(colIdx) {
-      view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-                    game.currPlayer.id ^ 3, //0 b11,
-                    function() {
-                      var winningDirection = game.board.hasWinner();
-                      if (winningDirection) {
-                        $('#conclusion').show();
-                        $('#reset-network').hide();
-                        $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
-                        updateGameTally(game.winTally);
-                      } else if (game.board.isBoardFull()) {
-                        $('#conclusion').show();
-                        $('#reset-network').hide();
-                        $('#conclusion #result').html('game is draw');
-                        updateGameTally(game.winTally);
-                      }
-                    });
-      showWhosTurn(game.currPlayer.id);
-    };
-  });
-
-  function showWhosTurn(playerId, msg) {
-    msg = msg || 'it\'s player ' + playerId + '\'s turn';
-    $('#whos-turn')
-      .html(msg)
-      .css('color', Colors['p' + playerId + 'Color']);
-  }
-
-  function updateGameTally(tally) {
-    $('#game-win-tally #p1').html(tally[0]);
-    $('#game-win-tally #p2').html(tally[1]);
-    $('#game-win-tally #draws').html(tally[2]);
-  }
-
-  $vsComputer.click(function() {
-
-    $('#return').click(function() {
-      $('#menu').show();
-      $('#connect').hide();
-      $('#game').hide();
-      $('#conclusion').hide();
-      $('#return').click(function() {});
-    });
-
-    $('#game').show();
-    $('#menu').hide();
-    var view = new View();
-    var p1 = new Players.Player(1, view);
-    var p2 = new Players.CPUPlayerClI(2);
-    view.drawBoard();
-    var game = new Game(p1, p2);
-    showWhosTurn(game.currPlayer.id);
-    $('#conclusion #reset-local').click(function(e) {
-      console.log('reset click');
-      game.reset();
-      view.drawBoard();
-      $('#conclusion').hide();
-      $('#conclusion #reset-local').click(function() {});
-      showWhosTurn(game.currPlayer.id);
-    });
-    game.moveCommitted = function(colIdx) {
-      view.addPiece(colIdx, 6 - (game.board.getNextRowIdx(colIdx) - 2),
-                    game.currPlayer.id ^ 3, //0 b11,
-                    function() {
-                      var winningDirection = game.board.hasWinner();
-                      if (winningDirection) {
-                        $('#conclusion').show();
-                        $('#reset-network').hide();
-                        $('#conclusion #result').html(game.board.winner + ' won! ' + winningDirection);
-                        updateGameTally(game.winTally);
-                      } else if (game.board.isBoardFull()) {
-                        $('#conclusion').show();
-                        $('#reset-network').hide();
-                        $('#conclusion #result').html('game is draw');
-                        updateGameTally(game.winTally);
-                      }
-                    });
-      showWhosTurn(game.currPlayer.id);
-    };
-  });
-
   new Clipboard('#copy-button');
   
   //////////////////////////////////////////////////////////////////////////////// 
@@ -213,6 +89,11 @@ window.onload = function() {
         if(this.state.isLocal === false){
           this.onReturnHome();  
         }
+        var gameState = this.state.gameState;
+        gameState.status = [undefined, undefined, undefined];
+        this.setState({
+          gameState: gameState
+        });
         break;
       case 'newNetwork':
         var board = new Board();
@@ -281,24 +162,11 @@ window.onload = function() {
 };
 
 function initSocket(sessionId, view, gameState, board) {
-  console.log(io);
   var socket = io(window.location.href + sessionId,{multiplex:false});
-  //var playerId;
-  console.log(window.location.href + sessionId , socket);
   socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
     view.setState({ networkPlayerId: d }); 
     console.log('DICTATE_PLAYER_ID', d);
   });
-
-  // socket.on('your turn', function() {
-  //   gameState.status = ["It's Your Turn.", "p", view.state.networkPlayerId];
-  //   view.forceUpdate();
-  // });
-
-  // socket.on('their turn', function() {
-  //   gameState.status = ["It's Their Turn.", "p", view.state.networkPlayerId^3];
-  //   view.forceUpdate();
-  // });
 
   socket.on('board update', function(d) {
     var prevMove = d.prevMove;
@@ -326,7 +194,6 @@ function initSocket(sessionId, view, gameState, board) {
       'disabled': false
     });
     $('#check-reset-them').prop('checked', false);
-    //view.forceUpdate();
   });
 
   socket.on('opponent-connect', function() {
@@ -342,7 +209,6 @@ function initSocket(sessionId, view, gameState, board) {
       gameState: d,
       board: board.cols
     });
-    //view.forceUpdate();
   });
    
   socket.on('opponent-disconnect', function() {
@@ -350,7 +216,6 @@ function initSocket(sessionId, view, gameState, board) {
     var gameState = view.state.gameState;
     gameState.status = [undefined, undefined, undefined];
     view.setState({
-      //  gameState: d,
       board: board.cols,
       gameState: gameState,
       opponentConnected:false
@@ -359,8 +224,6 @@ function initSocket(sessionId, view, gameState, board) {
 
   view.handleMouseUp = function(colIdx) {
     var playerId = view.state.networkPlayerId;
-    console.log('MY PLAYER ID ------------------------------>', playerId);
-    //console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
     socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
       playerId: playerId,
       colIdx: colIdx
@@ -374,7 +237,6 @@ function initSocket(sessionId, view, gameState, board) {
     var gameState = view.state.gameState;
     gameState.status = [undefined, undefined, undefined];
     view.setState({
-      //  gameState: d,
       sessionId: undefined,
       board: board.cols,
       gameState: gameState,
