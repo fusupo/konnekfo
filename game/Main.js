@@ -130,7 +130,6 @@ window.onload = function() {
         }
         break;
       default:
-        console.log(s,'FOOBARBAZQUX');
         break;
       }
     },
