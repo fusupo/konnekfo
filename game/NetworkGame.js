@@ -3,12 +3,12 @@
 var Players = require('../game/Player.js');
 var Game = require('../game/Game.js');
 var GameState = require('../game/GameState.js');
+var sockConst = require('../game/SocketConstants.js');
 
 module.exports = function() {
   
   console.log('NEW NETWORK GAME');
   //var this.p1, this.p2;
-  var currPlayer;
   var game;
   var gameState;
 
@@ -16,13 +16,13 @@ module.exports = function() {
     if (this.p1 === undefined) {
       console.log('NEW PLAYER 1');
       this.p1 = new Players.RemotePlayer(1, socket);
-      return 1;
+      return this.p1;
     } else if (this.p2 === undefined) {
       this.p2 = new Players.RemotePlayer(2, socket);
       gameState = new GameState();
       game = new Game(this.p1, this.p2, gameState);
       game.reset();
-      return 2;
+      return this.p2;
     }
     return 0;
   };
@@ -30,28 +30,42 @@ module.exports = function() {
   this.attemptMove = function(playerId, colIdx) {
     console.log('palyer ' + playerId + ' wants to make move at ' + colIdx + ', it is player ' + game.currPlayer.id + "'s turn");
     if (playerId === game.currPlayer.id && !game.board.hasWinnerP()) {
-      game.currPlayer.socket.emit('their turn');
       if (game.commitMove(colIdx)) {
-        this.p1.socket.emit('board update', gameState);
-        this.p2.socket.emit('board update', gameState);
+        console.log('I COMMITED THE MOVE')
+        game.currPlayer.socket.emit('their turn');
+        this.emitUpdate();
       }
     }
   };
 
   this.reset = function() {
     game.reset();
-    //this.p1.socket.emit('board update', gameState);
-    //this.p2.socket.emit('board update', gameState);
+    // this.emitUpdate(); 
   };
 
   this.removePlayer = function(playerId) {
     if (playerId === 1) {
       console.log('RMEOV PLAYER ONE!!!');
       this.p2.socket.emit('opponent-disconnect');
+      this.p1 = this.p2;
+      this.p1.id = 1;
+      this.p2 = undefined;
+      this.p1.socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
     } else if (playerId === 2) {
       console.log('REMOVE PLAYER TWO!!!');
       this.p1.socket.emit('opponent-disconnect');
+      this.p2 = undefined;
     }
+  };
+
+  this.emitUpdate = function(){
+    this.p1.socket.emit('board update', gameState);
+    this.p2.socket.emit('board update', gameState);
+  };
+
+  this.emitStart = function(){
+    this.p1.socket.emit('game-start', gameState);
+    this.p2.socket.emit('game-start', gameState);
   };
 
   this.getGameState = function(){

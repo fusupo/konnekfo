@@ -33,15 +33,16 @@ app.get('/session/new', function(req, res) {
   nsp.on('connection', function(socket) {
 
     var game = sessions[sessionId]; 
-    var playerId = game.provisionPlayer(socket);
-
-    socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
-
-    if(playerId === 2){
+    var player = game.provisionPlayer(socket);
+    console.log('PROVISIONED PLAYER', player.id);
+    socket.emit(sockConst.DICTATE_PLAYER_ID, player.id);
+    
+    if(player.id === 2){
       game.p1.socket.emit('opponent-connect');
       game.p2.socket.emit('opponent-connect');
-      game.p2.socket.emit('their turn');
-      game.p1.socket.emit('your turn');
+      // game.p2.socket.emit('their turn');
+      // game.p1.socket.emit('your turn');
+      game.emitStart();
     }
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
       sessions[sessionId].attemptMove(d.playerId, d.colIdx);
@@ -62,14 +63,17 @@ app.get('/session/new', function(req, res) {
     });
 
     socket.on('disconnect', function() {
-      sessions[sessionId].removePlayer(playerId);
+      console.log('DISCONNECT', player.id);
+      sessions[sessionId].removePlayer(player.id);
     });
 
-    socket.on('manual-disconnect', function() {
-      sessions[sessionId].removePlayer(playerId);
+    socket.on('manual-disconnect', function(pId) {
+      console.log('MANUAL-DISCONNECT', player.id);
+      //sessions[sessionId].removePlayer(player.id);
+      socket.disconnect();
     });
 
-    console.log(socket.id + 'connected to ' + sessionId);
+    console.log(socket.id + 'connected to :' + sessionId);
 
   });
 

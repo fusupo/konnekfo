@@ -34,7 +34,7 @@ module.exports=React.createClass({
   handleBackToMainClick: function(e){
     var s = "main";
     this.setState({menuState: s});
-    this.props.handleChange(this.state.menuState);
+    this.props.handleChange("returnHome");
   },
   render: function() {
     console.log('render menu view');

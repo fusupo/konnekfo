@@ -203,9 +203,16 @@ window.onload = function() {
         };
         resetGame();
         break;
-      case 'return':
-        this.state.gameState.reset();
-        this.forceUpdate();
+      case 'returnHome':
+        if(this.state.gameState.reset){
+          this.state.gameState.reset();
+        };
+        if(this.state.resetGame){
+          this.state.resetGame();
+        }
+        if(this.state.isLocal === false){
+          this.onReturnHome();  
+        }
         break;
       case 'newNetwork':
         var board = new Board();
@@ -220,6 +227,7 @@ window.onload = function() {
         }).bind(this));
         break;
       case 'connectNetwork':
+        console.log('CONNECT NETWORK!!');
         var board = new Board();
         var sessionId = prompt('session id');
         //if sessionId is valid
@@ -234,12 +242,15 @@ window.onload = function() {
         }
         break;
       default:
-        // console.log(s,'FOOBARBAZQUX');
+        console.log(s,'FOOBARBAZQUX');
         break;
       }
     },
     handleMouseUp: function(colIdx){
       console.log('MOUSE UP!');
+    },
+    onReturnHome: function(){
+      console.log('RETURN HOME!');
     },
     render: function() {
       console.log('render AppView');
@@ -270,22 +281,24 @@ window.onload = function() {
 };
 
 function initSocket(sessionId, view, gameState, board) {
-  var socket = io(window.location.href + sessionId);
+  console.log(io);
+  var socket = io(window.location.href + sessionId,{multiplex:false});
   //var playerId;
-
+  console.log(window.location.href + sessionId , socket);
   socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
     view.setState({ networkPlayerId: d }); 
+    console.log('DICTATE_PLAYER_ID', d);
   });
 
-  socket.on('your turn', function() {
-    gameState.status = ["It's Your Turn.", "p", view.state.networkPlayerId];
-    view.forceUpdate();
-  });
+  // socket.on('your turn', function() {
+  //   gameState.status = ["It's Your Turn.", "p", view.state.networkPlayerId];
+  //   view.forceUpdate();
+  // });
 
-  socket.on('their turn', function() {
-    gameState.status = ["It's Their Turn.", "p", view.state.networkPlayerId^3];
-    view.forceUpdate();
-  });
+  // socket.on('their turn', function() {
+  //   gameState.status = ["It's Their Turn.", "p", view.state.networkPlayerId^3];
+  //   view.forceUpdate();
+  // });
 
   socket.on('board update', function(d) {
     var prevMove = d.prevMove;
@@ -303,7 +316,6 @@ function initSocket(sessionId, view, gameState, board) {
   });
 
   socket.on('reset', function(d) {
-    console.log('reset fool!');
     board.reset();
     view.setState({
       gameState: d,
@@ -314,7 +326,7 @@ function initSocket(sessionId, view, gameState, board) {
       'disabled': false
     });
     $('#check-reset-them').prop('checked', false);
-    view.forceUpdate();
+    //view.forceUpdate();
   });
 
   socket.on('opponent-connect', function() {
@@ -323,18 +335,51 @@ function initSocket(sessionId, view, gameState, board) {
     });
   });
 
-  socket.on('opponent-disconnect', function() {
+  socket.on('game-start', function(d){
+    console.log('//////////////////// GAME START ////////////////////');
+    board.reset();
     view.setState({
+      gameState: d,
+      board: board.cols
+    });
+    //view.forceUpdate();
+  });
+   
+  socket.on('opponent-disconnect', function() {
+    board.reset();
+    var gameState = view.state.gameState;
+    gameState.status = [undefined, undefined, undefined];
+    view.setState({
+      //  gameState: d,
+      board: board.cols,
+      gameState: gameState,
       opponentConnected:false
     });
   });
 
   view.handleMouseUp = function(colIdx) {
     var playerId = view.state.networkPlayerId;
+    console.log('MY PLAYER ID ------------------------------>', playerId);
     //console.log('PLAYER ' + playerId + ' COMMIT MOVE ON COL ' + colIdx);
     socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
       playerId: playerId,
       colIdx: colIdx
+    });
+  };
+
+  view.onReturnHome = function(){
+    var playerId = view.state.networkPlayerId;
+    socket.emit('manual-disconnect', playerId);
+    board.reset();
+    var gameState = view.state.gameState;
+    gameState.status = [undefined, undefined, undefined];
+    view.setState({
+      //  gameState: d,
+      sessionId: undefined,
+      board: board.cols,
+      gameState: gameState,
+      opponentConnected:false,
+      networkPlayerId: null
     });
   };
 
@@ -345,13 +390,4 @@ function initSocket(sessionId, view, gameState, board) {
       playerId: playerId
     });
   });
-
-  // $('#return').click(function() {
-  //   $('#menu').show();
-  //   $('#connect').hide();
-  //   $('#game').hide();
-  //   $('#conclusion').hide();
-  //   socket.emit('manual-disconnect');
-  //   $('#return').click(function() {});
-  // });
 }

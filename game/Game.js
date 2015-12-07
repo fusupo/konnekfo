@@ -14,9 +14,11 @@ module.exports = function(p1, p2, state) {
     if (!this.isComplete) {
       if (!this.board.isColFullP(colIdx)) {
         if (this.currPlayer === p1) {
+          console.log('1',this.currPlayer.id);
           this.board.move(colIdx, p1.id);
           this.currPlayer = p2;
         } else {
+          console.log('2',this.currPlayer.id);
           this.board.move(colIdx, p2.id);
           this.currPlayer = p1;
         }
@@ -60,9 +62,11 @@ module.exports = function(p1, p2, state) {
     this.board.reset();
     // switch who starts  every other game...
     if (!firstToPlay) {
-      firstToPlay = this.currPlayer = p1;
+      firstToPlay = 1;
+      this.currPlayer = p1;
     } else {
-      firstToPlay = this.currPlayer = firstToPlay === p1 ? p2 : p1;
+      firstToPlay = firstToPlay^3;
+      this.currPlayer = firstToPlay === 1 ? p1 : p2;
     }
     this.state.currPlayer = this.currPlayer.id;
     this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
