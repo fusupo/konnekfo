@@ -53,7 +53,10 @@ window.onload = function() {
           });
         }).bind(this);
         this.handleMouseUp = function(colIdx){
-          game.commitMove(colIdx);
+          var UIenabled = game.currPlayer.UIenabled;
+          if(UIenabled){
+            game. commitMove(colIdx);
+          };
         };
         resetGame();
         break;
@@ -61,7 +64,7 @@ window.onload = function() {
         var p1 = new Players.Player(1, this);
         var p2 = new Players.CPUPlayerClI(2/*, view*/);
         var game = new Game(p1, p2, this.state.gameState);
-        game.moveCommitted = ( function(){
+        game.moveCommitted = (function(){
           this.forceUpdate();
         }).bind(this);
         var board = game.board;
@@ -73,9 +76,13 @@ window.onload = function() {
             board: board.cols,
             resetGame: resetGame.bind(this)
           });
+          game.currPlayer.promptMove(game);
         }).bind(this);
         this.handleMouseUp = function(colIdx){
-          game.commitMove(colIdx);
+          var UIenabled = game.currPlayer.UIenabled;
+          if(UIenabled){
+            game. commitMove(colIdx);
+          };
         };
         resetGame();
         break;
@@ -83,9 +90,9 @@ window.onload = function() {
         if(this.state.gameState.reset){
           this.state.gameState.reset();
         };
-        if(this.state.resetGame){
-          this.state.resetGame();
-        }
+        // if(this.state.resetGame){
+        //   this.state.resetGame();
+        // }
         if(this.state.isLocal === false){
           this.onReturnHome();  
         }

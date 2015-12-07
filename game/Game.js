@@ -72,5 +72,4 @@ module.exports = function(p1, p2, state) {
     this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
     //this.currPlayer.promptMove(this);
   };
-
 };
