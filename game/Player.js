@@ -16,15 +16,17 @@ module.exports.Player = function(id, view) {
 //   };
 // };
 
-// module.exports.RemotePlayer = function(id, socket) {
-//   console.log('NEW REMOTE PLAYER');
-//   this.id = id;
-//   this.socket = socket;
-//   this.promptMove = function(game) {
-//     socket.emit('your turn');
-//     console.log('its your turn, player ' + this.id);
-//   };
-// };
+module.exports.RemotePlayer = function(id, socket) {
+  console.log('NEW REMOTE PLAYER');
+  this.id = id;
+  this.socket = socket;
+  this.UIenabled = false;
+  this.disableUI = function(){this.UIenabled = false; };
+  this.promptMove = function(game) {
+      //socket.emit('your turn');
+    console.log('its your turn, player ' + this.id);
+  };
+};
 
 module.exports.CPUPlayerClI = function(id) {
   this.id = id;

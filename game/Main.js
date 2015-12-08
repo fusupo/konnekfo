@@ -168,105 +168,109 @@ window.onload = function() {
           </div>
       );
       }
-      });
+  });
   
-        window.foo = ReactDOM.render(
-          <AppView />,
-        document.getElementById('example')
-      );
+  window.foo = ReactDOM.render(
+      <AppView />,
+    document.getElementById('example')
+  );
 
   
-      };
+};
 
-        function initSocket(sessionId, view, gameState, board) {
-        var socket = io(window.location.href + sessionId,{multiplex:false});
-        socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
-        view.setState({ networkPlayerId: d }); 
-        console.log('DICTATE_PLAYER_ID', d);
-      });
+function initSocket(sessionId, view, gameState, board) {
+  var socket = io(window.location.href + sessionId,{multiplex:false});
+  socket.on(sockConst.DICTATE_PLAYER_ID, function(d) {
+    view.setState({ networkPlayerId: d }); 
+    console.log('DICTATE_PLAYER_ID', d);
+  });
 
-        socket.on('board update', function(d) {
-        var prevMove = d.prevMove;
-        board.move(prevMove.colIdx, prevMove.playerId);
-        view.setState({gameState: d});
-      });
+  socket.on('board update', function(d) {
+    var prevMove = d.prevMove;
+    board.move(prevMove.colIdx, prevMove.playerId);
+    view.setState({gameState: d});
+  });
 
-    socket.on('opt-in-reset', function(d) {
-      var playerId = view.state.networkPlayerId;
-      console.log(d.playerId, " OPT IN RESET");
-      if (d.playerId !== playerId) {
-        console.log($('#check-reset-them'));
-        $('#check-reset-them').prop('checked', true);
-      }
+  socket.on('opt-in-reset', function(d) {
+    var playerId = view.state.networkPlayerId;
+    console.log(d.playerId, " OPT IN RESET");
+    if (d.playerId !== playerId) {
+      console.log($('#check-reset-them'));
+      $('#check-reset-them').prop('checked', true);
+    }
+  });
+
+  socket.on('reset', function(d) {
+    board.reset();
+    view.setState({
+      gameState: d,
+      board: board.cols
     });
-
-    socket.on('reset', function(d) {
-      board.reset();
-      view.setState({
-        gameState: d,
-        board: board.cols
-      });
-      $('#check-reset-you').attr({
-        'checked': false,
-        'disabled': false
-      });
-      $('#check-reset-them').prop('checked', false);
+    $('#check-reset-you').attr({
+      'checked': false,
+      'disabled': false
     });
+    $('#check-reset-them').prop('checked', false);
+  });
 
-    socket.on('opponent-connect', function() {
-      view.setState({
-        opponentConnected:true
-      });
+  socket.on('opponent-connect', function() {
+    view.setState({
+      opponentConnected:true
     });
+  });
 
-    socket.on('game-start', function(d){
-      console.log('//////////////////// GAME START ////////////////////');
-      board.reset();
-      view.setState({
-        gameState: d,
-        board: board.cols
-      });
+  socket.on('game-start', function(d){
+    console.log('//////////////////// GAME START ////////////////////');
+    board.reset();
+    view.setState({
+      gameState: d,
+      board: board.cols
     });
+  });
   
-    socket.on('opponent-disconnect', function() {
-      board.reset();
-      var gameState = view.state.gameState;
-      gameState.status = [undefined, undefined, undefined];
-      view.setState({
-        board: board.cols,
-        gameState: gameState,
-        opponentConnected:false
-      });
+  socket.on('opponent-disconnect', function() {
+    board.reset();
+    var gameState = view.state.gameState;
+    gameState.status = [undefined, undefined, undefined];
+    view.setState({
+      board: board.cols,
+      gameState: gameState,
+      opponentConnected:false
     });
+  });
 
-    view.handleMouseUp = function(colIdx) {
-      var playerId = view.state.networkPlayerId;
-      socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
-        playerId: playerId,
-        colIdx: colIdx
-      });
-    };
-
-    view.onReturnHome = function(){
-      var playerId = view.state.networkPlayerId;
-      socket.emit('manual-disconnect', playerId);
-      board.reset();
-      var gameState = view.state.gameState;
-      gameState.status = [undefined, undefined, undefined];
-      view.setState({
-        sessionId: undefined,
-        board: board.cols,
-        gameState: gameState,
-        opponentConnected:false,
-        networkPlayerId: null
-      });
-    };
-
-    $('#check-reset-you').change(function(e) {
-      var playerId = view.state.networkPlayerId;
-      $('#check-reset-you').attr('disabled', true);
-      socket.emit('opt-in-reset', {
-        playerId: playerId
-      });
+  view.handleMouseUp = function(colIdx) {
+    var playerId = view.state.networkPlayerId;
+    socket.emit(sockConst.ATTEMPT_COMMIT_MOVE, {
+      playerId: playerId,
+      colIdx: colIdx
     });
-  }
+  };
+
+  view.onReturnHome = function(){
+    var playerId = view.state.networkPlayerId;
+    socket.emit('manual-disconnect', playerId);
+    board.reset();
+    var gameState = view.state.gameState;
+    gameState.status = [undefined, undefined, undefined];
+    view.setState({
+      sessionId: undefined,
+      board: board.cols,
+      gameState: gameState,
+      opponentConnected:false,
+      networkPlayerId: null
+    });
+  };
+
+  view.onGamepieceAnimationComplete = function(){
+    console.log('ANIMATION COMPLETED!!');
+  };
+          
+  $('#check-reset-you').change(function(e) {
+    var playerId = view.state.networkPlayerId;
+    $('#check-reset-you').attr('disabled', true);
+    socket.emit('opt-in-reset', {
+      playerId: playerId
+    });
+  });
+}

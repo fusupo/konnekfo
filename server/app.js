@@ -40,8 +40,6 @@ app.get('/session/new', function(req, res) {
     if(player.id === 2){
       game.p1.socket.emit('opponent-connect');
       game.p2.socket.emit('opponent-connect');
-      // game.p2.socket.emit('their turn');
-      // game.p1.socket.emit('your turn');
       game.emitStart();
     }
     socket.on(sockConst.ATTEMPT_COMMIT_MOVE, function(d) {
@@ -65,6 +63,9 @@ app.get('/session/new', function(req, res) {
     socket.on('disconnect', function() {
       console.log('DISCONNECT', player.id);
       sessions[sessionId].removePlayer(player.id);
+      if(sessions[sessionId].p1 === undefined){
+        // remove the session
+      }
     });
 
     socket.on('manual-disconnect', function(pId) {

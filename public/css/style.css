@@ -14,7 +14,7 @@ body {
     user-select: none;
 }
 .someCrap {
-    animation-duration: .65s;
+    animation-duration: 2.65s;
     animation-name: slidein;
 }
 @keyframes slidein {

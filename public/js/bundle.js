@@ -1071,6 +1071,10 @@ function initSocket(sessionId, view, gameState, board) {
     });
   };
 
+  view.onGamepieceAnimationComplete = function () {
+    console.log('ANIMATION COMPLETED!!');
+  };
+
   $('#check-reset-you').change(function (e) {
     var playerId = view.state.networkPlayerId;
     $('#check-reset-you').attr('disabled', true);
@@ -1101,15 +1105,19 @@ module.exports.Player = function (id, view) {
 //   };
 // };
 
-// module.exports.RemotePlayer = function(id, socket) {
-//   console.log('NEW REMOTE PLAYER');
-//   this.id = id;
-//   this.socket = socket;
-//   this.promptMove = function(game) {
-//     socket.emit('your turn');
-//     console.log('its your turn, player ' + this.id);
-//   };
-// };
+module.exports.RemotePlayer = function (id, socket) {
+  console.log('NEW REMOTE PLAYER');
+  this.id = id;
+  this.socket = socket;
+  this.UIenabled = false;
+  this.disableUI = function () {
+    this.UIenabled = false;
+  };
+  this.promptMove = function (game) {
+    //socket.emit('your turn');
+    console.log('its your turn, player ' + this.id);
+  };
+};
 
 module.exports.CPUPlayerClI = function (id) {
   this.id = id;

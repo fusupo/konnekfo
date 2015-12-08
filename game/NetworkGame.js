@@ -32,7 +32,7 @@ module.exports = function() {
     if (playerId === game.currPlayer.id && !game.board.hasWinnerP()) {
       if (game.commitMove(colIdx)) {
         console.log('I COMMITED THE MOVE')
-        game.currPlayer.socket.emit('their turn');
+        // game.currPlayer.socket.emit('their turn');
         this.emitUpdate();
       }
     }
@@ -46,11 +46,15 @@ module.exports = function() {
   this.removePlayer = function(playerId) {
     if (playerId === 1) {
       console.log('RMEOV PLAYER ONE!!!');
-      this.p2.socket.emit('opponent-disconnect');
-      this.p1 = this.p2;
-      this.p1.id = 1;
-      this.p2 = undefined;
-      this.p1.socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
+      if(this.p2){
+        this.p2.socket.emit('opponent-disconnect');
+        this.p1 = this.p2;
+        this.p1.id = 1;
+        this.p2 = undefined;
+        this.p1.socket.emit(sockConst.DICTATE_PLAYER_ID, playerId);
+      }else{
+        this.p1 = undefined;
+      }
     } else if (playerId === 2) {
       console.log('REMOVE PLAYER TWO!!!');
       this.p1.socket.emit('opponent-disconnect');
@@ -66,7 +70,7 @@ module.exports = function() {
   this.emitStart = function(){
     this.p1.socket.emit('game-start', gameState);
     this.p2.socket.emit('game-start', gameState);
-  };
+  }; 
 
   this.getGameState = function(){
     return gameState;
