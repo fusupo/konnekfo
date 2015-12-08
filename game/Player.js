@@ -2,37 +2,34 @@
 
 module.exports.Player = function(id, view) {
   this.id = id;
-  this.UIenabled = true;
+  this.UIenabled = false;
+  this.disableUI = function(){this.UIenabled = false; };
   this.promptMove = function(game) {
-    // console.log('its player #' + id + '\'s turn!!');
-    // view.onColSelect = function(idx) {
-    //   console.log('woot!');
-    //   view.onColSelect = null;
-    //   game.commitMove(idx);
-    // };
+    this.UIenabled = true;
   };
 };
 
-module.exports.RandomPlayer = function(id) {
-  this.id = id;
-  this.promptMove = function(game) {
-    game.commitMove(Math.floor(Math.random() * 7));
-  };
-};
+// module.exports.RandomPlayer = function(id) {
+//   this.id = id;
+//   this.promptMove = function(game) {
+//     game.commitMove(Math.floor(Math.random() * 7));
+//   };
+// };
 
-module.exports.RemotePlayer = function(id, socket) {
-  console.log('NEW REMOTE PLAYER');
-  this.id = id;
-  this.socket = socket;
-  this.promptMove = function(game) {
-    socket.emit('your turn');
-    console.log('its your turn, player ' + this.id);
-  };
-};
+// module.exports.RemotePlayer = function(id, socket) {
+//   console.log('NEW REMOTE PLAYER');
+//   this.id = id;
+//   this.socket = socket;
+//   this.promptMove = function(game) {
+//     socket.emit('your turn');
+//     console.log('its your turn, player ' + this.id);
+//   };
+// };
 
 module.exports.CPUPlayerClI = function(id) {
   this.id = id;
   this.UIenabled = false;
+  this.disableUI = function(){this.UIenabled = false; };
   this.promptMove = function(game) {
     console.log('BEGINNING THINKING');
     var startDate = new Date();
@@ -137,7 +134,7 @@ module.exports.CPUPlayerClI = function(id) {
         }
       }
     }
-    console.log('returnMove', returnMove);
+    
     return returnMove;
   };
 };

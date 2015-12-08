@@ -38,15 +38,7 @@ var GameBoardButtons = React.createClass({
 
 var GameBoardPieces = React.createClass({
   componentDidUpdate: function(){
-    console.log('function' );
-
-    $(".someCrap").each(function(e){
-      console.log(e);
-    });
-
-    $(".someCrap").bind('otransitionend transitionend webkitTransitionEnd', function() { 
-      alert("fin"); 
-    });
+    $(".someCrap").on('animationend webkitAnimationEnd mozAnimationEnd MSAnimationEnd oAnimationEnd', this.props.animationComplete);
   },
   render:function(){
     return(<g>
@@ -116,7 +108,15 @@ var GameBoardView = React.createClass({
         <svg width={w} height={h}>
         <defs></defs>
         <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
-        <GameBoardPieces w={w} h={h} cw={cellWidth} ch={cellHeight} r={r} data={pieces}/>
+        <GameBoardPieces
+      w={w}
+      h={h}
+      cw={cellWidth}
+      ch={cellHeight}
+      r={r}
+      data={pieces}
+      animationComplete={this.props.gamepieceAnimationComplete}
+        />
         <g></g>
         <path d={pathDef} fill="#33658a"></path>
         <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
@@ -135,11 +135,13 @@ module.exports = React.createClass({
     return (
         <div id="game" style={style}>
         <h2 className="unselectable">game</h2>
-        <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={status} />
+        <GameScoreBoard tally={this.props.gameState.winTally} status={status} />
         <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
         <GameBoardView
       board={this.props.board}
-      handleMouseUp={this.props.handleMouseUp} />
+      handleMouseUp={this.props.handleMouseUp}
+      gamepieceAnimationComplete={this.props.gamepieceAnimationComplete}
+        />
         </div>
     );
   }
