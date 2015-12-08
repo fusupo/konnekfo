@@ -159,12 +159,13 @@ window.onload = function() {
       );
     }
   });
-
+  
   window.foo = ReactDOM.render(
       <AppView />,
     document.getElementById('example')
   );
 
+ 
 };
 
 function initSocket(sessionId, view, gameState, board) {

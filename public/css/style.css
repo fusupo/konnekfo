@@ -1,3 +1,27 @@
 body {
-  margin: 25px;
+    margin: 25px;
+}
+*.unselectable {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    /*
+     Introduced in IE 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
+    
+    -ms-user-select: none;
+    user-select: none;
+}
+.someCrap {
+    animation-duration: .65s;
+    animation-name: slidein;
+}
+@keyframes slidein {
+    from {
+        transform: translate( 0px, -125px)
+    }
+    to {
+        transform: translate(0px, 0px);
+    }
 }

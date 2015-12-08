@@ -42,7 +42,7 @@ module.exports = React.createClass({
     }
     return React.createElement(
       'div',
-      { id: 'conclusion', style: visibilityStyle },
+      { id: 'conclusion', style: visibilityStyle, className: 'unselectable' },
       React.createElement(
         'div',
         { id: 'reset-local', style: resetLocalStyle, onMouseUp: this.props.resetGame },
@@ -128,7 +128,7 @@ module.exports = React.createClass({
     }
     return React.createElement(
       'div',
-      null,
+      { className: 'unselectable' },
       React.createElement(
         'div',
         { id: 'gameStatus', style: gameStatusStyle },
@@ -212,7 +212,7 @@ var GameBoardButtons = React.createClass({
   displayName: 'GameBoardButtons',
 
   handleMouseEnter: function (e) {
-    e.currentTarget.style.opacity = 0.9;
+    e.currentTarget.style.opacity = 0.48;
   },
   handleMouseLeave: function (e) {
     e.currentTarget.style.opacity = 0;
@@ -246,6 +246,17 @@ var GameBoardButtons = React.createClass({
 var GameBoardPieces = React.createClass({
   displayName: 'GameBoardPieces',
 
+  componentDidUpdate: function () {
+    console.log('function');
+
+    $(".someCrap").each(function (e) {
+      console.log(e);
+    });
+
+    $(".someCrap").bind('otransitionend transitionend webkitTransitionEnd', function () {
+      alert("fin");
+    });
+  },
   render: function () {
     return React.createElement(
       'g',
@@ -261,7 +272,7 @@ var GameBoardPieces = React.createClass({
             } else if (j === "10") {
               color = Colors.p2Color;
             }
-            return React.createElement('circle', {
+            return React.createElement('circle', { className: 'someCrap',
               key: idxx + idxy,
               cx: that.props.cw / 2 + idxx * that.props.cw,
               cy: that.props.h - idxy * that.props.ch - that.props.ch / 2,
@@ -279,7 +290,6 @@ var GameBoardView = React.createClass({
 
   render: function () {
     console.log('render GameBoardView', this.props.board);
-
     var bgColor = Colors.bgColor;
     var boardColor = Colors.boardColor;
     var p1Color = Colors.p1Color;
@@ -322,10 +332,10 @@ var GameBoardView = React.createClass({
         { width: w, height: h },
         React.createElement('defs', null),
         React.createElement('rect', { x: '0', y: '0', width: w, height: h, fill: '#ffffff' }),
+        React.createElement(GameBoardPieces, { w: w, h: h, cw: cellWidth, ch: cellHeight, r: r, data: pieces }),
         React.createElement('g', null),
         React.createElement('path', { d: pathDef, fill: '#33658a' }),
-        React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.props.handleMouseUp }),
-        React.createElement(GameBoardPieces, { w: w, h: h, cw: cellWidth, ch: cellHeight, r: r, data: pieces })
+        React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.props.handleMouseUp })
       )
     );
   }
@@ -344,7 +354,7 @@ module.exports = React.createClass({
       { id: 'game', style: style },
       React.createElement(
         'h2',
-        null,
+        { className: 'unselectable' },
         'game'
       ),
       React.createElement(GameScoreBoard, { tally: this.props.gameState ? this.props.gameState.winTally : [0, 0, 0], status: status }),
@@ -403,7 +413,7 @@ module.exports = React.createClass({
     if (this.state.menuState === "main") {
       r = React.createElement(
         "div",
-        null,
+        { className: "unselectable" },
         React.createElement(
           "h2",
           null,
@@ -444,7 +454,7 @@ module.exports = React.createClass({
     } else if (this.state.menuState === "network") {
       r = React.createElement(
         "div",
-        null,
+        { className: "unselectable" },
         React.createElement(
           "h2",
           null,
@@ -481,7 +491,7 @@ module.exports = React.createClass({
     } else if (this.state.menuState === "return") {
       r = React.createElement(
         "div",
-        null,
+        { className: "unselectable" },
         React.createElement(
           "span",
           { onClick: this.handleBackToMainClick },

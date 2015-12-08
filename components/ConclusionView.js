@@ -39,7 +39,7 @@ module.exports = React.createClass({
       break;
     }
     return (
-        <div id="conclusion" style={visibilityStyle}>
+        <div id="conclusion" style={visibilityStyle} className="unselectable">
         <div id="reset-local" style={resetLocalStyle} onMouseUp={this.props.resetGame}>[reset]</div>
         <table id="reset-network" style={resetNetworkStyle}>
         <thead>

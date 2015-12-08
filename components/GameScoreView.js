@@ -30,7 +30,7 @@ module.exports = React.createClass({
       break;
     }
     return (
-        <div>
+        <div className="unselectable">
         <div id="gameStatus" style={gameStatusStyle}>{gameStatusStr}</div>
         <table id="game-win-tally" style={resetNetworkStyle}>
         <thead>

@@ -41,7 +41,7 @@ module.exports=React.createClass({
     var r;
     if(this.state.menuState === "main"){
       r = (
-          <div>
+          <div className="unselectable">
           <h2>menu **</h2>
           <ul>
           <li>
@@ -58,7 +58,7 @@ module.exports=React.createClass({
       );
     }else if(this.state.menuState === "network"){
       r = (
-          <div>
+          <div className="unselectable">
           <h2>connect**</h2>
           <span onClick={this.handleBackToMainClick}>return</span>
           <ul>
@@ -73,7 +73,7 @@ module.exports=React.createClass({
       );
     }else if(this.state.menuState === "return"){
       r = (
-          <div>
+          <div className="unselectable">
           <span onClick={this.handleBackToMainClick}>return</span>
           </div>
       );

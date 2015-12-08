@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 var React = require('react');
 var Colors = require('../game/Colors.js');
@@ -7,7 +7,7 @@ var ConclusionView = require('./ConclusionView.js');
 
 var GameBoardButtons = React.createClass({
   handleMouseEnter:function(e){
-    e.currentTarget.style.opacity = 0.9;
+    e.currentTarget.style.opacity = 0.48;
   },
   handleMouseLeave:function(e){
     e.currentTarget.style.opacity = 0;
@@ -37,6 +37,17 @@ var GameBoardButtons = React.createClass({
 });
 
 var GameBoardPieces = React.createClass({
+  componentDidUpdate: function(){
+    console.log('function' );
+
+    $(".someCrap").each(function(e){
+      console.log(e);
+    });
+
+    $(".someCrap").bind('otransitionend transitionend webkitTransitionEnd', function() { 
+      alert("fin"); 
+    });
+  },
   render:function(){
     return(<g>
            {this.props.data.map(function(i,idxx){
@@ -50,8 +61,8 @@ var GameBoardPieces = React.createClass({
                  }else if(j === "10"){
                    color = Colors.p2Color;
                  }
-                 return <circle
-                 key = {idxx+idxy}
+                 return <circle className="someCrap"
+                 key = {idxx+idxy} 
                  cx = {(that.props.cw / 2) + (idxx * that.props.cw)} 
                  cy = {(that.props.h) - (idxy * that.props.ch) - that.props.ch/2} 
                  r = {that.props.r}
@@ -66,7 +77,6 @@ var GameBoardPieces = React.createClass({
 var GameBoardView = React.createClass({
   render: function(){
     console.log('render GameBoardView', this.props.board);
-      
     var bgColor = Colors.bgColor;
     var boardColor = Colors.boardColor;
     var p1Color = Colors.p1Color;
@@ -106,10 +116,10 @@ var GameBoardView = React.createClass({
         <svg width={w} height={h}>
         <defs></defs>
         <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
+        <GameBoardPieces w={w} h={h} cw={cellWidth} ch={cellHeight} r={r} data={pieces}/>
         <g></g>
         <path d={pathDef} fill="#33658a"></path>
         <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
-        <GameBoardPieces w={w} h={h} cw={cellWidth} ch={cellHeight} r={r} data={pieces}/>
         </svg>
         </div>
     );
@@ -124,7 +134,7 @@ module.exports = React.createClass({
     };
     return (
         <div id="game" style={style}>
-        <h2>game</h2>
+        <h2 className="unselectable">game</h2>
         <GameScoreBoard tally={this.props.gameState ? this.props.gameState.winTally : [0,0,0]} status={status} />
         <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
         <GameBoardView
