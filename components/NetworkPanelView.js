@@ -1,10 +1,9 @@
 "use strict";
 
 var React = require('react');
+var Colors = require('../game/Colors.js');
 
 module.exports = React.createClass({
-  handleMouseUp: function(){
-  },
   render: function(){
     var style = {};
     if(!this.props.sessionId){
@@ -18,17 +17,26 @@ module.exports = React.createClass({
       backgroundColor: this.props.opponentConnected ? "#00ff00" : "#ff0000"
     };
     var copyBtnStyle={
-      display: this.props.networkPlayerId === 1 && !this.props.opponentConnected ? "block" : "none" 
+      display: this.props.networkPlayerId === 1 && !this.props.opponentConnected ? "inline-block" : "none",
+      marginLeft: "0.5em",
+      fontSize:"0.75em"
+    };
+    var playerStyle={
+      color: this.props.networkPlayerId === 1 ? Colors.p1Color : Colors.p2Color
     };
     var connectedStr = this.props.opponentConnected ? "opponent connected" : "opponent not connected";
     return(
-        <div style={style}>
-        <div>You Are Player #{this.props.networkPlayerId}</div>
-        <div id="session-id">{this.props.sessionId}</div>
-        <button style={copyBtnStyle} id="copy-button" data-clipboard-target="#session-id" title="Click to copy me." onMouseUp={this.handleMouseUp}>Copy to Clipboard</button>
-        <br /><div id="indicator" style={indicatorStyle}></div>
-        <span id="text">{connectedStr}</span>
+      <div style={style} className="panel ">
+        <div>
+          <span style={playerStyle}>You Are Player #{this.props.networkPlayerId}</span> on game: 
+          <span id="session-id"><strong>{this.props.sessionId}</strong></span>
+          <span>
+            <span style={copyBtnStyle} className="ui-button" id="copy-button" data-clipboard-target="#session-id" title="Click to copy me.">[Copy to Clipboard]</span>
+          </span>
         </div>
+        <div id="indicator" style={indicatorStyle}></div>
+        <span id="text">{connectedStr}</span>
+      </div>
     );
   }
 });

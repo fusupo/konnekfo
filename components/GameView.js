@@ -17,7 +17,7 @@ var GameBoardButtons = React.createClass({
     var hitStyle = {
       opacity: 0
     };
-    return(<g>
+    return(<g className="ui-button">
            {[0,1,2,3,4,5,6].map(function(i) {
              return <rect
              key={i}
@@ -104,45 +104,45 @@ var GameBoardView = React.createClass({
       }
     }
     return(
-        <div className="gameboardHolder">
+      <div className="gameboardHolder panel">
         <svg width={w} height={h}>
-        <defs></defs>
-        <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
-        <GameBoardPieces
-      w={w}
-      h={h}
-      cw={cellWidth}
-      ch={cellHeight}
-      r={r}
-      data={pieces}
-      animationComplete={this.props.gamepieceAnimationComplete}
-        />
-        <g></g>
-        <path d={pathDef} fill="#33658a"></path>
-        <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
+          <defs></defs>
+          <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
+          <GameBoardPieces
+             w={w}
+             h={h}
+             cw={cellWidth}
+             ch={cellHeight}
+             r={r}
+             data={pieces}
+             animationComplete={this.props.gamepieceAnimationComplete}
+             />
+          <g></g>
+          <path d={pathDef} fill="#33658a"></path>
+          <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
         </svg>
-        </div>
+      </div>
     );
   } 
 });
 
 module.exports = React.createClass({
-  render: function(){
-    var status= this.props.gameState.status; 
-    var style = {
-      display: status[1] != undefined ? "block" : "none"
-    };
-    return (
-        <div id="game" style={style}>
-        <h2 className="unselectable">game</h2>
-        <GameScoreBoard tally={this.props.gameState.winTally} status={status} />
-        <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status}/>
-        <GameBoardView
-      board={this.props.board}
-      handleMouseUp={this.props.handleMouseUp}
-      gamepieceAnimationComplete={this.props.gamepieceAnimationComplete}
-        />
-        </div>
-    );
-  }
+    render: function(){
+        var status= this.props.gameState.status; 
+        var style = {
+            display: status[1] != undefined ? "block" : "none"
+        };
+        return (
+          <div className="panel" style={style}>
+            <h2 className="unselectable">game</h2>
+            <GameScoreBoard tally={this.props.gameState.winTally} status={status} />
+            <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status} />
+            <GameBoardView
+               board={this.props.board}
+               handleMouseUp={this.props.handleMouseUp}
+               gamepieceAnimationComplete={this.props.gamepieceAnimationComplete}
+               />
+          </div>
+        );
+    }
 });

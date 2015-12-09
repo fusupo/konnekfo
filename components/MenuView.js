@@ -41,40 +41,40 @@ module.exports=React.createClass({
     var r;
     if(this.state.menuState === "main"){
       r = (
-          <div className="unselectable">
-          <h2>menu **</h2>
+          <div className="unselectable panel">
+          <h2>menu</h2>
           <ul>
           <li>
-          <span onClick={this.handleVsHumanLocalClick}>versus human local</span>
+          <span className="ui-button" onClick={this.handleVsHumanLocalClick}>versus human local</span>
           </li>
           <li>
-          <span onClick={this.handleVsHumanNetworkClick}>versus human network</span>
+          <span className="ui-button" onClick={this.handleVsHumanNetworkClick}>versus human network</span>
           </li>
           <li>
-          <span onClick={this.handleVsCPULocalClick}>versus computer</span>
+          <span className="ui-button" onClick={this.handleVsCPULocalClick}>versus computer</span>
           </li>
           </ul>
           </div>
       );
     }else if(this.state.menuState === "network"){
       r = (
-          <div className="unselectable">
-          <h2>connect**</h2>
-          <span onClick={this.handleBackToMainClick}>return</span>
+          <div className="unselectable panel">
+          <h2>connect</h2>
+          <span className="ui-button" onClick={this.handleBackToMainClick}>return</span>
           <ul>
           <li>
-          <span onClick={this.handleNewNetworkGameClick}>start new game as player 1</span>
+          <span className="ui-button" onClick={this.handleNewNetworkGameClick}>start new game as player 1</span>
           </li>
           <li>
-          <span onClick={this.handleConnectNetworkGameClick}>connect to a game </span>
+          <span className="ui-button" onClick={this.handleConnectNetworkGameClick}>connect to a game </span>
           </li>
           </ul>
           </div>
       );
     }else if(this.state.menuState === "return"){
       r = (
-          <div className="unselectable">
-          <span onClick={this.handleBackToMainClick}>return</span>
+          <div className="unselectable panel">
+          <span className="ui-button" onClick={this.handleBackToMainClick}>return</span>
           </div>
       );
     }

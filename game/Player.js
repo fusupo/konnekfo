@@ -23,7 +23,7 @@ module.exports.RemotePlayer = function(id, socket) {
   this.UIenabled = false;
   this.disableUI = function(){this.UIenabled = false; };
   this.promptMove = function(game) {
-      //socket.emit('your turn');
+    socket.emit('your turn');
     console.log('its your turn, player ' + this.id);
   };
 };

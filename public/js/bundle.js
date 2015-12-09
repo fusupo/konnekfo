@@ -42,15 +42,15 @@ module.exports = React.createClass({
     }
     return React.createElement(
       'div',
-      { id: 'conclusion', style: visibilityStyle, className: 'unselectable' },
+      { style: visibilityStyle, className: 'unselectable panel' },
       React.createElement(
         'div',
-        { id: 'reset-local', style: resetLocalStyle, onMouseUp: this.props.resetGame },
+        { id: 'reset-local', className: 'ui-button', style: resetLocalStyle, onMouseUp: this.props.resetGame },
         '[reset]'
       ),
       React.createElement(
         'table',
-        { id: 'reset-network', style: resetNetworkStyle },
+        { id: 'reset-network', className: 'ui-button', style: resetNetworkStyle },
         React.createElement(
           'thead',
           null,
@@ -128,15 +128,15 @@ module.exports = React.createClass({
     }
     return React.createElement(
       'div',
-      { className: 'unselectable' },
+      { className: 'unselectable panel' },
       React.createElement(
         'div',
-        { id: 'gameStatus', style: gameStatusStyle },
+        { style: gameStatusStyle },
         gameStatusStr
       ),
       React.createElement(
         'table',
-        { id: 'game-win-tally', style: resetNetworkStyle },
+        { style: resetNetworkStyle },
         React.createElement(
           'thead',
           null,
@@ -224,7 +224,7 @@ var GameBoardButtons = React.createClass({
     };
     return React.createElement(
       'g',
-      null,
+      { className: 'ui-button' },
       [0, 1, 2, 3, 4, 5, 6].map(function (i) {
         return React.createElement('rect', {
           key: i,
@@ -318,7 +318,7 @@ var GameBoardView = React.createClass({
     }
     return React.createElement(
       'div',
-      { className: 'gameboardHolder' },
+      { className: 'gameboardHolder panel' },
       React.createElement(
         'svg',
         { width: w, height: h },
@@ -351,7 +351,7 @@ module.exports = React.createClass({
     };
     return React.createElement(
       'div',
-      { id: 'game', style: style },
+      { className: 'panel', style: style },
       React.createElement(
         'h2',
         { className: 'unselectable' },
@@ -415,11 +415,11 @@ module.exports = React.createClass({
     if (this.state.menuState === "main") {
       r = React.createElement(
         "div",
-        { className: "unselectable" },
+        { className: "unselectable panel" },
         React.createElement(
           "h2",
           null,
-          "menu **"
+          "menu"
         ),
         React.createElement(
           "ul",
@@ -429,7 +429,7 @@ module.exports = React.createClass({
             null,
             React.createElement(
               "span",
-              { onClick: this.handleVsHumanLocalClick },
+              { className: "ui-button", onClick: this.handleVsHumanLocalClick },
               "versus human local"
             )
           ),
@@ -438,7 +438,7 @@ module.exports = React.createClass({
             null,
             React.createElement(
               "span",
-              { onClick: this.handleVsHumanNetworkClick },
+              { className: "ui-button", onClick: this.handleVsHumanNetworkClick },
               "versus human network"
             )
           ),
@@ -447,7 +447,7 @@ module.exports = React.createClass({
             null,
             React.createElement(
               "span",
-              { onClick: this.handleVsCPULocalClick },
+              { className: "ui-button", onClick: this.handleVsCPULocalClick },
               "versus computer"
             )
           )
@@ -456,15 +456,15 @@ module.exports = React.createClass({
     } else if (this.state.menuState === "network") {
       r = React.createElement(
         "div",
-        { className: "unselectable" },
+        { className: "unselectable panel" },
         React.createElement(
           "h2",
           null,
-          "connect**"
+          "connect"
         ),
         React.createElement(
           "span",
-          { onClick: this.handleBackToMainClick },
+          { className: "ui-button", onClick: this.handleBackToMainClick },
           "return"
         ),
         React.createElement(
@@ -475,7 +475,7 @@ module.exports = React.createClass({
             null,
             React.createElement(
               "span",
-              { onClick: this.handleNewNetworkGameClick },
+              { className: "ui-button", onClick: this.handleNewNetworkGameClick },
               "start new game as player 1"
             )
           ),
@@ -484,7 +484,7 @@ module.exports = React.createClass({
             null,
             React.createElement(
               "span",
-              { onClick: this.handleConnectNetworkGameClick },
+              { className: "ui-button", onClick: this.handleConnectNetworkGameClick },
               "connect to a game "
             )
           )
@@ -493,10 +493,10 @@ module.exports = React.createClass({
     } else if (this.state.menuState === "return") {
       r = React.createElement(
         "div",
-        { className: "unselectable" },
+        { className: "unselectable panel" },
         React.createElement(
           "span",
-          { onClick: this.handleBackToMainClick },
+          { className: "ui-button", onClick: this.handleBackToMainClick },
           "return"
         )
       );
@@ -509,11 +509,11 @@ module.exports = React.createClass({
 "use strict";
 
 var React = require('react');
+var Colors = require('../game/Colors.js');
 
 module.exports = React.createClass({
-  displayName: "exports",
+  displayName: 'exports',
 
-  handleMouseUp: function () {},
   render: function () {
     var style = {};
     if (!this.props.sessionId) {
@@ -527,40 +527,57 @@ module.exports = React.createClass({
       backgroundColor: this.props.opponentConnected ? "#00ff00" : "#ff0000"
     };
     var copyBtnStyle = {
-      display: this.props.networkPlayerId === 1 && !this.props.opponentConnected ? "block" : "none"
+      display: this.props.networkPlayerId === 1 && !this.props.opponentConnected ? "inline-block" : "none",
+      marginLeft: "0.5em",
+      fontSize: "0.75em"
+    };
+    var playerStyle = {
+      color: this.props.networkPlayerId === 1 ? Colors.p1Color : Colors.p2Color
     };
     var connectedStr = this.props.opponentConnected ? "opponent connected" : "opponent not connected";
     return React.createElement(
-      "div",
-      { style: style },
+      'div',
+      { style: style, className: 'panel ' },
       React.createElement(
-        "div",
+        'div',
         null,
-        "You Are Player #",
-        this.props.networkPlayerId
+        React.createElement(
+          'span',
+          { style: playerStyle },
+          'You Are Player #',
+          this.props.networkPlayerId
+        ),
+        ' on game:',
+        React.createElement(
+          'span',
+          { id: 'session-id' },
+          React.createElement(
+            'strong',
+            null,
+            this.props.sessionId
+          )
+        ),
+        React.createElement(
+          'span',
+          null,
+          React.createElement(
+            'span',
+            { style: copyBtnStyle, className: 'ui-button', id: 'copy-button', 'data-clipboard-target': '#session-id', title: 'Click to copy me.' },
+            '[Copy to Clipboard]'
+          )
+        )
       ),
+      React.createElement('div', { id: 'indicator', style: indicatorStyle }),
       React.createElement(
-        "div",
-        { id: "session-id" },
-        this.props.sessionId
-      ),
-      React.createElement(
-        "button",
-        { style: copyBtnStyle, id: "copy-button", "data-clipboard-target": "#session-id", title: "Click to copy me.", onMouseUp: this.handleMouseUp },
-        "Copy to Clipboard"
-      ),
-      React.createElement("br", null),
-      React.createElement("div", { id: "indicator", style: indicatorStyle }),
-      React.createElement(
-        "span",
-        { id: "text" },
+        'span',
+        { id: 'text' },
         connectedStr
       )
     );
   }
 });
 
-},{"react":179}],6:[function(require,module,exports){
+},{"../game/Colors.js":7,"react":179}],6:[function(require,module,exports){
 "use strict";
 
 module.exports = function (data) {
@@ -966,7 +983,7 @@ window.onload = function () {
       console.log('render AppView');
       return React.createElement(
         'div',
-        { className: 'app' },
+        null,
         React.createElement(MenuView, { handleChange: this.handleChange }),
         React.createElement(NetworkPanel, {
           networkPlayerId: this.state.networkPlayerId,
@@ -984,7 +1001,7 @@ window.onload = function () {
     }
   });
 
-  window.foo = ReactDOM.render(React.createElement(AppView, null), document.getElementById('example'));
+  window.foo = ReactDOM.render(React.createElement(AppView, null), document.getElementById('app'));
 };
 
 function initSocket(sessionId, view, gameState, board) {
@@ -1114,7 +1131,7 @@ module.exports.RemotePlayer = function (id, socket) {
     this.UIenabled = false;
   };
   this.promptMove = function (game) {
-    //socket.emit('your turn');
+    socket.emit('your turn');
     console.log('its your turn, player ' + this.id);
   };
 };

@@ -14,8 +14,9 @@ body {
     user-select: none;
 }
 .someCrap {
-    animation-duration: 2.65s;
+    animation-duration: .35s;
     animation-name: slidein;
+    animation-timing-function: ease-in;
 }
 @keyframes slidein {
     from {
@@ -24,4 +25,24 @@ body {
     to {
         transform: translate(0px, 0px);
     }
+}
+/**/
+h2{
+    margin-top:0px;
+    margin-bottom:0px;
+}
+
+ul{
+    margin-top:0px;
+    margin-bottom:0px;
+}
+/**/
+.panel{
+    border:1px solid;
+    margin:10px;
+    padding:10px;
+}
+
+.ui-button{
+    cursor:pointer
 }

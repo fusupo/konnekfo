@@ -151,7 +151,7 @@ window.onload = function() {
     render: function() {
       console.log('render AppView');
       return (
-          <div className="app">
+          <div>
           <MenuView handleChange={this.handleChange}/>
           <NetworkPanel
         networkPlayerId={this.state.networkPlayerId}
@@ -167,15 +167,14 @@ window.onload = function() {
           />
           </div>
       );
-      }
+    }
   });
   
   window.foo = ReactDOM.render(
       <AppView />,
-    document.getElementById('example')
+    document.getElementById('app')
   );
 
-  
 };
 
 function initSocket(sessionId, view, gameState, board) {
