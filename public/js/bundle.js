@@ -268,7 +268,7 @@ var GameBoardPieces = React.createClass({
               key: idxx + idxy,
               cx: that.props.cw / 2 + idxx * that.props.cw,
               cy: that.props.h - idxy * that.props.ch - that.props.ch / 2,
-              r: that.props.r,
+              r: that.props.r + 0.1 * that.props.r,
               fill: color });
           })(this);
         }, this);
@@ -286,8 +286,8 @@ var GameBoardView = React.createClass({
     var boardColor = Colors.boardColor;
     var p1Color = Colors.p1Color;
     var p2Color = Colors.p2Color;
-    var w = 140;
-    var h = 120;
+    var w = 560;
+    var h = 480;
     var boardWidth = w;
     var boardHeight = h - h / 7;
     var cellWidth = boardWidth / 7;

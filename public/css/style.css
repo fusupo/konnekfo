@@ -20,7 +20,7 @@ body {
 }
 @keyframes slidein {
     from {
-        transform: translate( 0px, -125px)
+        transform: translate( 0px, -480px)
     }
     to {
         transform: translate(0px, 0px);
