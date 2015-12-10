@@ -3,14 +3,10 @@
 var Board = require("./Board.js");
 var gameState = require("./GameState.js");
 module.exports = function(p1, p2, state) {
-
   console.log('GAME INIT');
-  
   this.state = state;
   this.board = new Board();
-
   var firstToPlay = undefined;
-
   this.commitMove = function(colIdx) {
     if (this.state.statusCode !== 'x' && this.state.statusCode !== '!') {
       if (!this.board.isColFullP(colIdx)) {
@@ -59,17 +55,13 @@ module.exports = function(p1, p2, state) {
           this.moveCommitted(colIdx);
         }
         return true;
-      } else {
-        // this.currPlayer.promptMove(this);
-      }
+      } 
     }
     return false;
   };
 
   this.promptNextPlayer = function(){
-    if(this.state.statusCode === "x" || this.state.statusCode === "!"){
-      
-    }else{
+    if(this.state.statusCode !== "x" && this.state.statusCode === "!"){
       this.currPlayer.promptMove(this);
     }
   };
