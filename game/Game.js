@@ -7,13 +7,12 @@ module.exports = function(p1, p2, state) {
   console.log('GAME INIT');
   
   this.state = state;
-  this.isComplete = true;
   this.board = new Board();
 
-  var firstToPlay = undefined; 
+  var firstToPlay = undefined;
 
   this.commitMove = function(colIdx) {
-    if (!this.isComplete) {
+    if (this.state.statusCode !== 'x' && this.state.statusCode !== '!') {
       if (!this.board.isColFullP(colIdx)) {
         //commit the move
         if (this.currPlayer === p1) {
@@ -35,7 +34,6 @@ module.exports = function(p1, p2, state) {
           playerId: this.currPlayer.id^3
         };
         if (this.board.hasWinnerP()) {
-          this.isComplete = true;
           //var winningDirection = this.board.winningDirection;
           this.state.hasWin = true;
           this.state.winTally[this.board.winner]++;
@@ -45,7 +43,6 @@ module.exports = function(p1, p2, state) {
           this.state.statusValue = this.board.winner;
           this.state.statusMessage = "Player " + this.board.winner + " Has Won The Game!";
         } else if (this.board.isBoardFullP()) {
-          this.isComplete = true;
           this.state.isDraw = true;
           this.state.winTally[0]++;
           console.log('game is draw');
@@ -78,17 +75,16 @@ module.exports = function(p1, p2, state) {
   };
 
   this.reset = function() {
-  this.isComplete = false;
-  this.board.reset();
-  // switch who starts  every other game
-  if (!firstToPlay) {
-    firstToPlay = 1;
-    this.currPlayer = p1;
-  } else {
-    firstToPlay = firstToPlay^3;
-    this.currPlayer = firstToPlay === 1 ? p1 : p2;
-  }
-  this.state.currPlayer = this.currPlayer.id;
+    this.board.reset();
+    // switch who starts  every other game
+    if (!firstToPlay) {
+      firstToPlay = 1;
+      this.currPlayer = p1;
+    } else {
+      firstToPlay = firstToPlay^3;
+      this.currPlayer = firstToPlay === 1 ? p1 : p2;
+    }
+    this.state.currPlayer = this.currPlayer.id;
     // this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
     this.state.statusCode = "p";
     this.state.statusValue = this.currPlayer.id;
