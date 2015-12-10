@@ -104,14 +104,17 @@ window.onload = function() {
           this.onReturnHome();  
         }
         var gameState = this.state.gameState;
-        gameState.status = [undefined, undefined, undefined];
+        // gameState.status = [undefined, undefined, undefined];
+        this.state.statusCode = undefined;
+        this.state.statusValue = undefined;
+        this.state.statusMessage = undefined;
         this.setState({
           gameState: gameState
         });
         break;
       case 'newNetwork':
         var board = new Board();
-        $.get("/session/new", ( function(sessionId, status) {
+        $.get("/session/new", ( function(sessionId) {
           this.setState({
             isLocal: false,
             sessionId: sessionId,
@@ -239,7 +242,10 @@ function initSocket(sessionId, view, gameState, board) {
   socket.on('opponent-disconnect', function() {
     board.reset();
     var gameState = view.state.gameState;
-    gameState.status = [undefined, undefined, undefined];
+    // gameState.status = [undefined, undefined, undefined];
+    this.state.statusCode = undefined;
+    this.state.statusValue = undefined;
+    this.state.statusMessage = undefined;
     view.setState({
       board: board.cols,
       gameState: gameState,
@@ -260,7 +266,10 @@ function initSocket(sessionId, view, gameState, board) {
     socket.emit('manual-disconnect', playerId);
     board.reset();
     var gameState = view.state.gameState;
-    gameState.status = [undefined, undefined, undefined];
+    // gameState.status = [undefined, undefined, undefined];
+    this.state.statusCode = undefined;
+    this.state.statusValue = undefined;
+    this.state.statusMessage = undefined;
     view.setState({
       sessionId: undefined,
       board: board.cols,

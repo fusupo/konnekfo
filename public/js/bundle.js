@@ -30,7 +30,7 @@ module.exports = React.createClass({
     var visibilityStyle = {
       visibility: "hidden"
     };
-    switch (this.props.status[1]) {
+    switch (this.props.statusCode) {
       case "!":
       case "x":
         visibilityStyle.visibility = "visible";
@@ -110,17 +110,17 @@ module.exports = React.createClass({
     var resetNetworkStyle = {
       borderCollapse: "collapse"
     };
-    var gameStatusStr = this.props.status[0];
+    var gameStatusStr = this.props.statusMessage;
     var gameStatusStyle;
-    switch (this.props.status[1]) {
+    switch (this.props.statusCode) {
       case "p":
         gameStatusStyle = {
-          color: this.props.status[2] === 1 ? Colors.p1Color : Colors.p2Color
+          color: this.props.statusValue === 1 ? Colors.p1Color : Colors.p2Color
         };
         break;
       case "!":
         gameStatusStyle = {
-          color: this.props.status[2] === 1 ? Colors.p1Color : Colors.p2Color
+          color: this.props.statusValue === 1 ? Colors.p1Color : Colors.p2Color
         };
         break;
       case "x":
@@ -530,9 +530,8 @@ module.exports = React.createClass({
   displayName: 'exports',
 
   render: function () {
-    var status = this.props.gameState.status;
     var style = {
-      display: status[1] != undefined ? "inline-block" : "none"
+      display: this.props.gameState.statusCode != undefined ? "inline-block" : "none"
     };
     return React.createElement(
       'div',
@@ -542,8 +541,18 @@ module.exports = React.createClass({
         { className: 'unselectable' },
         'game'
       ),
-      React.createElement(GameScoreBoard, { tally: this.props.gameState.winTally, status: status }),
-      React.createElement(ConclusionView, { isLocal: this.props.isLocal, resetGame: this.props.resetGame, status: status }),
+      React.createElement(GameScoreBoard, {
+        tally: this.props.gameState.winTally,
+        statusCode: this.props.gameState.statusCode,
+        statusValue: this.props.gameState.statusValue,
+        statusMessage: this.props.gameState.statusMessage }),
+      React.createElement(ConclusionView, {
+        isLocal: this.props.isLocal,
+        resetGame: this.props.resetGame,
+        statusCode: this.props.gameState.statusCode,
+        statusValue: this.props.gameState.statusValue,
+        statusMessage: this.props.gameState.statusMessage
+      }),
       React.createElement(GameBoardView, {
         prevMove: this.props.gameState.prevMove,
         board: this.props.board,
@@ -935,7 +944,10 @@ module.exports = function (p1, p2, state) {
         }
         //update game state
         this.state.currPlayer = this.currPlayer.id;
-        this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
+        // this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
+        this.state.statusCode = "p";
+        this.state.statusValue = this.currPlayer.id;
+        this.state.statusMessage = "It's Player " + this.currPlayer.id + "'s Turn.";
         this.state.prevMove = {
           colIdx: colIdx,
           rowIdx: 6 - (this.board.getNextRowIdx(colIdx) - 2), //this is pretty ugly
@@ -947,13 +959,19 @@ module.exports = function (p1, p2, state) {
           this.state.hasWin = true;
           this.state.winTally[this.board.winner]++;
           console.log('//////////////////////////////////////// ', this.board.winner, 'won the game!');
-          this.state.status = ["Player " + this.board.winner + " Has Won The Game!", "!", this.board.winner];
+          // this.state.status = ["Player " + this.board.winner + " Has Won The Game!", "!", this.board.winner];
+          this.state.statusCode = "!";
+          this.state.statusValue = this.board.winner;
+          this.state.statusMessage = "Player " + this.board.winner + " Has Won The Game!";
         } else if (this.board.isBoardFullP()) {
           this.isComplete = true;
           this.state.isDraw = true;
           this.state.winTally[0]++;
           console.log('game is draw');
-          this.state.status = ["The Game Is Draw.", "x", undefined];
+          //this.state.status = ["The Game Is Draw.", "x", undefined];
+          this.state.statusCode = "x";
+          this.state.statusValue = undefined;
+          this.state.statusMessage = "The Game Is Draw.";
         } else {
           // this.currPlayer.promptMove(this);
           //
@@ -971,7 +989,7 @@ module.exports = function (p1, p2, state) {
   };
 
   this.promptNextPlayer = function () {
-    if (this.state.status[1] === "x" || this.state.status[1] === "!") {} else {
+    if (this.state.statusCode === "x" || this.state.statusCode === "!") {} else {
       this.currPlayer.promptMove(this);
     }
   };
@@ -988,7 +1006,10 @@ module.exports = function (p1, p2, state) {
       this.currPlayer = firstToPlay === 1 ? p1 : p2;
     }
     this.state.currPlayer = this.currPlayer.id;
-    this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
+    // this.state.status = ["It's Player " + this.currPlayer.id + "'s Turn.", "p", this.currPlayer.id];
+    this.state.statusCode = "p";
+    this.state.statusValue = this.currPlayer.id;
+    this.state.statusMessage = "It's Player " + this.currPlayer.id + "'s Turn.";
     this.promptNextPlayer();
   };
 };
@@ -1121,14 +1142,17 @@ window.onload = function () {
             this.onReturnHome();
           }
           var gameState = this.state.gameState;
-          gameState.status = [undefined, undefined, undefined];
+          // gameState.status = [undefined, undefined, undefined];
+          this.state.statusCode = undefined;
+          this.state.statusValue = undefined;
+          this.state.statusMessage = undefined;
           this.setState({
             gameState: gameState
           });
           break;
         case 'newNetwork':
           var board = new Board();
-          $.get("/session/new", (function (sessionId, status) {
+          $.get("/session/new", (function (sessionId) {
             this.setState({
               isLocal: false,
               sessionId: sessionId,
@@ -1252,7 +1276,10 @@ function initSocket(sessionId, view, gameState, board) {
   socket.on('opponent-disconnect', function () {
     board.reset();
     var gameState = view.state.gameState;
-    gameState.status = [undefined, undefined, undefined];
+    // gameState.status = [undefined, undefined, undefined];
+    this.state.statusCode = undefined;
+    this.state.statusValue = undefined;
+    this.state.statusMessage = undefined;
     view.setState({
       board: board.cols,
       gameState: gameState,
@@ -1273,7 +1300,10 @@ function initSocket(sessionId, view, gameState, board) {
     socket.emit('manual-disconnect', playerId);
     board.reset();
     var gameState = view.state.gameState;
-    gameState.status = [undefined, undefined, undefined];
+    // gameState.status = [undefined, undefined, undefined];
+    this.state.statusCode = undefined;
+    this.state.statusValue = undefined;
+    this.state.statusMessage = undefined;
     view.setState({
       sessionId: undefined,
       board: board.cols,
