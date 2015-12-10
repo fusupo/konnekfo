@@ -14,6 +14,7 @@ var Board = require("./Board.js");
 var GameState = require('./GameState.js');
 var MenuView = require('../components/MenuView.js');
 var GameView = require('../components/GameView.js');
+var GameViewToo = require('../components/GameViewToo.js');
 var NetworkPanel = require('../components/NetworkPanelView.js');
 
 window.onload = function() {
@@ -148,30 +149,38 @@ window.onload = function() {
     onGamepieceAnimationComplete : function(){
       console.log('DANGER DANGA');
     },
+    // <GameView
+    //    isLocal = {this.state.isLocal}
+    //    gameState={this.state.gameState}
+    //    handleMouseUp = {this.handleMouseUp}
+    //    board={this.state.board}
+    //    resetGame={this.state.resetGame}
+    //    gamepieceAnimationComplete={this.onGamepieceAnimationComplete}
+    //    />
     render: function() {
       console.log('render AppView');
       return (
-          <div>
+        <div>
           <MenuView handleChange={this.handleChange}/>
           <NetworkPanel
-        networkPlayerId={this.state.networkPlayerId}
-        sessionId={this.state.sessionId}
-        opponentConnected={this.state.opponentConnected}/>
-          <GameView
-        isLocal = {this.state.isLocal}
-        gameState={this.state.gameState}
-        handleMouseUp = {this.handleMouseUp}
-        board={this.state.board}
-        resetGame={this.state.resetGame}
-        gamepieceAnimationComplete={this.onGamepieceAnimationComplete}
-          />
-          </div>
+             networkPlayerId={this.state.networkPlayerId}
+             sessionId={this.state.sessionId}
+             opponentConnected={this.state.opponentConnected}/>
+          <GameViewToo
+             isLocal = {this.state.isLocal}
+             gameState={this.state.gameState}
+             handleMouseUp = {this.handleMouseUp}
+             board={this.state.board}
+             resetGame={this.state.resetGame}
+             gamepieceAnimationComplete={this.onGamepieceAnimationComplete}
+             />
+        </div>
       );
     }
   });
   
   window.foo = ReactDOM.render(
-      <AppView />,
+    <AppView />,
     document.getElementById('app')
   );
 

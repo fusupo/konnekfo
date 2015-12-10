@@ -73,8 +73,8 @@ var GameBoardView = React.createClass({
     var boardColor = Colors.boardColor;
     var p1Color = Colors.p1Color;
     var p2Color = Colors.p2Color;
-    var w = 560;
-    var h = 480;
+    var w = 280;
+    var h = 240;
     var boardWidth = w;
     var boardHeight = h - h / 7;
     var cellWidth = boardWidth / 7;
@@ -104,24 +104,24 @@ var GameBoardView = React.createClass({
       }
     }
     return(
-      <div className="gameboardHolder panel">
+        <div className="gameboardHolder panel">
         <svg width={w} height={h}>
-          <defs></defs>
-          <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
-          <GameBoardPieces
-             w={w}
-             h={h}
-             cw={cellWidth}
-             ch={cellHeight}
-             r={r}
-             data={pieces}
-             animationComplete={this.props.gamepieceAnimationComplete}
-             />
-          <g></g>
-          <path d={pathDef} fill="#33658a"></path>
-          <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
+        <defs></defs>
+        <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
+        <GameBoardPieces
+      w={w}
+      h={h}
+      cw={cellWidth}
+      ch={cellHeight}
+      r={r}
+      data={pieces}
+      animationComplete={this.props.gamepieceAnimationComplete}
+        />
+        <g></g>
+        <path d={pathDef} fill="#33658a"></path>
+        <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
         </svg>
-      </div>
+        </div>
     );
   } 
 });
@@ -130,7 +130,7 @@ module.exports = React.createClass({
   render: function(){
     var status= this.props.gameState.status; 
     var style = {
-      display: status[1] != undefined ? "block" : "none"
+      display: status[1] != undefined ? "inline-block" : "none"
     };
     return (
       <div className="panel" style={style}>
