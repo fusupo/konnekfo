@@ -394,7 +394,7 @@ var GameBoardButtons = React.createClass({
           'data-key': i,
           onMouseEnter: this.handleMouseEnter,
           onMouseLeave: this.handleMouseLeave,
-          onMouseUp: this.props.handleMouseUp.bind(null, i),
+          onClick: this.props.handleMouseUp.bind(null, i),
           x: i * (this.props.w / 7),
           y: '0',
           width: this.props.w / 7,
