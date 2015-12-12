@@ -27,22 +27,22 @@ body {
     }
 }
 /**/
-h2{
-    margin-top:0px;
-    margin-bottom:0px;
-}
+/* h2{ */
+/*     margin-top:0px; */
+/*     margin-bottom:0px; */
+/* } */
 
-ul{
-    margin-top:0px;
-    margin-bottom:0px;
-}
-/**/
+/* ul{ */
+/*     margin-top:0px; */
+/*     margin-bottom:0px; */
+/* } */
+
 .panel{
     border:1px solid;
     margin:10px;
     padding:10px;
 }
 
-.ui-button{
-    cursor:pointer
-}
+/* .ui-button{ */
+/*     cursor:pointer */
+/* } */

@@ -37,32 +37,49 @@ var GameBoardButtons = React.createClass({
 });
 
 var GameBoardPieces = React.createClass({
+  circles: [],
+  getInitialState: function(){
+    return {circles:[]};
+  },
   componentDidUpdate: function(){
     $(".someCrap").on('animationend webkitAnimationEnd mozAnimationEnd MSAnimationEnd oAnimationEnd', this.props.animationComplete);
   },
+  shouldComponentUpdate: function(nextProps, nextState) {
+    if(R.equals(nextProps.data, [['00'],['00'],['00'],['00'],['00'],['00'],['00']])) {
+      console.log(this.circles);
+      for(var i = 0; i < this.circles.length; i++){
+        var c = this.circles[i];
+        c.animate({
+          cy: 400
+        },750, mina.easeout);
+      }}else if(nextProps.prevMove.playerId){
+        var cbk = this.props.animationComplete;//function(){};
+        var gameboardSVG = document.getElementById('public-chair');
+        var s = Snap(gameboardSVG);
+        var cellWidth = this.props.cw;
+        var cellHeight = this.props.ch;
+        var c = s.circle((cellWidth/ 2) + (nextProps.prevMove.colIdx * cellWidth), 0, 0.40 * cellWidth);
+        c.attr({
+          fill: nextProps.prevMove.playerId === 1 ? Colors.p1Color : Colors.p2Color,
+          opacity: 1
+        });
+        // this.circles.add(c);
+        var circles = this.circles;
+        circles.push(c);
+        // this.setState({
+        //   circles: circles
+        // });
+        s.add(c);
+        c.animate({
+          cy: (cellHeight / 2 + cellHeight/*topMargin*/) + (nextProps.prevMove.rowIdx * cellHeight)
+        }, 500, mina.bounce, cbk);
+        console.log(gameboardSVG);
+      }  
+    return false;
+  },
   render:function(){
-    return(<g>
-           {this.props.data.map(function(i,idxx){
-             return i.map(function(j, idxy){
-               return (function (that) {
-                 var color;
-                 if(j === "00"){
-                   return;
-                 }else if(j === "01"){
-                   color = Colors.p1Color;
-                 }else if(j === "10"){
-                   color = Colors.p2Color;
-                 }
-                 return <circle className="someCrap"
-                 key = {idxx+idxy} 
-                 cx = {(that.props.cw / 2) + (idxx * that.props.cw)} 
-                 cy = {(that.props.h) - (idxy * that.props.ch) - that.props.ch/2} 
-                 r = {that.props.r + (0.1 * that.props.r)}
-                 fill = {color}></circle>;
-               })(this);
-             }, this);
-           }, this)}
-           </g>);
+    console.log('IDEAS THAT MATTER');
+    return(<g id="public-chair"></g>);
   }
 });
 
@@ -103,38 +120,50 @@ var GameBoardView = React.createClass({
         pieces[i]=col;
       }
     }
-    //<div className="gameboardHolder panel">
-    //</div>
-    return(
-      <svg >
-        <GameBoardPieces
-           w={w}
-           h={h}
-           cw={cellWidth}
-           ch={cellHeight}
-           r={r}
-           data={pieces}
-           animationComplete={this.props.gamepieceAnimationComplete}
-           />
-        <path d={pathDef} fill="#33658a"></path>
-        <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
-      </svg>
+    var viewBox = "0 0 " + w + " " + h;
+    return (
+        <svg width="100%" height="100%" viewBox={viewBox}>
+          <rect x="0" y="0" width={w} height={h} fill="#ffffff"></rect>
+          <GameBoardPieces
+             w={w}
+             h={h}
+             cw={cellWidth}
+             ch={cellHeight}
+             r={r}
+             data={pieces}
+             prevMove={this.props.prevMove}
+             animationComplete={this.props.gamepieceAnimationComplete}
+             />
+          <g id="circlesGroup"></g>
+          <path d={pathDef} fill="#33658a"></path>
+          <GameBoardButtons w={w} h={h} handleMouseUp={this.props.handleMouseUp}/> 
+        </svg>
     );
   } 
 });
 
 module.exports = React.createClass({
   render: function(){
-    var status= this.props.gameState.status; 
     var style = {
-      display: status[1] != undefined ? "block" : "none"
+      display: this.props.gameState.statusCode != undefined ? "block" : "none"
     };
     return (
       <div className="panel" style={style}>
         <h2 className="unselectable">game</h2>
-        <GameScoreBoard tally={this.props.gameState.winTally} status={status} />
-        <ConclusionView isLocal={this.props.isLocal} resetGame={this.props.resetGame} status={status} />
+        <GameScoreBoard
+           tally={this.props.gameState.winTally}
+           statusCode={this.props.gameState.statusCode}
+           statusValue={this.props.gameState.statusValue}
+           statusMessage={this.props.gameState.statusMessage} />
+        <ConclusionView
+           isLocal={this.props.isLocal}
+           resetGame={this.props.resetGame}
+           statusCode={this.props.gameState.statusCode}
+           statusValue={this.props.gameState.statusValue}
+           statusMessage={this.props.gameState.statusMessage}
+           />
         <GameBoardView
+           prevMove={this.props.gameState.prevMove}
            board={this.props.board}
            handleMouseUp={this.props.handleMouseUp}
            gamepieceAnimationComplete={this.props.gamepieceAnimationComplete}

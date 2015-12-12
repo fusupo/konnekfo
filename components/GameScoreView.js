@@ -30,31 +30,31 @@ module.exports = React.createClass({
       break;
     }
     return (
-        <div className="unselectable panel">
+      <div className="unselectable panel">
         <div style={gameStatusStyle}>{gameStatusStr}</div>
         <table style={resetNetworkStyle}>
-        <thead>
-        <tr>
-        <th style={tablePaddingStyle}>p1</th>
-        <th style={tablePaddingStyle}>p2</th>
-        <th style={tablePaddingStyle}>draws</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <td style={tablePaddingStyle}>
-        <div id="p1">{this.props.tally[1]}</div>
-        </td>
-        <td style={tablePaddingStyle}>
-        <div id="p2">{this.props.tally[2]}</div>
-        </td>
-        <td style={tablePaddingStyle}>
-        <div id="draws">{this.props.tally[0]}</div>
-        </td>
-        </tr>
-        </tbody>
+          <thead>
+            <tr>
+              <th style={tablePaddingStyle}>p1</th>
+              <th style={tablePaddingStyle}>p2</th>
+              <th style={tablePaddingStyle}>draws</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={tablePaddingStyle}>
+                <div id="p1">{this.props.tally[1]}</div>
+              </td>
+              <td style={tablePaddingStyle}>
+                <div id="p2">{this.props.tally[2]}</div>
+              </td>
+              <td style={tablePaddingStyle}>
+                <div id="draws">{this.props.tally[0]}</div>
+              </td>
+            </tr>
+          </tbody>
         </table>
-        </div>
+      </div>
     );
   }
-                                  });
+});

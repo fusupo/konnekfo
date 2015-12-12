@@ -316,27 +316,22 @@ var GameBoardView = React.createClass({
         pieces[i] = col;
       }
     }
+    //<div className="gameboardHolder panel">
+    //</div>
     return React.createElement(
-      'div',
-      { className: 'gameboardHolder panel' },
-      React.createElement(
-        'svg',
-        { width: w, height: h },
-        React.createElement('defs', null),
-        React.createElement('rect', { x: '0', y: '0', width: w, height: h, fill: '#ffffff' }),
-        React.createElement(GameBoardPieces, {
-          w: w,
-          h: h,
-          cw: cellWidth,
-          ch: cellHeight,
-          r: r,
-          data: pieces,
-          animationComplete: this.props.gamepieceAnimationComplete
-        }),
-        React.createElement('g', null),
-        React.createElement('path', { d: pathDef, fill: '#33658a' }),
-        React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.props.handleMouseUp })
-      )
+      'svg',
+      null,
+      React.createElement(GameBoardPieces, {
+        w: w,
+        h: h,
+        cw: cellWidth,
+        ch: cellHeight,
+        r: r,
+        data: pieces,
+        animationComplete: this.props.gamepieceAnimationComplete
+      }),
+      React.createElement('path', { d: pathDef, fill: '#33658a' }),
+      React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.props.handleMouseUp })
     );
   }
 });
@@ -347,7 +342,7 @@ module.exports = React.createClass({
   render: function () {
     var status = this.props.gameState.status;
     var style = {
-      display: status[1] != undefined ? "inline-block" : "none"
+      display: status[1] != undefined ? "block" : "none"
     };
     return React.createElement(
       'div',
@@ -500,28 +495,24 @@ var GameBoardView = React.createClass({
         pieces[i] = col;
       }
     }
+    var viewBox = "0 0 " + w + " " + h;
     return React.createElement(
-      'div',
-      { className: 'gameboardHolder panel' },
-      React.createElement(
-        'svg',
-        { id: 'testicle', width: w, height: h },
-        React.createElement('defs', null),
-        React.createElement('rect', { x: '0', y: '0', width: w, height: h, fill: '#ffffff' }),
-        React.createElement(GameBoardPieces, {
-          w: w,
-          h: h,
-          cw: cellWidth,
-          ch: cellHeight,
-          r: r,
-          data: pieces,
-          prevMove: this.props.prevMove,
-          animationComplete: this.props.gamepieceAnimationComplete
-        }),
-        React.createElement('g', { id: 'circlesGroup' }),
-        React.createElement('path', { d: pathDef, fill: '#33658a' }),
-        React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.props.handleMouseUp })
-      )
+      'svg',
+      { width: '100%', height: '100%', viewBox: viewBox },
+      React.createElement('rect', { x: '0', y: '0', width: w, height: h, fill: '#ffffff' }),
+      React.createElement(GameBoardPieces, {
+        w: w,
+        h: h,
+        cw: cellWidth,
+        ch: cellHeight,
+        r: r,
+        data: pieces,
+        prevMove: this.props.prevMove,
+        animationComplete: this.props.gamepieceAnimationComplete
+      }),
+      React.createElement('g', { id: 'circlesGroup' }),
+      React.createElement('path', { d: pathDef, fill: '#33658a' }),
+      React.createElement(GameBoardButtons, { w: w, h: h, handleMouseUp: this.props.handleMouseUp })
     );
   }
 });
@@ -531,7 +522,7 @@ module.exports = React.createClass({
 
   render: function () {
     var style = {
-      display: this.props.gameState.statusCode != undefined ? "inline-block" : "none"
+      display: this.props.gameState.statusCode != undefined ? "block" : "none"
     };
     return React.createElement(
       'div',
@@ -717,8 +708,9 @@ module.exports = React.createClass({
     var indicatorStyle = {
       display: "inline-block",
       borderRadius: "50%",
-      width: "20px",
-      height: "20px",
+      width: "10px",
+      height: "10px",
+      marginRight: "5px",
       backgroundColor: this.props.opponentConnected ? "#00ff00" : "#ff0000"
     };
     var copyBtnStyle = {
@@ -925,6 +917,7 @@ module.exports = function (p1, p2, state) {
   console.log('GAME INIT');
   this.state = state;
   this.board = new Board();
+  this.currPlayer = undefined;
   var firstToPlay = undefined;
   this.commitMove = function (colIdx) {
     if (this.state.statusCode !== 'x' && this.state.statusCode !== '!') {
@@ -980,7 +973,7 @@ module.exports = function (p1, p2, state) {
   };
 
   this.promptNextPlayer = function () {
-    if (this.state.statusCode !== "x" && this.state.statusCode === "!") {
+    if (this.state.statusCode !== "x" && this.state.statusCode !== "!") {
       this.currPlayer.promptMove(this);
     }
   };

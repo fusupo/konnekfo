@@ -12,8 +12,9 @@ module.exports = React.createClass({
     var indicatorStyle={
       display: "inline-block",
       borderRadius: "50%",
-      width: "20px",
-      height: "20px",
+      width: "10px",
+      height: "10px",
+      marginRight: "5px",
       backgroundColor: this.props.opponentConnected ? "#00ff00" : "#ff0000"
     };
     var copyBtnStyle={

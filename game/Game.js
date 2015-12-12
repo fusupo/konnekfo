@@ -6,6 +6,7 @@ module.exports = function(p1, p2, state) {
   console.log('GAME INIT');
   this.state = state;
   this.board = new Board();
+  this.currPlayer = undefined;
   var firstToPlay = undefined;
   this.commitMove = function(colIdx) {
     if (this.state.statusCode !== 'x' && this.state.statusCode !== '!') {
@@ -61,7 +62,7 @@ module.exports = function(p1, p2, state) {
   };
 
   this.promptNextPlayer = function(){
-    if(this.state.statusCode !== "x" && this.state.statusCode === "!"){
+    if(this.state.statusCode !== "x" && this.state.statusCode !== "!"){
       this.currPlayer.promptMove(this);
     }
   };
