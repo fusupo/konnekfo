@@ -40,25 +40,25 @@ module.exports = React.createClass({
     }
     return (
         <div style={visibilityStyle} className="unselectable panel">
-        <div id="reset-local" className="ui-button" style={resetLocalStyle} onMouseUp={this.props.resetGame}>[reset]</div>
-        <table id="reset-network" className="ui-button" style={resetNetworkStyle}>
-        <thead>
-        <tr>
-        <th style={tablePaddingStyle}>you</th>
-        <th style={tablePaddingStyle}>them</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <td style={tablePaddingStyle}>
-        <input id="check-reset-you" type="checkbox"></input>
-        </td>
-        <td style={tablePaddingStyle}>
-        <input id="check-reset-them" type="checkbox" disabled="true"></input>
-        </td>
-        </tr>
-        </tbody>
-        </table>
+          <div id="reset-local" className="ui-button" style={resetLocalStyle} onClick={this.props.resetGame}>[reset]</div>
+          <table id="reset-network" className="ui-button" style={resetNetworkStyle}>
+            <thead>
+              <tr>
+                <th style={tablePaddingStyle}>you</th>
+                <th style={tablePaddingStyle}>them</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={tablePaddingStyle}>
+                  <input id="check-reset-you" type="checkbox"></input>
+                </td>
+                <td style={tablePaddingStyle}>
+                  <input id="check-reset-them" type="checkbox" disabled="true"></input>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
     );
   }

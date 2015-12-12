@@ -46,3 +46,7 @@ body {
 /* .ui-button{ */
 /*     cursor:pointer */
 /* } */
+
+body{
+    background-image:url(../img/noisy-texture.png)
+}

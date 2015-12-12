@@ -45,7 +45,7 @@ module.exports = React.createClass({
       { style: visibilityStyle, className: 'unselectable panel' },
       React.createElement(
         'div',
-        { id: 'reset-local', className: 'ui-button', style: resetLocalStyle, onMouseUp: this.props.resetGame },
+        { id: 'reset-local', className: 'ui-button', style: resetLocalStyle, onClick: this.props.resetGame },
         '[reset]'
       ),
       React.createElement(
