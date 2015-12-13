@@ -3,7 +3,9 @@
 module.exports.Player = function(id, view) {
   this.id = id;
   this.UIenabled = false;
-  this.disableUI = function(){this.UIenabled = false; };
+  this.disableUI = function() {
+    this.UIenabled = false;
+  };
   this.promptMove = function(game) {
     this.UIenabled = true;
   };
@@ -21,7 +23,9 @@ module.exports.RemotePlayer = function(id, socket) {
   this.id = id;
   this.socket = socket;
   this.UIenabled = false;
-  this.disableUI = function(){this.UIenabled = false; };
+  this.disableUI = function() {
+    this.UIenabled = false;
+  };
   this.promptMove = function(game) {
     socket.emit('your turn');
     console.log('its your turn, player ' + this.id);
@@ -31,7 +35,9 @@ module.exports.RemotePlayer = function(id, socket) {
 module.exports.CPUPlayerClI = function(id) {
   this.id = id;
   this.UIenabled = false;
-  this.disableUI = function(){this.UIenabled = false; };
+  this.disableUI = function() {
+    this.UIenabled = false;
+  };
   this.promptMove = function(game) {
     console.log('BEGINNING THINKING');
     var startDate = new Date();
@@ -41,7 +47,7 @@ module.exports.CPUPlayerClI = function(id) {
     console.log('THINKING DURATION: ', diff);
     setTimeout(function() {
       game.commitMove(move);
-    }, 1000);
+    }, 750);
   };
 
   var winBlock = function(board, id) {
@@ -63,11 +69,11 @@ module.exports.CPUPlayerClI = function(id) {
     // base cases
     if (board.hasWinnerP()) {
       // win
-      tally[board.winner] ++;
+      tally[board.winner]++;
       return tally;
     } else if (board.isBoardFullP()) {
       // draw - all cells are filled and
-      tally[0] ++;
+      tally[0]++;
       return tally;
     }
     if (r >= 6) {
@@ -117,26 +123,47 @@ module.exports.CPUPlayerClI = function(id) {
       for (var i = 0; i < 7; i++) {
         if (!board.isColFullP(i)) {
           board.move(i, id);
-          columnStats[i] = offense(board, id ^ 3, 0); // 0b11, 0);
+          columnStats[i] = offense(board, id ^ 3, 0);
           board.unmove(i, id);
         }
       }
-      console.table(columnStats);
-      console.log(columnStats);
+      //console.table(columnStats);
+      //console.log(columnStats);
       var thisStats = R.map(function(item) {
-        var result = item !== undefined ? item[id] : 0;
+        var result = 0;
+        if (item !== undefined) {
+          result = item[id] - item[id^ 3];
+        }
         return result;
       }, columnStats);
-      console.log(thisStats);
-      var max = 0;
+      //console.log(thisStats);
+      // var max = 0;
+      // for (var i = 0; i < thisStats.length; i++) {
+      //   if (thisStats[i] > max) {
+      //     max = thisStats[i];
+      //     returnMove = i;
+      //   }
+      // }
+      var tempArr = [];
       for (var i = 0; i < thisStats.length; i++) {
-        if (thisStats[i] > max) {
-          max = thisStats[i];
-          returnMove = i;
-        }
+        tempArr.push({
+          idx: i,
+          stats: thisStats[i]
+        });
       }
+      console.log(tempArr);
+      var sortByStats = R.sortBy(R.prop('stats'));
+      tempArr = sortByStats(tempArr).reverse();
+      var maybe = R.reduce(function(acc, val){
+        if(acc === -1 && !board.isColFullP(val['idx'])){
+          acc = val['idx'];
+        }
+        return acc;
+      }, -1, tempArr);
+      console.log('SWASTICA', maybe);
+      returnMove = maybe;
     }
-    
+
     return returnMove;
   };
 };
