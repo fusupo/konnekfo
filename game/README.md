@@ -1,4 +1,4 @@
-# This is an <h1> tag
+# This is an header tag
 
 *This text will be italic*
 
@@ -10,6 +10,6 @@
    * Item 3a
    * Item 3b
 
-![GitHub Logo](logo.png)
+![GitHub Logo](logo.jpg)
 
 [GitHub](http://github.com)
