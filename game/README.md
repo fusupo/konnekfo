@@ -10,6 +10,6 @@
    * Item 3a
    * Item 3b
 
-![GitHub Logo](/images/logo.png)
+![GitHub Logo](logo.png)
 
 [GitHub](http://github.com)
